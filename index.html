@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<title>Radio Vaina</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Favicon de la Esfera Verde -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3CradialGradient id='g' cx='35%25' cy='35%25' r='65%25'%3E%3Cstop offset='0%25' stop-color='%23d4fc79'/%3E%3Cstop offset='50%25' stop-color='%2343e97b'/%3E%3Cstop offset='100%25' stop-color='%2311752b'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='48' fill='url(%23g)'/%3E%3C/svg%3E">
+
+<!-- Fuentes inspiradas en el portfolio: Space Grotesk & Syne -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+  }
+</script>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+body {
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: -0.01em;
+  padding-bottom: 110px;
+}
+
+.font-syne {
+  font-family: 'Syne', sans-serif;
+}
+
+.track-row {
+  transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sound-wave-bar {
+  display: inline-block;
+  width: 3px;
+  border-radius: 2px;
+  animation: soundWave 1.2s infinite ease-in-out alternate;
+}
+@keyframes soundWave {
+  0% { height: 4px; }
+  100% { height: 16px; }
+}
+.sound-wave-bar:nth-child(2) { animation-delay: 0.2s; }
+.sound-wave-bar:nth-child(3) { animation-delay: 0.4s; }
+.sound-wave-bar:nth-child(4) { animation-delay: 0.1s; }
+
+#youtube-player-container {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+</style>
+</head>
+<body class="bg-white text-black dark:bg-[#121212] dark:text-zinc-100 selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black transition-colors duration-200">
+
+  <!-- Navegación Superior -->
+  <nav class="sticky top-0 z-40 bg-white/90 dark:bg-[#121212]/90 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 py-3.5 px-4 sm:px-6 transition-colors duration-200">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3 sm:gap-4">
+        <button id="btn-back" onclick="showArtistsList()" class="hidden items-center gap-2 text-xs font-mono uppercase font-bold px-3 py-1.5 border border-black dark:border-white rounded-full hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
+          ← Artistas
+        </button>
+        <span class="font-syne font-black text-lg sm:text-xl uppercase tracking-tight">RADIO VAINA</span>
+      </div>
+      
+      <div class="flex items-center">
+        <!-- Toggle Modo Claro / Oscuro -->
+        <button onclick="toggleDarkMode()" class="p-1.5 rounded-full border border-zinc-300 dark:border-zinc-700 hover:border-black dark:hover:border-white transition-colors" title="Cambiar Tema">
+          <svg id="theme-icon-sun" class="w-4 h-4 hidden dark:block fill-current" viewBox="0 0 24 24">
+            <path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/>
+          </svg>
+          <svg id="theme-icon-moon" class="w-4 h-4 block dark:hidden fill-current" viewBox="0 0 24 24">
+            <path d="M12.3 2a10 10 0 0 0-1.9 20 10 10 0 0 0 9.2-6.5 1 1 0 0 0-1-1.3 8 8 0 1 1-6.3-12.2 1 1 0 0 0-0-2z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- CONTENEDOR 1: LISTA DE ARTISTAS -->
+  <main id="view-artists" class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+    <header class="mb-6 sm:mb-10">
+      <h1 class="text-3xl sm:text-6xl font-black font-syne uppercase tracking-tight text-black dark:text-white">
+        ARTISTAS
+      </h1>
+      <p class="mt-1 sm:mt-2 text-zinc-500 dark:text-zinc-400 text-xs sm:text-base font-normal">
+        Selecciona un artista para acceder a sus últimos lanzamientos y discografía completa.
+      </p>
+    </header>
+
+    <div id="artists-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-6">
+      <!-- Dinámico -->
+    </div>
+  </main>
+
+  <!-- CONTENEDOR 2: PERFIL DEL ARTISTA -->
+  <main id="view-artist-detail" class="hidden max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+    <div class="flex flex-col sm:flex-row items-start sm:items-end gap-4 sm:gap-6 mb-8 sm:mb-12 pb-6 sm:pb-8 border-b border-zinc-200 dark:border-zinc-800">
+      <img id="artist-img" src="" alt="" onerror="this.src=DEFAULT_COVER" class="w-24 h-24 sm:w-44 sm:h-44 object-cover border border-zinc-300 dark:border-zinc-700 rounded-lg bg-zinc-100 dark:bg-zinc-800">
+      <div>
+        <span class="text-[10px] sm:text-xs font-mono uppercase text-zinc-400 font-bold tracking-wider">ARTISTA</span>
+        <h1 id="artist-name" class="text-3xl sm:text-6xl font-black font-syne uppercase tracking-tight text-black dark:text-white mt-0.5"></h1>
+      </div>
+    </div>
+
+    <!-- Sección 1: Lo más reciente -->
+    <section class="mb-12 sm:mb-16">
+      <div class="flex items-center justify-between mb-3 sm:mb-4">
+        <h2 class="text-xl sm:text-3xl font-bold font-syne uppercase text-black dark:text-white">Lo Último</h2>
+        <span class="text-[10px] sm:text-xs font-mono text-zinc-400">Orden cronológico</span>
+      </div>
+      <div class="border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 shadow-sm" id="latest-tracks-container">
+        <!-- Dinámico -->
+      </div>
+    </section>
+
+    <!-- Sección 2: Discografía -->
+    <section class="mb-12 sm:mb-16">
+      <h2 class="text-xl sm:text-3xl font-bold font-syne uppercase text-black dark:text-white mb-4 sm:mb-6">Discografía</h2>
+
+      <div class="flex gap-2 border-b border-zinc-200 dark:border-zinc-800 pb-3 mb-6 font-mono text-xs uppercase overflow-x-auto">
+        <button onclick="filterDiscography('todos')" id="tab-todos" class="disc-tab px-3 py-1.5 border border-black dark:border-white bg-black dark:bg-white text-white dark:text-black rounded-full whitespace-nowrap">Todos</button>
+        <button onclick="filterDiscography('album')" id="tab-album" class="disc-tab px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 text-black dark:text-white hover:border-black dark:hover:border-white rounded-full whitespace-nowrap">Álbumes</button>
+        <button onclick="filterDiscography('ep')" id="tab-ep" class="disc-tab px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 text-black dark:text-white hover:border-black dark:hover:border-white rounded-full whitespace-nowrap">EPs</button>
+        <button onclick="filterDiscography('single')" id="tab-single" class="disc-tab px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 text-black dark:text-white hover:border-black dark:hover:border-white rounded-full whitespace-nowrap">Singles</button>
+      </div>
+
+      <div id="discography-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-6">
+        <!-- Dinámico -->
+      </div>
+    </section>
+  </main>
+
+  <!-- REPRODUCTOR FLOTANTE INFERIOR -->
+  <div id="player-bar" class="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#121212]/95 backdrop-blur-md border-t border-zinc-200 dark:border-zinc-800 px-4 py-2.5 shadow-lg transition-colors duration-200">
+    <div class="max-w-7xl mx-auto flex flex-col gap-2">
+      
+      <div class="flex items-center justify-between gap-2">
+        
+        <!-- Track Info (Al hacer clic abre la vista completa) -->
+        <div onclick="openFullPlayer()" class="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer group">
+          <img id="now-playing-img" src="" onerror="this.src=DEFAULT_COVER" class="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded border border-zinc-200 dark:border-zinc-700 flex-shrink-0 bg-zinc-100 dark:bg-zinc-800 transition-transform group-hover:scale-105">
+          <div class="truncate">
+            <h4 id="now-playing-title" class="text-xs sm:text-sm font-bold font-syne uppercase text-black dark:text-white truncate group-hover:underline">Selecciona una canción</h4>
+            <p id="now-playing-artist" class="text-[10px] sm:text-xs font-mono text-zinc-500 dark:text-zinc-400 truncate">--</p>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="flex items-center gap-3 sm:gap-4 flex-shrink-0">
+          <button onclick="playPrevTrack()" class="text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-colors p-1">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-current" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+          </button>
+          <button onclick="togglePlayPause()" id="btn-play-pause" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-transform active:scale-95 flex-shrink-0">
+            <svg id="icon-play" class="w-4 h-4 sm:w-5 sm:h-5 fill-current translate-x-[1px]" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            <svg id="icon-pause" class="w-4 h-4 sm:w-5 sm:h-5 fill-current hidden" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+          </button>
+          <button onclick="playNextTrack()" class="text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-colors p-1">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-current" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+          </button>
+        </div>
+
+        <!-- Visual indicator -->
+        <div class="hidden sm:flex w-24 justify-end items-center flex-shrink-0">
+          <div id="playing-wave" class="hidden items-center gap-1 h-4">
+            <span class="sound-wave-bar bg-black dark:bg-white"></span>
+            <span class="sound-wave-bar bg-black dark:bg-white"></span>
+            <span class="sound-wave-bar bg-black dark:bg-white"></span>
+            <span class="sound-wave-bar bg-black dark:bg-white"></span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Barra de Progreso -->
+      <div class="w-full flex items-center gap-2 text-[10px] font-mono text-zinc-400">
+        <span id="curr-time" class="w-8 text-right flex-shrink-0">0:00</span>
+        <input type="range" id="progress-bar" value="0" min="0" max="100" class="w-full h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-black dark:accent-white">
+        <span id="dur-time" class="w-8 text-left flex-shrink-0">0:00</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- REPRODUCTOR A PANTALLA COMPLETA (MODAL ESTILO REPRODUCTOR) -->
+  <div id="full-player-modal" class="fixed inset-0 z-50 bg-[#121316] text-white hidden flex-col justify-between p-6 overflow-y-auto transition-all duration-300">
+    
+    <!-- Top Bar -->
+    <div class="flex items-center justify-between">
+      <button onclick="closeFullPlayer()" class="text-zinc-400 hover:text-white transition-colors p-2">
+        <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/></svg>
+      </button>
+      <div class="text-center">
+        <p class="text-[11px] font-mono uppercase text-zinc-400 tracking-wider">Reproduciendo</p>
+        <p id="full-player-subtitle" class="text-xs font-bold text-zinc-200 truncate max-w-[200px] sm:max-w-xs">Radio Vaina</p>
+      </div>
+      <button onclick="closeFullPlayer()" class="text-zinc-400 hover:text-white transition-colors p-2">
+        <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      </button>
+    </div>
+
+    <!-- Main Content: Cover & Track Info -->
+    <div class="my-auto max-w-sm w-full mx-auto flex flex-col items-center">
+      <!-- Artwork Cover -->
+      <div class="w-full aspect-square max-w-[320px] rounded-2xl overflow-hidden shadow-2xl mb-8 bg-zinc-800 border border-zinc-800">
+        <img id="full-player-img" src="" onerror="this.src=DEFAULT_COVER" class="w-full h-full object-cover">
+      </div>
+
+      <!-- Metadata & Action Buttons -->
+      <div class="w-full flex items-center justify-between mb-6">
+        <div class="truncate pr-4">
+          <h2 id="full-player-title" class="text-2xl font-bold font-syne uppercase truncate text-white">--</h2>
+          <p id="full-player-artist" class="text-sm font-mono text-zinc-400 truncate mt-0.5">--</p>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button class="w-10 h-10 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 flex items-center justify-center text-white transition-colors">
+            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+          </button>
+          <button class="w-10 h-10 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 flex items-center justify-center text-white transition-colors">
+            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Scrubber / Progress Slider -->
+      <div class="w-full mb-8">
+        <input type="range" id="full-progress-bar" value="0" min="0" max="100" class="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-white">
+        <div class="flex justify-between text-xs font-mono text-zinc-400 mt-2">
+          <span id="full-curr-time">0:00</span>
+          <span id="full-dur-time">0:00</span>
+        </div>
+      </div>
+
+      <!-- Main Playback Controls -->
+      <div class="flex items-center justify-between w-full mb-6">
+        <button onclick="playPrevTrack()" class="w-14 h-14 rounded-full bg-zinc-800/60 hover:bg-zinc-700 flex items-center justify-center text-white transition-colors">
+          <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+        </button>
+        
+        <button onclick="togglePlayPause()" id="full-btn-play-pause" class="h-14 px-8 rounded-full bg-white text-black flex items-center justify-center font-bold text-base gap-2 hover:bg-zinc-200 transition-transform active:scale-95 shadow-lg">
+          <svg id="full-icon-play" class="w-5 h-5 fill-current translate-x-[1px]" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <svg id="full-icon-pause" class="w-5 h-5 fill-current hidden" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+          <span id="full-play-label">Reproducir</span>
+        </button>
+        
+        <button onclick="playNextTrack()" class="w-14 h-14 rounded-full bg-zinc-800/60 hover:bg-zinc-700 flex items-center justify-center text-white transition-colors">
+          <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Bottom Action Toolbar -->
+    <div class="flex items-center justify-center gap-3 pt-4 border-t border-zinc-800/50">
+      <button class="p-2.5 rounded-lg border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors">
+        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z"/></svg>
+      </button>
+      <button class="p-2.5 rounded-lg border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors">
+        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12.3 2a10 10 0 0 0-1.9 20 10 10 0 0 0 9.2-6.5 1 1 0 0 0-1-1.3 8 8 0 1 1-6.3-12.2 1 1 0 0 0-0-2z"/></svg>
+      </button>
+      <button class="p-2.5 rounded-lg border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors">
+        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.45 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+      </button>
+      <button class="p-2.5 rounded-lg border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors">
+        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></svg>
+      </button>
+      <button class="p-2.5 rounded-lg border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors">
+        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
+      </button>
+      <button class="p-2.5 rounded-full bg-white text-black hover:bg-zinc-200 transition-colors ml-1">
+        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="youtube-player-container">
+    <div id="youtube-player"></div>
+  </div>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+
+  <script>
+    const DEFAULT_COVER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%2318181b'/%3E%3Ccircle cx='150' cy='150' r='80' stroke='%233f3f46' stroke-width='4' fill='none'/%3E%3Ccircle cx='150' cy='150' r='30' fill='%233f3f46'/%3E%3Cpath d='M150 30 L150 70 M150 230 L150 270 M30 150 L70 150 M230 150 L270 150' stroke='%233f3f46' stroke-width='2'/%3E%3C/svg%3E";
+
+    const catalogData = {
+      artists: [
+        {
+          id: "polix",
+          name: "polix",
+          img: "https://i.scdn.co/image/ab67616100005174c09cc78a1e58d8208552e12c"
+        },
+        {
+          id: "sulli",
+          name: "Sulli!",
+          img: "https://i.scdn.co/image/ab6761610000101f9c088742d22547254089af67"
+        },
+        {
+          id: "vittorio",
+          name: "Vittorio Gazelle",
+          img: "https://i.scdn.co/image/ab676161000086f7727de04e5dd8e85db6a16f90"
+        },
+        {
+          id: "kizzi",
+          name: "Kizzi",
+          img: "https://i.scdn.co/image/ab6761610000939b096c3d5f772f078aaca28145"
+        }
+      ],
+      releases: [
+        {
+          id: "rel-polix-1",
+          artistId: "polix",
+          artistName: "polix",
+          title: "Pequeños Cambios",
+          type: "single",
+          date: "2020-05-31",
+          cover: "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/9b/55/f9/9b55f9cf-4570-0558-2b45-2dcf811cda72/artwork.jpg/592x592bb.webp",
+          tracks: [
+            { title: "Pequeños Cambios", youtubeId: "v86HNqH6ll0", trackNo: 1 }
+          ]
+        },
+        {
+          id: "rel-sulli-1",
+          artistId: "sulli",
+          artistName: "Sulli!",
+          title: "2023 freestyle",
+          type: "single",
+          date: "2025-03-16",
+          cover: "https://i.scdn.co/image/ab67616d0000e1a3d39b3fad623d8150ad38d9f7",
+          tracks: [
+            { title: "2023 freestyle", youtubeId: "2I9cQ53ALwM", trackNo: 1 }
+          ]
+        },
+        {
+          id: "rel-vittorio-1",
+          artistId: "vittorio",
+          artistName: "Vittorio Gazelle",
+          title: "impossible romance",
+          type: "single",
+          date: "2026-09-02",
+          cover: "https://i.imgur.com/Q08fLJm.png",
+          tracks: [
+            { title: "impossible romance", youtubeId: "p9ggYEJSgL0", trackNo: 1 }
+          ]
+        },
+        {
+          id: "rel-kizzi-1",
+          artistId: "kizzi",
+          artistName: "Kizzi",
+          title: "Solamente Tú",
+          type: "single",
+          date: "2024-06-15",
+          cover: "https://i.imgur.com/xRSCHIJ.png",
+          tracks: [
+            { title: "Solamente Tú", youtubeId: "LlD2FUdrxn0", trackNo: 1 }
+          ]
+        }
+      ]
+    };
+
+    let currentArtist = null;
+    let playlist = [];
+    let currentTrackIndex = -1;
+    let ytPlayer = null;
+    let isPlaying = false;
+    let progressTimer = null;
+    let isSeeking = false;
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const parts = dateStr.split('-');
+      if (parts.length !== 3) return dateStr;
+      
+      const year = parts[0];
+      const monthIdx = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+
+      const months = [
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+      ];
+
+      return `${day} ${months[monthIdx]} ${year}`;
+    }
+
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle('dark');
+    }
+
+    function openFullPlayer() {
+      if (currentTrackIndex === -1) return;
+      const modal = document.getElementById('full-player-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeFullPlayer() {
+      const modal = document.getElementById('full-player-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function onYouTubeIframeAPIReady() {
+      ytPlayer = new YT.Player('youtube-player', {
+        height: '0',
+        width: '0',
+        events: {
+          'onStateChange': onPlayerStateChange
+        }
+      });
+    }
+
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.PLAYING) {
+        isPlaying = true;
+        updatePlayerUI();
+        startProgressLoop();
+      } else if (event.data === YT.PlayerState.PAUSED) {
+        isPlaying = false;
+        updatePlayerUI();
+        stopProgressLoop();
+      } else if (event.data === YT.PlayerState.ENDED) {
+        isPlaying = false;
+        playNextTrack();
+      }
+    }
+
+    function getLatestReleaseDate(artistId) {
+      const artistReleases = catalogData.releases.filter(r => r.artistId === artistId);
+      if (artistReleases.length === 0) return '1970-01-01';
+      
+      artistReleases.sort((a, b) => new Date(b.date) - new Date(a.date));
+      return artistReleases[0].date;
+    }
+
+    function showArtistsList() {
+      document.getElementById('view-artists').classList.remove('hidden');
+      document.getElementById('view-artist-detail').classList.add('hidden');
+      document.getElementById('btn-back').classList.add('hidden');
+      document.getElementById('btn-back').classList.remove('flex');
+
+      const grid = document.getElementById('artists-grid');
+      grid.innerHTML = '';
+
+      const sortedArtists = [...catalogData.artists].sort((a, b) => {
+        const dateA = new Date(getLatestReleaseDate(a.id));
+        const dateB = new Date(getLatestReleaseDate(b.id));
+        return dateB - dateA;
+      });
+
+      sortedArtists.forEach(artist => {
+        const card = document.createElement('div');
+        card.className = "group border border-zinc-200 dark:border-zinc-800 rounded-lg p-3 sm:p-5 bg-white dark:bg-zinc-900 cursor-pointer hover:border-black dark:hover:border-white transition-all flex flex-col justify-between";
+        card.onclick = () => openArtistDetail(artist.id);
+
+        card.innerHTML = `
+          <div>
+            <div class="aspect-square w-full overflow-hidden rounded-md mb-2 bg-zinc-100 dark:bg-zinc-800">
+              <img src="${artist.img || DEFAULT_COVER}" onerror="this.src=DEFAULT_COVER" alt="${artist.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            </div>
+            <span class="text-[9px] sm:text-[10px] font-mono uppercase text-zinc-400 font-bold">Artista</span>
+            <h3 class="text-base sm:text-2xl font-black font-syne uppercase text-black dark:text-white mt-0.5 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 truncate">${artist.name}</h3>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function openArtistDetail(artistId) {
+      const artist = catalogData.artists.find(a => a.id === artistId);
+      if (!artist) return;
+      currentArtist = artist;
+
+      document.getElementById('view-artists').classList.add('hidden');
+      document.getElementById('view-artist-detail').classList.remove('hidden');
+      document.getElementById('btn-back').classList.remove('hidden');
+      document.getElementById('btn-back').classList.add('flex');
+
+      document.getElementById('artist-name').innerText = artist.name;
+      document.getElementById('artist-img').src = artist.img || DEFAULT_COVER;
+
+      const artistReleases = catalogData.releases
+        .filter(r => r.artistId === artistId)
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      playlist = [];
+      artistReleases.forEach(rel => {
+        rel.tracks.forEach(track => {
+          playlist.push({
+            ...track,
+            releaseTitle: rel.title,
+            releaseType: rel.type,
+            releaseDate: rel.date,
+            cover: rel.cover || DEFAULT_COVER,
+            artistName: artist.name
+          });
+        });
+      });
+
+      renderLatestTracks(playlist);
+      renderDiscography(artistReleases, 'todos');
+    }
+
+    function renderLatestTracks(tracks) {
+      const container = document.getElementById('latest-tracks-container');
+      container.innerHTML = '';
+
+      tracks.forEach((track, idx) => {
+        const row = document.createElement('div');
+        const isActive = currentTrackIndex === idx;
+        
+        row.className = `track-row flex items-center justify-between p-2.5 sm:p-4 cursor-pointer group border-b border-zinc-200 dark:border-zinc-800 last:border-0 ${
+          isActive 
+            ? 'bg-zinc-100 dark:bg-zinc-800/80' 
+            : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/40'
+        }`;
+        row.onclick = () => playTrackAtIndex(idx);
+
+        row.innerHTML = `
+          <div class="flex items-center gap-2.5 sm:gap-4 overflow-hidden pr-2">
+            <span class="font-mono text-xs text-zinc-400 font-bold w-4 sm:w-5 flex-shrink-0">${idx + 1}</span>
+            <img src="${track.cover}" onerror="this.src=DEFAULT_COVER" class="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded border border-zinc-200 dark:border-zinc-700 flex-shrink-0 bg-zinc-100 dark:bg-zinc-800">
+            <div class="truncate">
+              <h4 class="text-xs sm:text-sm font-bold font-syne uppercase text-black dark:text-white truncate group-hover:text-zinc-600 dark:group-hover:text-zinc-300">${track.title}</h4>
+              <p class="text-[10px] sm:text-xs font-mono text-zinc-500 dark:text-zinc-400 truncate">${track.artistName} • ${formatDate(track.releaseDate)}</p>
+            </div>
+          </div>
+          <button class="px-2.5 py-1 border border-zinc-300 dark:border-zinc-700 rounded-full text-[10px] sm:text-xs font-mono uppercase group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors flex-shrink-0">
+            ▶ Play
+          </button>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function renderDiscography(releases, filter) {
+      const grid = document.getElementById('discography-grid');
+      grid.innerHTML = '';
+
+      const filtered = filter === 'todos' 
+        ? releases 
+        : releases.filter(r => r.type === filter);
+
+      filtered.forEach(rel => {
+        const card = document.createElement('div');
+        card.className = "group cursor-pointer";
+        card.onclick = () => {
+          const trackIdx = playlist.findIndex(t => t.releaseTitle === rel.title);
+          if (trackIdx !== -1) playTrackAtIndex(trackIdx);
+        };
+
+        card.innerHTML = `
+          <div class="aspect-square w-full overflow-hidden rounded-md mb-1.5 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800">
+            <img src="${rel.cover || DEFAULT_COVER}" onerror="this.src=DEFAULT_COVER" alt="${rel.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+          </div>
+          <span class="text-[9px] font-mono uppercase px-1.5 py-0.5 border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 rounded inline-block">${rel.type}</span>
+          <h4 class="text-xs sm:text-sm font-bold font-syne uppercase text-black dark:text-white mt-1 truncate">${rel.title}</h4>
+          <p class="text-[10px] sm:text-xs font-mono text-zinc-400 dark:text-zinc-500">${rel.artistName} • ${rel.date.split('-')[0]}</p>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function filterDiscography(type) {
+      document.querySelectorAll('.disc-tab').forEach(b => {
+        b.classList.remove('bg-black', 'text-white', 'dark:bg-white', 'dark:text-black');
+        b.classList.add('text-black', 'dark:text-white');
+      });
+      const activeBtn = document.getElementById(`tab-${type}`);
+      activeBtn.classList.add('bg-black', 'text-white', 'dark:bg-white', 'dark:text-black');
+
+      const artistReleases = catalogData.releases
+        .filter(r => r.artistId === currentArtist.id)
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      renderDiscography(artistReleases, type);
+    }
+
+    function playTrackAtIndex(index) {
+      if (index < 0 || index >= playlist.length) return;
+      currentTrackIndex = index;
+      const track = playlist[currentTrackIndex];
+
+      // Actualizar Player Inferior
+      document.getElementById('now-playing-title').innerText = track.title;
+      document.getElementById('now-playing-artist').innerText = track.artistName;
+      document.getElementById('now-playing-img').src = track.cover || DEFAULT_COVER;
+
+      // Actualizar Modal Fullscreen
+      document.getElementById('full-player-title').innerText = track.title;
+      document.getElementById('full-player-artist').innerText = track.artistName;
+      document.getElementById('full-player-subtitle').innerText = track.artistName;
+      document.getElementById('full-player-img').src = track.cover || DEFAULT_COVER;
+
+      if (ytPlayer && ytPlayer.loadVideoById) {
+        ytPlayer.loadVideoById(track.youtubeId);
+      }
+
+      renderLatestTracks(playlist);
+    }
+
+    function togglePlayPause() {
+      if (!ytPlayer || currentTrackIndex === -1) {
+        if (playlist.length > 0) playTrackAtIndex(0);
+        return;
+      }
+
+      if (isPlaying) {
+        ytPlayer.pauseVideo();
+      } else {
+        ytPlayer.playVideo();
+      }
+    }
+
+    function playNextTrack() {
+      if (currentTrackIndex + 1 < playlist.length) {
+        playTrackAtIndex(currentTrackIndex + 1);
+      }
+    }
+
+    function playPrevTrack() {
+      if (currentTrackIndex - 1 >= 0) {
+        playTrackAtIndex(currentTrackIndex - 1);
+      }
+    }
+
+    function updatePlayerUI() {
+      const iconPlay = document.getElementById('icon-play');
+      const iconPause = document.getElementById('icon-pause');
+      const wave = document.getElementById('playing-wave');
+
+      const fullIconPlay = document.getElementById('full-icon-play');
+      const fullIconPause = document.getElementById('full-icon-pause');
+      const fullPlayLabel = document.getElementById('full-play-label');
+
+      if (isPlaying) {
+        iconPlay.classList.add('hidden');
+        iconPause.classList.remove('hidden');
+        fullIconPlay.classList.add('hidden');
+        fullIconPause.classList.remove('hidden');
+        if (fullPlayLabel) fullPlayLabel.innerText = "Pausar";
+
+        if (wave) {
+          wave.classList.remove('hidden');
+          wave.classList.add('flex');
+        }
+      } else {
+        iconPlay.classList.remove('hidden');
+        iconPause.classList.add('hidden');
+        fullIconPlay.classList.remove('hidden');
+        fullIconPause.classList.add('hidden');
+        if (fullPlayLabel) fullPlayLabel.innerText = "Reproducir";
+
+        if (wave) {
+          wave.classList.add('hidden');
+          wave.classList.remove('flex');
+        }
+      }
+    }
+
+    function startProgressLoop() {
+      stopProgressLoop();
+      progressTimer = setInterval(() => {
+        if (!isSeeking && ytPlayer && ytPlayer.getCurrentTime) {
+          const curr = ytPlayer.getCurrentTime() || 0;
+          const dur = ytPlayer.getDuration() || 0;
+          
+          const timeText = formatTime(curr);
+          const durText = formatTime(dur);
+
+          document.getElementById('curr-time').innerText = timeText;
+          document.getElementById('dur-time').innerText = durText;
+
+          document.getElementById('full-curr-time').innerText = timeText;
+          document.getElementById('full-dur-time').innerText = durText;
+
+          if (dur > 0) {
+            const pct = (curr / dur) * 100;
+            document.getElementById('progress-bar').value = pct;
+            document.getElementById('full-progress-bar').value = pct;
+          }
+        }
+      }, 500);
+    }
+
+    function stopProgressLoop() {
+      if (progressTimer) clearInterval(progressTimer);
+    }
+
+    // Configuración de los listeners de Seek Bars (Ambos vinculados)
+    const progressBar = document.getElementById('progress-bar');
+    const fullProgressBar = document.getElementById('full-progress-bar');
+
+    function bindSeekEvents(element) {
+      element.addEventListener('mousedown', () => { isSeeking = true; });
+      element.addEventListener('touchstart', () => { isSeeking = true; });
+
+      element.addEventListener('change', (e) => {
+        if (ytPlayer && ytPlayer.getDuration) {
+          const dur = ytPlayer.getDuration();
+          const targetSec = (e.target.value / 100) * dur;
+          ytPlayer.seekTo(targetSec, true);
+        }
+        isSeeking = false;
+      });
+    }
+
+    bindSeekEvents(progressBar);
+    bindSeekEvents(fullProgressBar);
+
+    function formatTime(seconds) {
+      const min = Math.floor(seconds / 60);
+      const sec = Math.floor(seconds % 60);
+      return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+    }
+
+    document.getElementById('now-playing-img').src = DEFAULT_COVER;
+
+    showArtistsList();
+  </script>
+</body>
+</html>
