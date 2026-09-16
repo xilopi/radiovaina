@@ -126,13 +126,14 @@ body {
         </h2>
         <div class="space-y-4 text-sm sm:text-base text-zinc-600 dark:text-zinc-300 leading-relaxed font-normal">
           <p>
-            Radio Vaina nace como una respuesta libre e independiente para quienes prefieren no depender de grandes plataformas digitales ni someterse a la intermediación de distribuidoras tradicionales. Creemos firmemente en una cultura sin peajes ni intereses corporativos.
+            Radio Vaina nace como una respuesta libre e independiente para quienes buscan alternativas frente a las grandes plataformas digitales y la intermediación de las distribuidoras tradicionales. Creemos firmemente en una cultura accesible, sin peajes ni intereses corporativos.
           </p>
           <p>
-            Rechazamos de forma directa cualquier vínculo con plataformas corporativas asociadas a conflictos geopolíticos por razones puramente éticas y morales. Preferimos no lucrar con el arte ni obligar a nuestros creadores a pasar por el aro de la monetización agresiva.
+            Rechazamos cualquier vínculo con estructuras que prioricen el beneficio económico por encima de la ética. En este espacio nadie cobra ni paga un solo euro: ni el oyente por escuchar, ni el artista por compartir su obra. Es una alternativa real construida por amor al arte.
           </p>
-          <p class="font-medium text-black dark:text-white">
-            En este proyecto nadie se lleva 1 euro ni paga 1 euro: ni el oyente por escuchar, ni el artista por compartir su obra. Es una alternativa real construida por y para quienes hacen arte por amor al arte, sin dejar su creación en manos manchadas de sangre.
+          <p>
+            <strong class="font-bold text-black dark:text-white block mb-1">No exigimos exclusividad a nuestros artistas</strong>
+            Entendemos las contradicciones de la industria actual y sabemos que muchos creadores necesitan el streaming tradicional para hacer llegar su trabajo. Radio Vaina no juzga tus canales de difusión; es un refugio abierto a cualquiera que comulgue con nuestros valores y quiera sumar su voz a un catálogo libre de ataduras.
           </p>
         </div>
       </div>
@@ -332,12 +333,18 @@ body {
         { id: "sulli", name: "Sulli!", img: "https://i.imgur.com/rOvOIFq.png" },
         { id: "vittorio", name: "Vittorio Gazelle", img: "https://i.imgur.com/8MiOT06.png" },
         { id: "kizzi", name: "Kizzi", img: "https://i.imgur.com/lnH4wE5.png" },
-        { id: "pretty-cher", name: "Pretty Cher", img: "https://i.imgur.com/8KCt4uK.png" }
+        { id: "pretty-cher", name: "Pretty Cher", img: "https://i.imgur.com/8KCt4uK.png" },
+        { id: "dos-persas", name: "Dos Persas", img: "https://i.imgur.com/kZCfan6.png" },
+        { id: "fer-ag", name: "Fer AG", img: "https://i.imgur.com/rdCIhJn.png" },
+        { id: "victorldv", name: "VíctorLDV", img: "https://i.imgur.com/Uq2XkgO.png" },
+        { id: "conman", name: "Conman", img: "https://i.imgur.com/rT3lgJ4.png" },
+        { id: "jjsaiko", name: "jjSaiko", img: "https://i.imgur.com/lZzilFM.png" }
       ],
       releases: [
         {
           id: "rel-pretty-cher-me-rayas",
           artistId: "pretty-cher",
+          artistIds: ["pretty-cher", "fer-ag"],
           artistName: "Pretty Cher, Fer AG",
           title: "Me Rayas",
           type: "single",
@@ -346,8 +353,53 @@ body {
           tracks: [{ title: "Me Rayas", youtubeId: "xB-VZMC8uG0", trackNo: 1 }]
         },
         {
+          id: "rel-dos-persas-poquito-ruido",
+          artistId: "dos-persas",
+          artistIds: ["dos-persas"],
+          artistName: "Dos Persas",
+          title: "Poquito Ruido",
+          type: "single",
+          date: "2026-08-26",
+          cover: "https://i.scdn.co/image/ab67616d0000aa54be1d6e5ab047099a29ed4df0",
+          tracks: [{ title: "Poquito Ruido", youtubeId: "HEVToGFSV44", trackNo: 1 }]
+        },
+        {
+          id: "rel-victorldv-que-pena",
+          artistId: "victorldv",
+          artistIds: ["victorldv"],
+          artistName: "VíctorLDV",
+          title: "Que pena que no estés para verlo",
+          type: "single",
+          date: "2026-09-01",
+          cover: "https://i.scdn.co/image/ab67616d0000aa54738adb5f222b00672dff214f",
+          tracks: [{ title: "Que pena que no estés para verlo", youtubeId: "1lJgBlqCEeQ", trackNo: 1 }]
+        },
+        {
+          id: "rel-conman-squeezer",
+          artistId: "conman",
+          artistIds: ["conman", "victorldv"],
+          artistName: "Conman, VíctorLDV",
+          title: "SQUEEZER",
+          type: "single",
+          date: "2023-11-15",
+          cover: "https://i.imgur.com/XAovrai.png",
+          tracks: [{ title: "SQUEEZER", youtubeId: "isdDC6VAaDw", trackNo: 1 }]
+        },
+        {
+          id: "rel-jjsaiko-eso-no-alivia",
+          artistId: "jjsaiko",
+          artistIds: ["jjsaiko"],
+          artistName: "jjSaiko",
+          title: "ESO NO ALIVIA",
+          type: "single",
+          date: "2025-05-26",
+          cover: "https://i.imgur.com/QH09ogh.png",
+          tracks: [{ title: "ESO NO ALIVIA", youtubeId: "HrNeZ1wrwGE", trackNo: 1 }]
+        },
+        {
           id: "rel-polix-depende-de-mi",
           artistId: "polix",
+          artistIds: ["polix"],
           artistName: "polix",
           title: "depende de mí",
           type: "single",
@@ -358,6 +410,7 @@ body {
         {
           id: "rel-kizzi-cuando-no-estas",
           artistId: "kizzi",
+          artistIds: ["kizzi"],
           artistName: "Kizzi, whitelxck",
           title: "Cuando No Estás",
           type: "single",
@@ -368,6 +421,7 @@ body {
         {
           id: "rel-kizzi-retrocesos",
           artistId: "kizzi",
+          artistIds: ["kizzi"],
           artistName: "Kizzi",
           title: "Retrocesos",
           type: "single",
@@ -378,6 +432,7 @@ body {
         {
           id: "rel-kizzi-1",
           artistId: "kizzi",
+          artistIds: ["kizzi"],
           artistName: "Kizzi",
           title: "Solamente Tú",
           type: "single",
@@ -388,6 +443,7 @@ body {
         {
           id: "rel-polix-piazza",
           artistId: "polix-sin",
+          artistIds: ["polix-sin"],
           artistName: "Polix Sin",
           title: "Piazza del Pigneto",
           type: "single",
@@ -398,6 +454,7 @@ body {
         {
           id: "rel-polix-veinticuatro",
           artistId: "polix-sin",
+          artistIds: ["polix-sin"],
           artistName: "Polix Sin",
           title: "Veinticuatro",
           type: "single",
@@ -408,6 +465,7 @@ body {
         {
           id: "rel-polix-luces",
           artistId: "polix-sin",
+          artistIds: ["polix-sin"],
           artistName: "Polix Sin",
           title: "Luces y Absenta",
           type: "single",
@@ -418,6 +476,7 @@ body {
         {
           id: "rel-polix-mundo",
           artistId: "polix-sin",
+          artistIds: ["polix-sin"],
           artistName: "Polix Sin",
           title: "Mundo De Dígitos",
           type: "single",
@@ -428,6 +487,7 @@ body {
         {
           id: "rel-polix-conflicto",
           artistId: "polix-sin",
+          artistIds: ["polix-sin"],
           artistName: "Polix Sin",
           title: "Conflicto Interno",
           type: "single",
@@ -438,6 +498,7 @@ body {
         {
           id: "rel-polix-evasion",
           artistId: "polix-sin",
+          artistIds: ["polix-sin"],
           artistName: "Polix Sin",
           title: "Evasión",
           type: "single",
@@ -448,6 +509,7 @@ body {
         {
           id: "rel-polix-1",
           artistId: "polix-sin",
+          artistIds: ["polix-sin"],
           artistName: "Polix Sin",
           title: "Pequeños Cambios",
           type: "single",
@@ -458,6 +520,7 @@ body {
         {
           id: "rel-sulli-1",
           artistId: "sulli",
+          artistIds: ["sulli"],
           artistName: "Sulli!",
           title: "2023 freestyle",
           type: "single",
@@ -468,6 +531,7 @@ body {
         {
           id: "rel-sulli-2",
           artistId: "sulli",
+          artistIds: ["sulli"],
           artistName: "Sulli!",
           title: "Redención",
           type: "single",
@@ -478,6 +542,7 @@ body {
         {
           id: "rel-sulli-3",
           artistId: "sulli",
+          artistIds: ["sulli"],
           artistName: "Sulli!",
           title: "Missin'",
           type: "single",
@@ -488,6 +553,7 @@ body {
         {
           id: "rel-sulli-4",
           artistId: "sulli",
+          artistIds: ["sulli"],
           artistName: "Sulli!",
           title: "La Luz",
           type: "single",
@@ -498,6 +564,7 @@ body {
         {
           id: "rel-sulli-5",
           artistId: "sulli",
+          artistIds: ["sulli"],
           artistName: "Sulli!",
           title: "Maravilla",
           type: "single",
@@ -508,6 +575,7 @@ body {
         {
           id: "rel-sulli-6",
           artistId: "sulli",
+          artistIds: ["sulli"],
           artistName: "Sulli!",
           title: "MANIACS",
           type: "single",
@@ -518,6 +586,7 @@ body {
         {
           id: "rel-vittorio-1",
           artistId: "vittorio",
+          artistIds: ["vittorio"],
           artistName: "Vittorio Gazelle",
           title: "impossible romance",
           type: "single",
@@ -616,7 +685,9 @@ body {
     }
 
     function getLatestReleaseDate(artistId) {
-      const artistReleases = catalogData.releases.filter(r => r.artistId === artistId);
+      const artistReleases = catalogData.releases.filter(r => 
+        r.artistId === artistId || (r.artistIds && r.artistIds.includes(artistId))
+      );
       if (artistReleases.length === 0) return '1970-01-01';
       
       artistReleases.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -702,7 +773,7 @@ body {
       document.getElementById('artist-img').src = artist.img || DEFAULT_COVER;
 
       const artistReleases = catalogData.releases
-        .filter(r => r.artistId === artistId)
+        .filter(r => r.artistId === artistId || (r.artistIds && r.artistIds.includes(artistId)))
         .sort((a, b) => new Date(b.date) - new Date(a.date));
 
       playlist = [];
@@ -912,7 +983,7 @@ body {
       activeBtn.classList.add('bg-black', 'text-white', 'dark:bg-white', 'dark:text-black');
 
       const artistReleases = catalogData.releases
-        .filter(r => r.artistId === currentArtist.id)
+        .filter(r => r.artistId === currentArtist.id || (r.artistIds && r.artistIds.includes(currentArtist.id)))
         .sort((a, b) => new Date(b.date) - new Date(a.date));
 
       renderDiscography(artistReleases, type);
