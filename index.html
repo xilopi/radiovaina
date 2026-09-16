@@ -143,9 +143,14 @@ body {
   <main id="view-artist-detail" class="hidden max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
     <div class="flex flex-col sm:flex-row items-start sm:items-end gap-4 sm:gap-6 mb-8 sm:mb-12 pb-6 sm:pb-8 border-b border-zinc-200 dark:border-zinc-800">
       <img id="artist-img" src="" alt="" onerror="this.src=DEFAULT_COVER" class="w-32 h-32 sm:w-56 sm:h-56 object-cover border border-zinc-300 dark:border-zinc-700 rounded-lg bg-zinc-100 dark:bg-zinc-800">
-      <div>
+      <div class="flex-1">
         <span class="text-[10px] sm:text-xs font-mono uppercase text-zinc-400 font-bold tracking-wider">ARTISTA</span>
         <h1 id="artist-name" class="text-3xl sm:text-6xl font-black font-syne uppercase tracking-tight text-black dark:text-white mt-0.5"></h1>
+        <div class="mt-4">
+          <button onclick="copyCurrentArtistShareLink()" class="p-2.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-xs hover:border-black dark:hover:border-white transition-colors" title="Compartir perfil de artista">
+            🔗 Compartir Perfil
+          </button>
+        </div>
       </div>
     </div>
 
@@ -258,7 +263,7 @@ body {
     </div>
   </div>
 
-  <!-- REPRODUCTOR A PANTALLA COMPLETA (Adaptable a Tema Claro / Oscuro) -->
+  <!-- REPRODUCTOR A PANTALLA COMPLETA -->
   <div id="full-player-modal" class="fixed inset-0 z-50 bg-white dark:bg-[#121316] text-black dark:text-white hidden flex-col justify-between p-6 overflow-y-auto transition-colors duration-200">
     <div class="flex items-center justify-between">
       <button onclick="closeFullPlayer()" class="text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white transition-colors p-2">
@@ -533,6 +538,23 @@ body {
     let isSeeking = false;
     let currentView = 'artists';
 
+    // Persistencia de Tema Claro/Oscuro
+    function initTheme() {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+
+    initTheme();
+
     function formatDate(dateStr) {
       if (!dateStr) return '';
       const parts = dateStr.split('-');
@@ -548,10 +570,6 @@ body {
       ];
 
       return `${day} ${months[monthIdx]} ${year}`;
-    }
-
-    function toggleDarkMode() {
-      document.documentElement.classList.toggle('dark');
     }
 
     function openFullPlayer() {
@@ -579,7 +597,7 @@ body {
     }
 
     function onPlayerReady() {
-      checkUrlTrack();
+      checkUrlParams();
     }
 
     function onPlayerStateChange(event) {
@@ -638,6 +656,7 @@ body {
     }
 
     function showArtistsList() {
+      history.pushState(null, '', window.location.pathname);
       updateViewVisibility('artists');
       const grid = document.getElementById('artists-grid');
       grid.innerHTML = '';
@@ -676,6 +695,7 @@ body {
       if (!artist) return;
       currentArtist = artist;
 
+      history.pushState(null, '', `?artist=${artist.id}`);
       updateViewVisibility('artist-detail');
 
       document.getElementById('artist-name').innerText = artist.name;
@@ -711,6 +731,7 @@ body {
       currentRelease = release;
       currentArtist = catalogData.artists.find(a => a.id === release.artistId) || null;
 
+      history.pushState(null, '', `?album=${release.id}`);
       updateViewVisibility('release-detail');
 
       document.getElementById('release-img').src = release.cover || DEFAULT_COVER;
@@ -775,6 +796,14 @@ body {
       }
     }
 
+    function copyCurrentArtistShareLink() {
+      if (!currentArtist) return;
+      const shareUrl = `${window.location.origin}${window.location.pathname}?artist=${currentArtist.id}`;
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        alert("¡Enlace del perfil de artista copiado al portapapeles!");
+      }).catch(err => console.error("Error al copiar: ", err));
+    }
+
     function copyCurrentReleaseShareLink() {
       if (!currentRelease) return;
       const shareUrl = `${window.location.origin}${window.location.pathname}?album=${currentRelease.id}`;
@@ -790,12 +819,15 @@ body {
       }).catch(err => console.error("Error al copiar: ", err));
     }
 
-    function checkUrlTrack() {
+    function checkUrlParams() {
       const urlParams = new URLSearchParams(window.location.search);
+      const artistId = urlParams.get('artist');
       const albumId = urlParams.get('album');
       const trackId = urlParams.get('track');
 
-      if (albumId) {
+      if (artistId) {
+        openArtistDetail(artistId);
+      } else if (albumId) {
         openReleaseDetail(albumId);
       } else if (trackId) {
         const release = catalogData.releases.find(r => r.tracks.some(t => t.youtubeId === trackId));
