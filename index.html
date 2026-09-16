@@ -5,10 +5,10 @@
 <title>Radio Vaina</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Favicon de la esfera verde (Imgur con transparencia) -->
+<!-- Favicon de la esfera verde -->
 <link rel="icon" type="image/png" href="https://i.imgur.com/KoqzHXq.png">
 
-<!-- Fuentes inspiradas en el portfolio: Space Grotesk & Syne -->
+<!-- Fuentes: Space Grotesk & Syne -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
@@ -83,10 +83,10 @@ body {
   <nav class="sticky top-0 z-40 bg-white/90 dark:bg-[#121212]/90 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 py-3.5 px-4 sm:px-6 transition-colors duration-200">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-3 sm:gap-4">
-        <button id="btn-back" onclick="showArtistsList()" class="hidden items-center gap-2 text-xs font-mono uppercase font-bold px-3 py-1.5 border border-black dark:border-white rounded-full hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
-          ← Artistas
+        <button id="btn-back" onclick="handleBackNavigation()" class="hidden items-center gap-2 text-xs font-mono uppercase font-bold px-3 py-1.5 border border-black dark:border-white rounded-full hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
+          ← Volver
         </button>
-        <span class="font-syne font-black text-lg sm:text-xl uppercase tracking-tight">RADIO VAINA</span>
+        <span class="font-syne font-black text-lg sm:text-xl uppercase tracking-tight cursor-pointer" onclick="showArtistsList()">RADIO VAINA</span>
       </div>
       
       <div class="flex items-center">
@@ -103,7 +103,7 @@ body {
     </div>
   </nav>
 
-  <!-- CONTENEDOR 1: LISTA DE ARTISTAS Y MANIFIESTO -->
+  <!-- VISTA 1: LISTA DE ARTISTAS Y MANIFIESTO -->
   <main id="view-artists" class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
     <header class="mb-6 sm:mb-10">
       <h1 class="text-3xl sm:text-6xl font-black font-syne uppercase tracking-tight text-black dark:text-white">
@@ -114,12 +114,10 @@ body {
       </p>
     </header>
 
-    <!-- Lista de Tarjetas en Cuadrícula (2 columnas en móvil) -->
     <div id="artists-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 mb-16 sm:mb-20 items-stretch">
       <!-- Dinámico -->
     </div>
 
-    <!-- Sección Sobre Radio Vaina -->
     <section class="border-t border-zinc-200 dark:border-zinc-800 pt-10 sm:pt-14">
       <div class="max-w-4xl">
         <span class="text-[10px] sm:text-xs font-mono uppercase text-zinc-400 font-bold tracking-widest block mb-2">Manifiesto</span>
@@ -141,7 +139,7 @@ body {
     </section>
   </main>
 
-  <!-- CONTENEDOR 2: PERFIL DEL ARTISTA -->
+  <!-- VISTA 2: PERFIL DEL ARTISTA -->
   <main id="view-artist-detail" class="hidden max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
     <div class="flex flex-col sm:flex-row items-start sm:items-end gap-4 sm:gap-6 mb-8 sm:mb-12 pb-6 sm:pb-8 border-b border-zinc-200 dark:border-zinc-800">
       <img id="artist-img" src="" alt="" onerror="this.src=DEFAULT_COVER" class="w-32 h-32 sm:w-56 sm:h-56 object-cover border border-zinc-300 dark:border-zinc-700 rounded-lg bg-zinc-100 dark:bg-zinc-800">
@@ -174,6 +172,36 @@ body {
       </div>
 
       <div id="discography-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-6">
+        <!-- Dinámico -->
+      </div>
+    </section>
+  </main>
+
+  <!-- VISTA 3: DETALLE DEL LANZAMIENTO (ÁLBUM / SINGLE) -->
+  <main id="view-release-detail" class="hidden max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+    <div class="flex flex-col sm:flex-row items-start sm:items-end gap-6 sm:gap-8 mb-8 sm:mb-12 pb-6 sm:pb-8 border-b border-zinc-200 dark:border-zinc-800">
+      <img id="release-img" src="" alt="" onerror="this.src=DEFAULT_COVER" class="w-48 h-48 sm:w-64 sm:h-64 object-cover border border-zinc-300 dark:border-zinc-700 rounded-lg shadow-lg bg-zinc-100 dark:bg-zinc-800 flex-shrink-0">
+      <div class="flex-1 min-w-0">
+        <span id="release-type-badge" class="text-[10px] sm:text-xs font-mono uppercase px-2 py-0.5 border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 rounded inline-block font-bold">SINGLE</span>
+        <h1 id="release-title" class="text-3xl sm:text-5xl font-black font-syne uppercase tracking-tight text-black dark:text-white mt-2 leading-tight"></h1>
+        <p id="release-artist-name" class="text-base sm:text-xl font-bold text-zinc-700 dark:text-zinc-300 mt-1 cursor-pointer hover:underline"></p>
+        <p id="release-date" class="text-xs font-mono text-zinc-400 mt-2"></p>
+        
+        <div class="mt-6 flex items-center gap-3">
+          <button id="btn-play-release" onclick="playCurrentRelease()" class="px-6 py-2.5 bg-black dark:bg-white text-white dark:text-black font-mono text-xs uppercase font-bold rounded-full hover:opacity-90 transition-opacity flex items-center gap-2">
+            <span>▶ Reproducir</span>
+          </button>
+          <button onclick="copyCurrentReleaseShareLink()" class="p-2.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-xs hover:border-black dark:hover:border-white transition-colors" title="Compartir este lanzamiento">
+            🔗 Compartir
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de Tracks del Lanzamiento -->
+    <section class="mb-12">
+      <h2 class="text-lg sm:text-2xl font-bold font-syne uppercase text-black dark:text-white mb-4">Canciones</h2>
+      <div id="release-tracks-container" class="border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 shadow-sm">
         <!-- Dinámico -->
       </div>
     </section>
@@ -230,53 +258,53 @@ body {
     </div>
   </div>
 
-  <!-- REPRODUCTOR A PANTALLA COMPLETA -->
-  <div id="full-player-modal" class="fixed inset-0 z-50 bg-[#121316] text-white hidden flex-col justify-between p-6 overflow-y-auto transition-all duration-300">
+  <!-- REPRODUCTOR A PANTALLA COMPLETA (Adaptable a Tema Claro / Oscuro) -->
+  <div id="full-player-modal" class="fixed inset-0 z-50 bg-white dark:bg-[#121316] text-black dark:text-white hidden flex-col justify-between p-6 overflow-y-auto transition-colors duration-200">
     <div class="flex items-center justify-between">
-      <button onclick="closeFullPlayer()" class="text-zinc-400 hover:text-white transition-colors p-2">
+      <button onclick="closeFullPlayer()" class="text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white transition-colors p-2">
         <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/></svg>
       </button>
       <div class="text-center">
-        <p class="text-[11px] font-mono uppercase text-zinc-400 tracking-wider">Reproduciendo</p>
-        <p id="full-player-subtitle" class="text-xs font-bold text-zinc-200 truncate max-w-[200px] sm:max-w-xs">Radio Vaina</p>
+        <p class="text-[11px] font-mono uppercase text-zinc-500 dark:text-zinc-400 tracking-wider">Reproduciendo</p>
+        <p id="full-player-subtitle" class="text-xs font-bold text-zinc-800 dark:text-zinc-200 truncate max-w-[200px] sm:max-w-xs">Radio Vaina</p>
       </div>
-      <button onclick="closeFullPlayer()" class="text-zinc-400 hover:text-white transition-colors p-2">
+      <button onclick="closeFullPlayer()" class="text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white transition-colors p-2">
         <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 19 17.59 13.41 12z"/></svg>
       </button>
     </div>
 
     <div class="my-auto max-w-sm w-full mx-auto flex flex-col items-center">
-      <div class="w-full aspect-square max-w-[320px] rounded-2xl overflow-hidden shadow-2xl mb-8 bg-zinc-800 border border-zinc-800">
+      <div class="w-full aspect-square max-w-[320px] rounded-2xl overflow-hidden shadow-2xl mb-8 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800">
         <img id="full-player-img" src="" onerror="this.src=DEFAULT_COVER" class="w-full h-full object-cover">
       </div>
 
       <div class="w-full flex items-center justify-between mb-6">
         <div class="truncate pr-4">
-          <h2 id="full-player-title" class="text-2xl font-bold font-syne uppercase truncate text-white">--</h2>
-          <p id="full-player-artist" class="text-sm font-mono text-zinc-400 truncate mt-0.5">--</p>
+          <h2 id="full-player-title" class="text-2xl font-bold font-syne uppercase truncate text-black dark:text-white">--</h2>
+          <p id="full-player-artist" class="text-sm font-mono text-zinc-500 dark:text-zinc-400 truncate mt-0.5">--</p>
         </div>
       </div>
 
       <div class="w-full mb-8">
-        <input type="range" id="full-progress-bar" value="0" min="0" max="100" class="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-white">
-        <div class="flex justify-between text-xs font-mono text-zinc-400 mt-2">
+        <input type="range" id="full-progress-bar" value="0" min="0" max="100" class="w-full h-2 bg-zinc-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-black dark:accent-white">
+        <div class="flex justify-between text-xs font-mono text-zinc-500 dark:text-zinc-400 mt-2">
           <span id="full-curr-time">0:00</span>
           <span id="full-dur-time">0:00</span>
         </div>
       </div>
 
       <div class="flex items-center justify-between w-full mb-6">
-        <button onclick="playPrevTrack()" class="w-14 h-14 rounded-full bg-zinc-800/60 hover:bg-zinc-700 flex items-center justify-center text-white transition-colors">
+        <button onclick="playPrevTrack()" class="w-14 h-14 rounded-full bg-zinc-100 dark:bg-zinc-800/60 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center text-black dark:text-white transition-colors">
           <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
         </button>
         
-        <button onclick="togglePlayPause()" id="full-btn-play-pause" class="h-14 px-8 rounded-full bg-white text-black flex items-center justify-center font-bold text-base gap-2 hover:bg-zinc-200 transition-transform active:scale-95 shadow-lg">
+        <button onclick="togglePlayPause()" id="full-btn-play-pause" class="h-14 px-8 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-base gap-2 hover:opacity-90 transition-transform active:scale-95 shadow-lg">
           <svg id="full-icon-play" class="w-5 h-5 fill-current translate-x-[1px]" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
           <svg id="full-icon-pause" class="w-5 h-5 fill-current hidden" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
           <span id="full-play-label">Reproducir</span>
         </button>
         
-        <button onclick="playNextTrack()" class="w-14 h-14 rounded-full bg-zinc-800/60 hover:bg-zinc-700 flex items-center justify-center text-white transition-colors">
+        <button onclick="playNextTrack()" class="w-14 h-14 rounded-full bg-zinc-100 dark:bg-zinc-800/60 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center text-black dark:text-white transition-colors">
           <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
         </button>
       </div>
@@ -496,12 +524,14 @@ body {
     };
 
     let currentArtist = null;
+    let currentRelease = null;
     let playlist = [];
     let currentTrackIndex = -1;
     let ytPlayer = null;
     let isPlaying = false;
     let progressTimer = null;
     let isSeeking = false;
+    let currentView = 'artists';
 
     function formatDate(dateStr) {
       if (!dateStr) return '';
@@ -542,9 +572,14 @@ body {
         height: '0',
         width: '0',
         events: {
+          'onReady': onPlayerReady,
           'onStateChange': onPlayerStateChange
         }
       });
+    }
+
+    function onPlayerReady() {
+      checkUrlTrack();
     }
 
     function onPlayerStateChange(event) {
@@ -570,14 +605,40 @@ body {
       return artistReleases[0].date;
     }
 
-    function showArtistsList() {
-      document.getElementById('view-artists').classList.remove('hidden');
+    function handleBackNavigation() {
+      if (currentView === 'release-detail' && currentArtist) {
+        openArtistDetail(currentArtist.id);
+      } else {
+        showArtistsList();
+      }
+    }
+
+    function updateViewVisibility(viewName) {
+      currentView = viewName;
+      document.getElementById('view-artists').classList.add('hidden');
       document.getElementById('view-artist-detail').classList.add('hidden');
-      document.getElementById('btn-back').classList.add('hidden');
-      document.getElementById('btn-back').classList.remove('flex');
+      document.getElementById('view-release-detail').classList.add('hidden');
 
+      const btnBack = document.getElementById('btn-back');
+
+      if (viewName === 'artists') {
+        document.getElementById('view-artists').classList.remove('hidden');
+        btnBack.classList.add('hidden');
+        btnBack.classList.remove('flex');
+      } else if (viewName === 'artist-detail') {
+        document.getElementById('view-artist-detail').classList.remove('hidden');
+        btnBack.classList.remove('hidden');
+        btnBack.classList.add('flex');
+      } else if (viewName === 'release-detail') {
+        document.getElementById('view-release-detail').classList.remove('hidden');
+        btnBack.classList.remove('hidden');
+        btnBack.classList.add('flex');
+      }
       window.scrollTo(0, 0);
+    }
 
+    function showArtistsList() {
+      updateViewVisibility('artists');
       const grid = document.getElementById('artists-grid');
       grid.innerHTML = '';
 
@@ -615,12 +676,7 @@ body {
       if (!artist) return;
       currentArtist = artist;
 
-      document.getElementById('view-artists').classList.add('hidden');
-      document.getElementById('view-artist-detail').classList.remove('hidden');
-      document.getElementById('btn-back').classList.remove('hidden');
-      document.getElementById('btn-back').classList.add('flex');
-
-      window.scrollTo(0, 0);
+      updateViewVisibility('artist-detail');
 
       document.getElementById('artist-name').innerText = artist.name;
       document.getElementById('artist-img').src = artist.img || DEFAULT_COVER;
@@ -634,6 +690,7 @@ body {
         rel.tracks.forEach(track => {
           playlist.push({
             ...track,
+            releaseId: rel.id,
             releaseTitle: rel.title,
             releaseType: rel.type,
             releaseDate: rel.date,
@@ -645,6 +702,111 @@ body {
 
       renderLatestTracks(playlist);
       renderDiscography(artistReleases, 'todos');
+    }
+
+    function openReleaseDetail(releaseId) {
+      const release = catalogData.releases.find(r => r.id === releaseId);
+      if (!release) return;
+
+      currentRelease = release;
+      currentArtist = catalogData.artists.find(a => a.id === release.artistId) || null;
+
+      updateViewVisibility('release-detail');
+
+      document.getElementById('release-img').src = release.cover || DEFAULT_COVER;
+      document.getElementById('release-title').innerText = release.title;
+      document.getElementById('release-type-badge').innerText = release.type;
+      document.getElementById('release-artist-name').innerText = release.artistName;
+      document.getElementById('release-artist-name').onclick = () => {
+        if (currentArtist) openArtistDetail(currentArtist.id);
+      };
+      document.getElementById('release-date').innerText = `Lanzamiento: ${formatDate(release.date)}`;
+
+      playlist = release.tracks.map(t => ({
+        ...t,
+        releaseId: release.id,
+        releaseTitle: release.title,
+        releaseType: release.type,
+        releaseDate: release.date,
+        cover: release.cover || DEFAULT_COVER,
+        artistName: release.artistName
+      }));
+
+      renderReleaseTracks(playlist);
+    }
+
+    function renderReleaseTracks(tracks) {
+      const container = document.getElementById('release-tracks-container');
+      container.innerHTML = '';
+
+      tracks.forEach((track, idx) => {
+        const row = document.createElement('div');
+        const isActive = currentTrackIndex === idx;
+
+        row.className = `track-row flex items-center justify-between p-3 sm:p-4 cursor-pointer group border-b border-zinc-200 dark:border-zinc-800 last:border-0 ${
+          isActive ? 'bg-zinc-100 dark:bg-zinc-800/80' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/40'
+        }`;
+        row.onclick = () => playTrackAtIndex(idx);
+
+        row.innerHTML = `
+          <div class="flex items-center gap-3 sm:gap-4 overflow-hidden pr-2">
+            <span class="font-mono text-xs text-zinc-400 font-bold w-4 sm:w-5 flex-shrink-0">${idx + 1}</span>
+            <div class="truncate">
+              <h4 class="text-xs sm:text-sm font-bold font-syne uppercase text-black dark:text-white truncate group-hover:text-zinc-600 dark:group-hover:text-zinc-300">${track.title}</h4>
+              <p class="text-[10px] sm:text-xs font-mono text-zinc-500 dark:text-zinc-400 truncate">${track.artistName}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <button onclick="event.stopPropagation(); copyTrackShareLink('${track.youtubeId}')" title="Compartir canción" class="p-1.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-xs hover:border-black dark:hover:border-white transition-colors">
+              🔗
+            </button>
+            <button class="px-2.5 py-1 border border-zinc-300 dark:border-zinc-700 rounded-full text-[10px] sm:text-xs font-mono uppercase group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors">
+              ▶ Play
+            </button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function playCurrentRelease() {
+      if (playlist.length > 0) {
+        playTrackAtIndex(0);
+      }
+    }
+
+    function copyCurrentReleaseShareLink() {
+      if (!currentRelease) return;
+      const shareUrl = `${window.location.origin}${window.location.pathname}?album=${currentRelease.id}`;
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        alert("¡Enlace del lanzamiento copiado al portapapeles!");
+      }).catch(err => console.error("Error al copiar: ", err));
+    }
+
+    function copyTrackShareLink(youtubeId) {
+      const shareUrl = `${window.location.origin}${window.location.pathname}?track=${youtubeId}`;
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        alert("¡Enlace directo a la canción copiado!");
+      }).catch(err => console.error("Error al copiar: ", err));
+    }
+
+    function checkUrlTrack() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const albumId = urlParams.get('album');
+      const trackId = urlParams.get('track');
+
+      if (albumId) {
+        openReleaseDetail(albumId);
+      } else if (trackId) {
+        const release = catalogData.releases.find(r => r.tracks.some(t => t.youtubeId === trackId));
+        if (release) {
+          openReleaseDetail(release.id);
+          const trackIdx = playlist.findIndex(t => t.youtubeId === trackId);
+          if (trackIdx !== -1) {
+            playTrackAtIndex(trackIdx);
+          }
+        }
+      }
     }
 
     function renderLatestTracks(tracks) {
@@ -671,9 +833,14 @@ body {
               <p class="text-[10px] sm:text-xs font-mono text-zinc-500 dark:text-zinc-400 truncate">${track.artistName} • ${formatDate(track.releaseDate)}</p>
             </div>
           </div>
-          <button class="px-2.5 py-1 border border-zinc-300 dark:border-zinc-700 rounded-full text-[10px] sm:text-xs font-mono uppercase group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors flex-shrink-0">
-            ▶ Play
-          </button>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <button onclick="event.stopPropagation(); copyTrackShareLink('${track.youtubeId}')" title="Compartir canción" class="p-1.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-xs hover:border-black dark:hover:border-white transition-colors">
+              🔗
+            </button>
+            <button class="px-2.5 py-1 border border-zinc-300 dark:border-zinc-700 rounded-full text-[10px] sm:text-xs font-mono uppercase group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors">
+              ▶ Play
+            </button>
+          </div>
         `;
         container.appendChild(row);
       });
@@ -690,10 +857,7 @@ body {
       filtered.forEach(rel => {
         const card = document.createElement('div');
         card.className = "group cursor-pointer";
-        card.onclick = () => {
-          const trackIdx = playlist.findIndex(t => t.releaseTitle === rel.title);
-          if (trackIdx !== -1) playTrackAtIndex(trackIdx);
-        };
+        card.onclick = () => openReleaseDetail(rel.id);
 
         card.innerHTML = `
           <div class="aspect-square w-full overflow-hidden rounded-md mb-1.5 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800">
@@ -740,7 +904,11 @@ body {
         ytPlayer.loadVideoById(track.youtubeId);
       }
 
-      renderLatestTracks(playlist);
+      if (currentView === 'release-detail') {
+        renderReleaseTracks(playlist);
+      } else if (currentView === 'artist-detail') {
+        renderLatestTracks(playlist);
+      }
     }
 
     function togglePlayPause() {
