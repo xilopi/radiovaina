@@ -21,10 +21,10 @@
 <!-- Favicon -->
 <link rel="icon" type="image/png" href="https://i.imgur.com/KoqzHXq.png">
 
-<!-- Fuentes: Space Grotesk & Syne -->
+<!-- Fuentes: Inter & Syne -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 
 <!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
@@ -51,7 +51,7 @@ html, body {
 }
 
 body {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Inter', sans-serif;
   letter-spacing: -0.01em;
   padding-bottom: 110px;
 }
@@ -133,6 +133,21 @@ input[type=range]::-moz-range-thumb {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;  
   overflow: hidden;
+}
+
+/* Transición animada para Fullscreen Player */
+#full-player-modal {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+#full-player-modal.modal-closed {
+  opacity: 0;
+  transform: translateY(100%) scale(0.95);
+  pointer-events: none;
+}
+#full-player-modal.modal-open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
 }
 </style>
 </head>
@@ -310,7 +325,6 @@ input[type=range]::-moz-range-thumb {
         <span id="release-type-badge" class="text-[10px] sm:text-xs font-mono uppercase px-2 py-0.5 border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 rounded inline-block font-bold">SINGLE</span>
         <h1 id="release-title" class="text-3xl sm:text-5xl font-black font-syne uppercase tracking-tight text-black dark:text-white mt-2 leading-tight"></h1>
         <p id="release-artist-name" class="text-base sm:text-xl font-bold text-zinc-700 dark:text-zinc-300 mt-1 cursor-pointer hover:underline"></p>
-        <!-- Tipografía cambiada a la general de la página (sin font-mono) -->
         <p id="release-date" class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-2 font-normal"></p>
         
         <div class="mt-6 flex items-center gap-3">
@@ -385,7 +399,7 @@ input[type=range]::-moz-range-thumb {
   </div>
 
   <!-- REPRODUCTOR A PANTALLA COMPLETA -->
-  <div id="full-player-modal" class="fixed inset-0 z-50 bg-white dark:bg-[#121316] text-black dark:text-white hidden flex-col justify-between p-6 overflow-y-auto transition-colors duration-200">
+  <div id="full-player-modal" class="fixed inset-0 z-50 bg-white dark:bg-[#121316] text-black dark:text-white modal-closed flex flex-col justify-between p-6 overflow-y-auto transition-colors duration-200">
     <div class="flex items-center justify-between">
       <button onclick="closeFullPlayer()" class="text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white transition-colors p-2" title="Minimizar">
         <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -784,14 +798,14 @@ input[type=range]::-moz-range-thumb {
     function openFullPlayer() {
       if (currentTrackIndex === -1) return;
       const modal = document.getElementById('full-player-modal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
+      modal.classList.remove('modal-closed');
+      modal.classList.add('modal-open');
     }
 
     function closeFullPlayer() {
       const modal = document.getElementById('full-player-modal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
+      modal.classList.remove('modal-open');
+      modal.classList.add('modal-closed');
     }
 
     function onYouTubeIframeAPIReady() {
@@ -833,8 +847,8 @@ input[type=range]::-moz-range-thumb {
     }
 
     function handleBackNavigation() {
-      if (currentView === 'release-detail' && currentArtist) {
-        openArtistDetail(currentArtist.id);
+      if (window.history.length > 1) {
+        history.back();
       } else {
         showArtistsList();
       }
@@ -880,16 +894,16 @@ input[type=range]::-moz-range-thumb {
 
         card.innerHTML = `
           <div>
-            <div class="w-full aspect-square overflow-hidden rounded bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 mb-1.5">
+            <div class="w-full aspect-square overflow-hidden rounded bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 mb-1">
               <img src="${rel.cover || DEFAULT_COVER}" onerror="this.src=DEFAULT_COVER" alt="${rel.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
             </div>
-            <span class="text-[8px] sm:text-[9px] font-mono uppercase px-1 py-0.2 border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 rounded inline-block font-bold">${rel.type}</span>
-            <h3 class="text-xs sm:text-sm font-bold font-syne uppercase text-black dark:text-white group-hover:text-zinc-600 dark:group-hover:text-zinc-300 leading-tight mt-1 truncate">
+            <span class="text-[7px] sm:text-[9px] font-mono uppercase px-1 py-0.2 border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 rounded inline-block font-bold">${rel.type}</span>
+            <h3 class="text-[9px] sm:text-sm font-bold font-syne uppercase text-black dark:text-white group-hover:text-zinc-600 dark:group-hover:text-zinc-300 leading-tight mt-0.5 truncate">
               ${rel.title}
             </h3>
-            <p class="text-[9px] sm:text-[11px] font-mono text-zinc-500 dark:text-zinc-400 truncate mt-0.5">${rel.artistName}</p>
+            <p class="text-[8px] sm:text-[11px] font-mono text-zinc-500 dark:text-zinc-400 truncate mt-0.5">${rel.artistName}</p>
           </div>
-          <span class="text-[8px] sm:text-[10px] font-mono text-zinc-400 block mt-1 sm:mt-2">${formatDate(rel.date)}</span>
+          <span class="text-[7px] sm:text-[10px] font-mono text-zinc-400 block mt-1 sm:mt-2">${formatDate(rel.date)}</span>
         `;
         grid.appendChild(card);
       });
@@ -914,7 +928,6 @@ input[type=range]::-moz-range-thumb {
       input.focus();
     }
 
-    // Ajustado tamaño de texto e interlineado para nombres largos en tarjetas de artista
     function renderArtistsGrid(searchTerm = '') {
       const grid = document.getElementById('artists-grid');
       const noResults = document.getElementById('no-artists-found');
@@ -938,18 +951,20 @@ input[type=range]::-moz-range-thumb {
 
       filtered.forEach(artist => {
         const card = document.createElement('div');
-        card.className = "group border border-zinc-200 dark:border-zinc-800 rounded-lg sm:rounded-xl p-1.5 sm:p-4 bg-white dark:bg-zinc-900 cursor-pointer hover:border-black dark:hover:border-white transition-all flex flex-col justify-between h-full shadow-sm hover:shadow-md";
+        card.className = "group border border-zinc-200 dark:border-zinc-800 rounded-lg sm:rounded-xl p-1 sm:p-4 bg-white dark:bg-zinc-900 cursor-pointer hover:border-black dark:hover:border-white transition-all flex flex-col justify-between h-full shadow-sm hover:shadow-md";
         card.onclick = () => openArtistDetail(artist.id);
+
+        const nameFontSize = artist.name.length > 10 ? 'text-[8px] sm:text-base' : 'text-[9px] sm:text-base';
 
         card.innerHTML = `
           <div class="flex flex-col h-full">
-            <div class="w-full aspect-square overflow-hidden rounded bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 mb-1.5 sm:mb-3 flex-shrink-0">
+            <div class="w-full aspect-square overflow-hidden rounded bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 mb-1 sm:mb-3 flex-shrink-0">
               <img src="${artist.img || DEFAULT_COVER}" onerror="this.src=DEFAULT_COVER" alt="${artist.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
             </div>
             
             <div class="flex-1 flex flex-col justify-start">
-              <span class="text-[8px] sm:text-[10px] font-mono uppercase text-zinc-400 font-bold block tracking-wider mb-0.5">Artista</span>
-              <h3 class="text-[10px] sm:text-base font-black font-syne uppercase text-black dark:text-white group-hover:text-zinc-600 dark:group-hover:text-zinc-300 leading-tight break-words line-clamp-2">
+              <span class="text-[7px] sm:text-[10px] font-mono uppercase text-zinc-400 font-bold block tracking-wider mb-0.5">Artista</span>
+              <h3 class="${nameFontSize} font-black font-syne uppercase text-black dark:text-white group-hover:text-zinc-600 dark:group-hover:text-zinc-300 leading-tight whitespace-nowrap overflow-hidden text-ellipsis">
                 ${artist.name}
               </h3>
             </div>
@@ -1022,7 +1037,6 @@ input[type=range]::-moz-range-thumb {
       }).catch(err => console.error("Error al copiar: ", err));
     }
 
-    // Se eliminó la fecha de reproducción en "Lo Último"
     function renderLatestTracks(tracks) {
       const container = document.getElementById('latest-tracks-container');
       container.innerHTML = '';
@@ -1077,7 +1091,7 @@ input[type=range]::-moz-range-thumb {
           <div class="aspect-square w-full overflow-hidden rounded-md mb-1.5 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800">
             <img src="${rel.cover || DEFAULT_COVER}" onerror="this.src=DEFAULT_COVER" alt="${rel.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
           </div>
-          <span class="text-[8px] sm:text-[9px] font-mono uppercase px-1.5 py-0.5 border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 rounded inline-block">${rel.type}</span>
+          <span class="text-[7px] sm:text-[9px] font-mono uppercase px-1.5 py-0.5 border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 rounded inline-block">${rel.type}</span>
           <h4 class="text-xs sm:text-sm font-bold font-syne uppercase text-black dark:text-white mt-1 truncate">${rel.title}</h4>
           <p class="text-[10px] sm:text-xs font-mono text-zinc-400 dark:text-zinc-500">${rel.artistName} • ${rel.date.split('-')[0]}</p>
         `;
