@@ -192,34 +192,75 @@ input[type=range]::-moz-range-thumb {
   </div>
 
   <!-- Navegación Superior Simpificada -->
+ <!-- Navegación Superior con Buscador Integrado -->
   <nav class="sticky top-0 z-40 bg-white/90 dark:bg-[#121212]/90 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 py-3 px-3 sm:px-6 transition-colors duration-200">
-    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
+    <div class="max-w-7xl mx-auto flex flex-col gap-3">
       
-      <div class="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-        <button id="btn-back" onclick="handleBackNavigation()" class="hidden items-center gap-1.5 text-[10px] sm:text-xs font-mono uppercase font-bold px-2.5 py-1 sm:px-3 sm:py-1.5 border border-black dark:border-white rounded-full hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
-          ← Volver
-        </button>
-        <span class="font-syne font-black text-lg sm:text-2xl uppercase tracking-tight cursor-pointer" onclick="showArtistsList()">VAINALIST</span>
+      <!-- Fila Superior: Botón Volver, Título VAINALIST y Modo Oscuro -->
+      <div class="flex items-center justify-between gap-2 sm:gap-4">
+        <div class="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+          <button id="btn-back" onclick="handleBackNavigation()" class="hidden items-center gap-1.5 text-[10px] sm:text-xs font-mono uppercase font-bold px-2.5 py-1 sm:px-3 sm:py-1.5 border border-black dark:border-white rounded-full hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
+            ← Volver
+          </button>
+          <span class="font-syne font-black text-lg sm:text-2xl uppercase tracking-tight cursor-pointer" onclick="showArtistsList()">VAINALIST</span>
+        </div>
+        
+        <div class="flex items-center flex-shrink-0">
+          <button onclick="toggleDarkMode()" class="p-2 rounded-full border border-zinc-300 dark:border-zinc-700 hover:border-black dark:hover:border-white text-black dark:text-white transition-colors" title="Cambiar Tema">
+            <svg id="theme-icon-sun" class="w-4 h-4 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg id="theme-icon-moon" class="w-4 h-4 block dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+        </div>
       </div>
-      
-      <div class="flex items-center flex-shrink-0">
-        <button onclick="toggleDarkMode()" class="p-2 rounded-full border border-zinc-300 dark:border-zinc-700 hover:border-black dark:hover:border-white text-black dark:text-white transition-colors" title="Cambiar Tema">
-          <svg id="theme-icon-sun" class="w-4 h-4 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="5"></circle>
-            <line x1="12" y1="1" x2="12" y2="3"></line>
-            <line x1="12" y1="21" x2="12" y2="23"></line>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-            <line x1="1" y1="12" x2="3" y2="12"></line>
-            <line x1="21" y1="12" x2="23" y2="12"></line>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-          </svg>
-          <svg id="theme-icon-moon" class="w-4 h-4 block dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-          </svg>
-        </button>
+
+      <!-- Fila Inferior (Dentro del Nav): Buscador Global Fijo -->
+      <div class="relative w-full">
+        <div class="relative flex items-center">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+          <input 
+            type="text" 
+            id="global-search-input" 
+            placeholder="Buscar artista, canción o lanzamiento..." 
+            oninput="handleGlobalSearch(this.value)"
+            onfocus="if(this.value.trim().length > 0) openGlobalSearchDropdown()"
+            class="w-full pl-10 pr-10 py-2 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-sm text-black dark:text-white placeholder-zinc-400 focus:outline-none focus:border-black dark:focus:border-white transition-colors shadow-sm"
+          >
+          <button 
+            id="btn-clear-global-search" 
+            onclick="clearGlobalSearch()" 
+            class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-black dark:hover:text-white transition-colors"
+            title="Borrar búsqueda"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Dropdown con Resultados de Búsqueda -->
+        <div id="global-search-results" class="hidden absolute left-0 right-0 top-full mt-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-2xl overflow-hidden max-h-96 overflow-y-auto z-50 p-2 space-y-3">
+          <!-- Resultados dinámicos -->
+        </div>
       </div>
+
     </div>
   </nav>
 
