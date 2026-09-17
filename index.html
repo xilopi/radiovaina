@@ -5,6 +5,19 @@
 <title>Radio Vaina</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<!-- Metaetiquetas para Redes Sociales (Open Graph / WhatsApp / Telegram) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Radio Vaina — Plataforma Musical Libre e Independiente">
+<meta property="og:description" content="Radio Vaina es un espacio independiente para escuchar y compartir música sin intermediarios, peajes ni corporativismo.">
+<meta property="og:image" content="https://i.imgur.com/KoqzHXq.png">
+<meta property="og:locale" content="es_ES">
+
+<!-- Twitter Cards -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Radio Vaina — Música Libre">
+<meta name="twitter:description" content="Música libre de ataduras. Sin cobros ni exclusividades. Creada por amor al arte.">
+<meta name="twitter:image" content="https://i.imgur.com/KoqzHXq.png">
+
 <!-- Favicon de la esfera verde -->
 <link rel="icon" type="image/png" href="https://i.imgur.com/KoqzHXq.png">
 
@@ -123,10 +136,10 @@ body {
             Últimos Lanzamientos
           </h2>
         </div>
-        <span class="text-[10px] sm:text-xs font-mono text-zinc-400"> </span>
+        <span class="text-[10px] sm:text-xs font-mono text-zinc-400">Top 5 más recientes</span>
       </div>
 
-      <div id="latest-releases-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+      <div id="latest-releases-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
         <!-- Dinámico via JS -->
       </div>
     </section>
@@ -812,7 +825,7 @@ body {
 
       const top5 = [...catalogData.releases]
         .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .slice(0, 4);
+        .slice(0, 5);
 
       top5.forEach(rel => {
         const card = document.createElement('div');
@@ -1160,6 +1173,18 @@ body {
       element.addEventListener('mousedown', () => { isSeeking = true; });
       element.addEventListener('touchstart', () => { isSeeking = true; });
 
+      // Actualización visual en tiempo real al arrastrar (input)
+      element.addEventListener('input', (e) => {
+        if (ytPlayer && ytPlayer.getDuration) {
+          const dur = ytPlayer.getDuration();
+          const targetSec = (e.target.value / 100) * dur;
+          const formatted = formatTime(targetSec);
+          document.getElementById('curr-time').innerText = formatted;
+          document.getElementById('full-curr-time').innerText = formatted;
+        }
+      });
+
+      // Salto efectivo del audio al soltar (change)
       element.addEventListener('change', (e) => {
         if (ytPlayer && ytPlayer.getDuration) {
           const dur = ytPlayer.getDuration();
