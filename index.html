@@ -182,26 +182,6 @@ input[type=range]::-moz-range-thumb {
   opacity: 1;
   transform: translate(-50%, 0);
 }
-
-/* Animación Marquee para texto largo en Fullscreen */
-.marquee-container {
-  overflow: hidden;
-  white-space: nowrap;
-  position: relative;
-  width: 100%;
-}
-.marquee-content {
-  display: inline-block;
-  white-space: nowrap;
-  animation: marquee 12s linear infinite;
-}
-.marquee-container:hover .marquee-content {
-  animation-play-state: paused;
-}
-@keyframes marquee {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
-}
 </style>
 </head>
 <body class="bg-white text-black dark:bg-[#121212] dark:text-zinc-100 selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black transition-colors duration-200">
@@ -211,51 +191,15 @@ input[type=range]::-moz-range-thumb {
     Notificación
   </div>
 
-  <!-- Navegación Superior con Buscador Global Integrado -->
-  <nav class="sticky top-0 z-40 bg-white/90 dark:bg-[#121212]/90 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 py-2.5 px-3 sm:px-6 transition-colors duration-200">
+  <!-- Navegación Superior Simpificada -->
+  <nav class="sticky top-0 z-40 bg-white/90 dark:bg-[#121212]/90 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 py-3 px-3 sm:px-6 transition-colors duration-200">
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
       
       <div class="flex items-center gap-2 sm:gap-4 flex-shrink-0">
         <button id="btn-back" onclick="handleBackNavigation()" class="hidden items-center gap-1.5 text-[10px] sm:text-xs font-mono uppercase font-bold px-2.5 py-1 sm:px-3 sm:py-1.5 border border-black dark:border-white rounded-full hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
           ← Volver
         </button>
-        <span class="font-syne font-black text-base sm:text-xl uppercase tracking-tight cursor-pointer" onclick="showArtistsList()">VAINALIST</span>
-      </div>
-
-      <!-- BUSCADOR GLOBAL HEADER -->
-      <div class="relative flex-1 max-w-xs sm:max-w-md mx-2">
-        <div class="relative flex items-center">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-          </div>
-          <input 
-            type="text" 
-            id="global-search-input" 
-            placeholder="Buscar artista, canción o lanzamiento..." 
-            oninput="handleGlobalSearch(this.value)"
-            onfocus="if(this.value.trim().length > 0) openGlobalSearchDropdown()"
-            class="w-full pl-8 pr-8 py-1.5 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-full text-xs text-black dark:text-white placeholder-zinc-400 focus:outline-none focus:border-black dark:focus:border-white transition-colors"
-          >
-          <button 
-            id="btn-clear-global-search" 
-            onclick="clearGlobalSearch()" 
-            class="hidden absolute inset-y-0 right-0 pr-2.5 flex items-center text-zinc-400 hover:text-black dark:hover:text-white transition-colors"
-            title="Borrar búsqueda"
-          >
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
-        </div>
-
-        <!-- Dropdown con Resultados de Búsqueda -->
-        <div id="global-search-results" class="hidden absolute left-0 right-0 top-full mt-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-2xl overflow-hidden max-h-96 overflow-y-auto z-50 p-2 space-y-3">
-          <!-- Resultados dinámicos -->
-        </div>
+        <span class="font-syne font-black text-lg sm:text-2xl uppercase tracking-tight cursor-pointer" onclick="showArtistsList()">VAINALIST</span>
       </div>
       
       <div class="flex items-center flex-shrink-0">
@@ -279,8 +223,46 @@ input[type=range]::-moz-range-thumb {
     </div>
   </nav>
 
+  <!-- CONTENEDOR BUSCADOR GLOBAL (Ubicado debajo de la cabecera) -->
+  <div class="max-w-7xl mx-auto px-3 sm:px-6 pt-4 pb-2">
+    <div class="relative w-full">
+      <div class="relative flex items-center">
+        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
+        <input 
+          type="text" 
+          id="global-search-input" 
+          placeholder="Buscar artista, canción o lanzamiento..." 
+          oninput="handleGlobalSearch(this.value)"
+          onfocus="if(this.value.trim().length > 0) openGlobalSearchDropdown()"
+          class="w-full pl-10 pr-10 py-2.5 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-sm text-black dark:text-white placeholder-zinc-400 focus:outline-none focus:border-black dark:focus:border-white transition-colors shadow-sm"
+        >
+        <button 
+          id="btn-clear-global-search" 
+          onclick="clearGlobalSearch()" 
+          class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-black dark:hover:text-white transition-colors"
+          title="Borrar búsqueda"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Dropdown con Resultados de Búsqueda -->
+      <div id="global-search-results" class="hidden absolute left-0 right-0 top-full mt-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-2xl overflow-hidden max-h-96 overflow-y-auto z-50 p-2 space-y-3">
+        <!-- Resultados dinámicos -->
+      </div>
+    </div>
+  </div>
+
   <!-- VISTA 1: INICIO -->
-  <main id="view-artists" class="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-10">
+  <main id="view-artists" class="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-8">
     <section class="mb-8 sm:mb-16">
       <div class="mb-3 sm:mb-6">
         <span class="text-[9px] sm:text-xs font-mono uppercase text-zinc-400 font-bold tracking-widest block mb-0.5">Novedades</span>
@@ -333,7 +315,7 @@ input[type=range]::-moz-range-thumb {
   </main>
 
   <!-- VISTA 2: PERFIL DEL ARTISTA -->
-  <main id="view-artist-detail" class="hidden max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+  <main id="view-artist-detail" class="hidden max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
     <div class="flex flex-col sm:flex-row items-start sm:items-end gap-4 sm:gap-6 mb-8 sm:mb-12 pb-6 sm:pb-8 border-b border-zinc-200 dark:border-zinc-800">
       <img id="artist-img" src="" alt="" onerror="this.src=DEFAULT_COVER" class="w-32 h-32 sm:w-56 sm:h-56 object-cover border border-zinc-300 dark:border-zinc-700 rounded-lg bg-zinc-100 dark:bg-zinc-800">
       <div class="flex-1">
@@ -347,7 +329,7 @@ input[type=range]::-moz-range-thumb {
       </div>
     </div>
 
-    <!-- Sección Lo Último (Modificada: Sin botón de copiar link y botón Play solo como triángulo) -->
+    <!-- Sección Lo Último -->
     <section class="mb-12 sm:mb-16">
       <div class="flex items-center justify-between mb-3 sm:mb-4">
         <h2 class="text-xl sm:text-3xl font-bold font-syne uppercase text-black dark:text-white">Lo Último</h2>
@@ -358,7 +340,7 @@ input[type=range]::-moz-range-thumb {
       </div>
     </section>
 
-    <!-- Sección Discografía (Modificada: Tarjetas contenidas estilo Últimos Lanzamientos) -->
+    <!-- Sección Discografía -->
     <section class="mb-12 sm:mb-16">
       <h2 class="text-xl sm:text-3xl font-bold font-syne uppercase text-black dark:text-white mb-4 sm:mb-6">Discografía</h2>
 
@@ -376,7 +358,7 @@ input[type=range]::-moz-range-thumb {
   </main>
 
   <!-- VISTA 3: DETALLE DEL LANZAMIENTO -->
-  <main id="view-release-detail" class="hidden max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+  <main id="view-release-detail" class="hidden max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
     <div class="flex flex-col sm:flex-row items-start sm:items-end gap-6 sm:gap-8 mb-8 sm:mb-12 pb-6 sm:pb-8 border-b border-zinc-200 dark:border-zinc-800">
       <img id="release-img" src="" alt="" onerror="this.src=DEFAULT_COVER" class="w-48 h-48 sm:w-64 sm:h-64 object-cover border border-zinc-300 dark:border-zinc-700 rounded-lg shadow-lg bg-zinc-100 dark:bg-zinc-800 flex-shrink-0">
       <div class="flex-1 min-w-0">
@@ -482,13 +464,13 @@ input[type=range]::-moz-range-thumb {
             <img id="full-player-img" src="" onerror="this.src=DEFAULT_COVER" class="w-full h-full object-cover">
           </div>
 
-          <!-- Título y Artista con Marquee si no cabe -->
+          <!-- Título y Artista sin desplazamiento tipo Marquee -->
           <div class="w-full text-center mb-4 sm:mb-6 overflow-hidden px-2">
             <div id="full-title-container" class="w-full overflow-hidden">
-              <h2 id="full-player-title" class="text-xl sm:text-2xl md:text-3xl font-bold font-syne uppercase text-black dark:text-white transition-all">--</h2>
+              <h2 id="full-player-title" class="text-xl sm:text-2xl md:text-3xl font-bold font-syne uppercase text-black dark:text-white truncate">--</h2>
             </div>
             <div id="full-artist-container" class="w-full overflow-hidden mt-1">
-              <p id="full-player-artist" onclick="navigateToCurrentArtistProfile()" class="text-xs sm:text-sm font-mono text-zinc-500 dark:text-zinc-400 cursor-pointer hover:underline hover:text-black dark:hover:text-white transition-colors inline-block">--</p>
+              <p id="full-player-artist" onclick="navigateToCurrentArtistProfile()" class="text-xs sm:text-sm font-mono text-zinc-500 dark:text-zinc-400 cursor-pointer hover:underline hover:text-black dark:hover:text-white transition-colors inline-block truncate max-w-full">--</p>
             </div>
           </div>
 
@@ -536,7 +518,7 @@ input[type=range]::-moz-range-thumb {
           </div>
         </div>
 
-        <!-- Drawer Móvil de la Cola (Animación Slide-Up) -->
+        <!-- Drawer Móvil de la Cola -->
         <div id="queue-drawer" class="md:hidden absolute inset-0 z-30 bg-white dark:bg-[#121316] drawer-closed flex flex-col justify-between pt-2">
           <div class="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800 mb-2 px-1">
             <h3 class="text-xs font-mono font-bold uppercase text-zinc-500 dark:text-zinc-400 tracking-wider">En Cola</h3>
@@ -858,7 +840,8 @@ input[type=range]::-moz-range-thumb {
     let currentView = 'artists';
     let isQueueDrawerOpen = false;
 
-    let viewHistory = ['artists'];
+    /* Control de Historial de Navegación */
+    let isInitialLoad = true;
 
     function initTheme() {
       const savedTheme = localStorage.getItem('theme');
@@ -912,7 +895,6 @@ input[type=range]::-moz-range-thumb {
       modal.classList.remove('modal-closed');
       modal.classList.add('modal-open');
       renderQueueUI();
-      checkMarquee();
     }
 
     function closeFullPlayer() {
@@ -1003,23 +985,18 @@ input[type=range]::-moz-range-thumb {
     }
 
     function handleBackNavigation() {
-      if (viewHistory.length > 1) {
-        viewHistory.pop();
-        const previous = viewHistory[viewHistory.length - 1];
-        
-        if (typeof previous === 'object') {
-          if (previous.type === 'artist') {
-            openArtistDetail(previous.id, false);
-          } else if (previous.type === 'release') {
-            openReleaseDetail(previous.id, false);
-          }
-        } else if (previous === 'artists') {
-          showArtistsList(false);
-        }
-      } else {
-        showArtistsList(false);
-      }
+      window.history.back();
     }
+
+    /* Manejo Nativo de Navegación del Móvil / Navegador */
+    window.addEventListener('popstate', (e) => {
+      const modal = document.getElementById('full-player-modal');
+      if (modal.classList.contains('modal-open')) {
+        closeFullPlayer();
+        return;
+      }
+      loadRouteFromURL();
+    });
 
     function updateViewVisibility(viewName) {
       currentView = viewName;
@@ -1073,7 +1050,7 @@ input[type=range]::-moz-range-thumb {
       });
     }
 
-    /* BUSCADOR GLOBAL HEADER */
+    /* BUSCADOR GLOBAL */
     function handleGlobalSearch(query) {
       const clearBtn = document.getElementById('btn-clear-global-search');
       const dropdown = document.getElementById('global-search-results');
@@ -1381,7 +1358,6 @@ input[type=range]::-moz-range-thumb {
       }).catch(err => console.error(err));
     }
 
-    /* LO ÚLTIMO (Modificado: Sin copiar link y con botón de reproducción solo con triángulo) */
     function renderLatestTracks(tracks) {
       const container = document.getElementById('latest-tracks-container');
       container.innerHTML = '';
@@ -1419,7 +1395,6 @@ input[type=range]::-moz-range-thumb {
       });
     }
 
-    /* DISCOGRAFÍA (Modificado: Estilo tarjeta contenedor como Últimos Lanzamientos) */
     function renderDiscography(releases, filter) {
       const grid = document.getElementById('discography-grid');
       grid.innerHTML = '';
@@ -1491,23 +1466,6 @@ input[type=range]::-moz-range-thumb {
       }
 
       renderQueueUI();
-      checkMarquee();
-    }
-
-    function checkMarquee() {
-      const titleEl = document.getElementById('full-player-title');
-      const titleCont = document.getElementById('full-title-container');
-      
-      if (titleEl && titleCont) {
-        if (titleEl.scrollWidth > titleCont.clientWidth) {
-          titleCont.classList.add('marquee-container');
-          titleEl.className = 'marquee-content text-xl sm:text-2xl md:text-3xl font-bold font-syne uppercase text-black dark:text-white';
-          titleEl.innerHTML = `${titleEl.innerText} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${titleEl.innerText} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`;
-        } else {
-          titleCont.classList.remove('marquee-container');
-          titleEl.className = 'text-xl sm:text-2xl md:text-3xl font-bold font-syne uppercase truncate text-black dark:text-white';
-        }
-      }
     }
 
     function navigateToCurrentArtistProfile() {
@@ -1668,19 +1626,23 @@ input[type=range]::-moz-range-thumb {
       return `${min}:${sec < 10 ? '0' : ''}${sec}`;
     }
 
-    function showArtistsList(pushHistory = true) {
-      if (pushHistory) viewHistory.push('artists');
+    function showArtistsList(updateState = true) {
+      if (updateState) {
+        history.pushState({ view: 'artists' }, '', window.location.pathname);
+      }
       updateViewVisibility('artists');
       renderLatestReleasesHome();
       renderArtistsGrid();
     }
 
-    function openArtistDetail(artistId, pushHistory = true) {
+    function openArtistDetail(artistId, updateState = true) {
       const artist = catalogData.artists.find(a => a.id === artistId);
       if (!artist) return;
       currentArtist = artist;
 
-      if (pushHistory) viewHistory.push({ type: 'artist', id: artist.id });
+      if (updateState) {
+        history.pushState({ view: 'artist', id: artistId }, '', `?artist=${artistId}`);
+      }
 
       updateViewVisibility('artist-detail');
 
@@ -1711,14 +1673,16 @@ input[type=range]::-moz-range-thumb {
       renderDiscography(artistReleases, 'todos');
     }
 
-    function openReleaseDetail(releaseId, pushHistory = true) {
+    function openReleaseDetail(releaseId, updateState = true) {
       const release = catalogData.releases.find(r => r.id === releaseId);
       if (!release) return;
 
       currentRelease = release;
       currentArtist = catalogData.artists.find(a => a.id === release.artistId) || null;
 
-      if (pushHistory) viewHistory.push({ type: 'release', id: release.id });
+      if (updateState) {
+        history.pushState({ view: 'release', id: releaseId }, '', `?album=${releaseId}`);
+      }
 
       updateViewVisibility('release-detail');
 
@@ -1745,10 +1709,35 @@ input[type=range]::-moz-range-thumb {
       renderReleaseTracks(playlist);
     }
 
+    /* Rutas mediante Parámetros URL (Soporte para enlaces directos) */
+    function loadRouteFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      const artistId = params.get('artist');
+      const albumId = params.get('album');
+      const trackId = params.get('track');
+
+      if (artistId) {
+        openArtistDetail(artistId, false);
+      } else if (albumId) {
+        openReleaseDetail(albumId, false);
+      } else if (trackId) {
+        const releaseWithTrack = catalogData.releases.find(r => r.tracks.some(t => t.youtubeId === trackId));
+        if (releaseWithTrack) {
+          openReleaseDetail(releaseWithTrack.id, false);
+          const trackIdx = releaseWithTrack.tracks.findIndex(t => t.youtubeId === trackId);
+          if (trackIdx !== -1) playTrackAtIndex(trackIdx);
+        } else {
+          showArtistsList(false);
+        }
+      } else {
+        showArtistsList(false);
+      }
+    }
+
     document.getElementById('now-playing-img').src = DEFAULT_COVER;
 
-    /* Forzado constante a la página principal al abrir / refrescar */
-    showArtistsList(false);
+    // Inicialización respetando enlaces directos
+    loadRouteFromURL();
   </script>
 </body>
 </html>
