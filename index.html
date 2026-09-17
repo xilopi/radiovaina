@@ -90,9 +90,8 @@ body {
       </div>
       
       <div class="flex items-center">
-        <!-- Toggle Modo Claro / Oscuro con SVG Inline e Borde Contrastado -->
+        <!-- Toggle Modo Claro / Oscuro -->
         <button onclick="toggleDarkMode()" class="p-2 rounded-full border border-zinc-300 dark:border-zinc-700 hover:border-black dark:hover:border-white text-black dark:text-white transition-colors" title="Cambiar Tema">
-          <!-- Sol (Modo Oscuro -> visible en blanco) -->
           <svg id="theme-icon-sun" class="w-4 h-4 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="5"></circle>
             <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -104,7 +103,6 @@ body {
             <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
             <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
           </svg>
-          <!-- Luna (Modo Claro -> visible en negro) -->
           <svg id="theme-icon-moon" class="w-4 h-4 block dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
           </svg>
@@ -136,7 +134,7 @@ body {
         </h2>
         <div class="space-y-4 text-sm sm:text-base text-zinc-600 dark:text-zinc-300 leading-relaxed font-normal">
           <p>
-            Radio Vaina nace como una respuesta libre e independiente para quienes buscan alternativas frente a las grandes plataformas digitales y la intermediación de las distribuidoras tradicionales. Creemos firmemente en una cultura accesible, sin peajes ni intereses corporativos.
+            Radio Vaina nace como una respuesta libre e independiente para quienes buscan alternatives frente a las grandes plataformas digitales y la intermediación de las distribuidoras tradicionales. Creemos firmemente en una cultura accesible, sin peajes ni intereses corporativos.
           </p>
           <p>
             Rechazamos cualquier vínculo con estructuras que prioricen el beneficio económico por encima de la ética. En este espacio nadie cobra ni paga un solo euro: ni el oyente por escuchar, ni el artista por compartir su obra. Es una alternativa real construida por amor al arte.
@@ -277,7 +275,6 @@ body {
   <!-- REPRODUCTOR A PANTALLA COMPLETA -->
   <div id="full-player-modal" class="fixed inset-0 z-50 bg-white dark:bg-[#121316] text-black dark:text-white hidden flex-col justify-between p-6 overflow-y-auto transition-colors duration-200">
     <div class="flex items-center justify-between">
-      <!-- Flecha Abajo (Bajar Modal) -->
       <button onclick="closeFullPlayer()" class="text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white transition-colors p-2" title="Minimizar">
         <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="6 9 12 15 18 9"></polyline>
@@ -289,7 +286,6 @@ body {
         <p id="full-player-subtitle" class="text-xs font-bold text-zinc-800 dark:text-zinc-200 truncate max-w-[200px] sm:max-w-xs">Radio Vaina</p>
       </div>
 
-      <!-- X de Cerrar Inline -->
       <button onclick="closeFullPlayer()" class="text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white transition-colors p-2" title="Cerrar">
         <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -353,7 +349,7 @@ body {
         { id: "vittorio", name: "Vittorio Gazelle", img: "https://i.imgur.com/8MiOT06.png" },
         { id: "kizzi", name: "Kizzi", img: "https://i.imgur.com/lnH4wE5.png" },
         { id: "pretty-cher", name: "Pretty Cher", img: "https://i.imgur.com/8KCt4uK.png" },
-        { id: "dos-persas", name: "Dos Persas", img: "https://i.imgur.com/DjPwMf9.png" },
+        { id: "dos-persas", name: "Dos Persas", img: "https://i.imgur.com/kZCfan6.png" },
         { id: "fer-ag", name: "Fer AG", img: "https://i.imgur.com/rdCIhJn.png" },
         { id: "victorldv", name: "VíctorLDV", img: "https://i.imgur.com/Uq2XkgO.png" },
         { id: "conman", name: "Conman", img: "https://i.imgur.com/rT3lgJ4.png" },
@@ -696,7 +692,7 @@ body {
     }
 
     function onPlayerReady() {
-      checkUrlParams();
+      // El reproductor ya está listo para arrancar audio si se pulsa play
     }
 
     function onPlayerStateChange(event) {
@@ -754,109 +750,6 @@ body {
         btnBack.classList.add('flex');
       }
       window.scrollTo(0, 0);
-    }
-
-    function showArtistsList() {
-      history.pushState(null, '', window.location.pathname);
-      updateViewVisibility('artists');
-      const grid = document.getElementById('artists-grid');
-      grid.innerHTML = '';
-
-      const sortedArtists = [...catalogData.artists].sort((a, b) => {
-        const dateA = new Date(getLatestReleaseDate(a.id));
-        const dateB = new Date(getLatestReleaseDate(b.id));
-        return dateB - dateA;
-      });
-
-      sortedArtists.forEach(artist => {
-        const card = document.createElement('div');
-        card.className = "group border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 sm:p-5 bg-white dark:bg-zinc-900 cursor-pointer hover:border-black dark:hover:border-white transition-all flex flex-col justify-between h-full shadow-sm hover:shadow-md";
-        card.onclick = () => openArtistDetail(artist.id);
-
-        card.innerHTML = `
-          <div class="flex flex-col h-full">
-            <div class="w-full aspect-square overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 mb-3 flex-shrink-0">
-              <img src="${artist.img || DEFAULT_COVER}" onerror="this.src=DEFAULT_COVER" alt="${artist.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-            </div>
-            
-            <div class="flex-1 flex flex-col justify-center">
-              <span class="text-[9px] sm:text-xs font-mono uppercase text-zinc-400 font-bold block tracking-wider mb-0.5">Artista</span>
-              <h3 class="text-base sm:text-2xl font-black font-syne uppercase text-black dark:text-white group-hover:text-zinc-600 dark:group-hover:text-zinc-300 leading-snug break-words">
-                ${artist.name}
-              </h3>
-            </div>
-          </div>
-        `;
-        grid.appendChild(card);
-      });
-    }
-
-    function openArtistDetail(artistId) {
-      const artist = catalogData.artists.find(a => a.id === artistId);
-      if (!artist) return;
-      currentArtist = artist;
-
-      history.pushState(null, '', `?artist=${artist.id}`);
-      updateViewVisibility('artist-detail');
-
-      document.getElementById('artist-name').innerText = artist.name;
-      document.getElementById('artist-img').src = artist.img || DEFAULT_COVER;
-
-      const artistReleases = catalogData.releases
-        .filter(r => r.artistId === artistId || (r.artistIds && r.artistIds.includes(artistId)))
-        .sort((a, b) => new Date(b.date) - new Date(a.date));
-
-      playlist = [];
-      artistReleases.forEach(rel => {
-        rel.tracks.forEach(track => {
-          playlist.push({
-            ...track,
-            youtubeId: track.youtubeId,
-            releaseId: rel.id,
-            releaseTitle: rel.title,
-            releaseType: rel.type,
-            releaseDate: rel.date,
-            cover: rel.cover || DEFAULT_COVER,
-            artistName: rel.artistName || artist.name
-          });
-        });
-      });
-
-      renderLatestTracks(playlist);
-      renderDiscography(artistReleases, 'todos');
-    }
-
-    function openReleaseDetail(releaseId) {
-      const release = catalogData.releases.find(r => r.id === releaseId);
-      if (!release) return;
-
-      currentRelease = release;
-      currentArtist = catalogData.artists.find(a => a.id === release.artistId) || null;
-
-      history.pushState(null, '', `?album=${release.id}`);
-      updateViewVisibility('release-detail');
-
-      document.getElementById('release-img').src = release.cover || DEFAULT_COVER;
-      document.getElementById('release-title').innerText = release.title;
-      document.getElementById('release-type-badge').innerText = release.type;
-      document.getElementById('release-artist-name').innerText = release.artistName;
-      document.getElementById('release-artist-name').onclick = () => {
-        if (currentArtist) openArtistDetail(currentArtist.id);
-      };
-      document.getElementById('release-date').innerText = `Lanzamiento: ${formatDate(release.date)}`;
-
-      playlist = release.tracks.map(t => ({
-        ...t,
-        youtubeId: t.youtubeId,
-        releaseId: release.id,
-        releaseTitle: release.title,
-        releaseType: release.type,
-        releaseDate: release.date,
-        cover: release.cover || DEFAULT_COVER,
-        artistName: release.artistName
-      }));
-
-      renderReleaseTracks(playlist);
     }
 
     function renderReleaseTracks(tracks) {
@@ -920,28 +813,6 @@ body {
       navigator.clipboard.writeText(shareUrl).then(() => {
         alert("¡Enlace directo a la canción copiado!");
       }).catch(err => console.error("Error al copiar: ", err));
-    }
-
-    function checkUrlParams() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const artistId = urlParams.get('artist');
-      const albumId = urlParams.get('album');
-      const trackId = urlParams.get('track');
-
-      if (artistId) {
-        openArtistDetail(artistId);
-      } else if (albumId) {
-        openReleaseDetail(albumId);
-      } else if (trackId) {
-        const release = catalogData.releases.find(r => r.tracks.some(t => t.youtubeId === trackId));
-        if (release) {
-          openReleaseDetail(release.id);
-          const trackIdx = playlist.findIndex(t => t.youtubeId === trackId);
-          if (trackIdx !== -1) {
-            playTrackAtIndex(trackIdx);
-          }
-        }
-      }
     }
 
     function renderLatestTracks(tracks) {
@@ -1160,9 +1031,145 @@ body {
       return `${min}:${sec < 10 ? '0' : ''}${sec}`;
     }
 
+    // --- MANEJO DE RUTAS Y NAVEGACIÓN DIRECTA POR URL ---
+
+    function handleRouting() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const artistId = urlParams.get('artist');
+      const albumId = urlParams.get('album');
+      const trackId = urlParams.get('track');
+
+      if (artistId) {
+        openArtistDetail(artistId, false);
+      } else if (albumId) {
+        openReleaseDetail(albumId, false);
+      } else if (trackId) {
+        const release = catalogData.releases.find(r => r.tracks.some(t => t.youtubeId === trackId));
+        if (release) {
+          openReleaseDetail(release.id, false);
+          const trackIdx = playlist.findIndex(t => t.youtubeId === trackId);
+          if (trackIdx !== -1) {
+            playTrackAtIndex(trackIdx);
+          }
+        } else {
+          showArtistsList(false);
+        }
+      } else {
+        showArtistsList(false);
+      }
+    }
+
+    window.addEventListener('popstate', () => {
+      handleRouting();
+    });
+
+    function showArtistsList(pushHistory = true) {
+      if (pushHistory) history.pushState(null, '', window.location.pathname);
+      updateViewVisibility('artists');
+      const grid = document.getElementById('artists-grid');
+      grid.innerHTML = '';
+
+      const sortedArtists = [...catalogData.artists].sort((a, b) => {
+        const dateA = new Date(getLatestReleaseDate(a.id));
+        const dateB = new Date(getLatestReleaseDate(b.id));
+        return dateB - dateA;
+      });
+
+      sortedArtists.forEach(artist => {
+        const card = document.createElement('div');
+        card.className = "group border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 sm:p-5 bg-white dark:bg-zinc-900 cursor-pointer hover:border-black dark:hover:border-white transition-all flex flex-col justify-between h-full shadow-sm hover:shadow-md";
+        card.onclick = () => openArtistDetail(artist.id);
+
+        card.innerHTML = `
+          <div class="flex flex-col h-full">
+            <div class="w-full aspect-square overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 mb-3 flex-shrink-0">
+              <img src="${artist.img || DEFAULT_COVER}" onerror="this.src=DEFAULT_COVER" alt="${artist.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            </div>
+            
+            <div class="flex-1 flex flex-col justify-center">
+              <span class="text-[9px] sm:text-xs font-mono uppercase text-zinc-400 font-bold block tracking-wider mb-0.5">Artista</span>
+              <h3 class="text-base sm:text-2xl font-black font-syne uppercase text-black dark:text-white group-hover:text-zinc-600 dark:group-hover:text-zinc-300 leading-snug break-words">
+                ${artist.name}
+              </h3>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function openArtistDetail(artistId, pushHistory = true) {
+      const artist = catalogData.artists.find(a => a.id === artistId);
+      if (!artist) return;
+      currentArtist = artist;
+
+      if (pushHistory) history.pushState(null, '', `?artist=${artist.id}`);
+      updateViewVisibility('artist-detail');
+
+      document.getElementById('artist-name').innerText = artist.name;
+      document.getElementById('artist-img').src = artist.img || DEFAULT_COVER;
+
+      const artistReleases = catalogData.releases
+        .filter(r => r.artistId === artistId || (r.artistIds && r.artistIds.includes(artistId)))
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      playlist = [];
+      artistReleases.forEach(rel => {
+        rel.tracks.forEach(track => {
+          playlist.push({
+            ...track,
+            youtubeId: track.youtubeId,
+            releaseId: rel.id,
+            releaseTitle: rel.title,
+            releaseType: rel.type,
+            releaseDate: rel.date,
+            cover: rel.cover || DEFAULT_COVER,
+            artistName: rel.artistName || artist.name
+          });
+        });
+      });
+
+      renderLatestTracks(playlist);
+      renderDiscography(artistReleases, 'todos');
+    }
+
+    function openReleaseDetail(releaseId, pushHistory = true) {
+      const release = catalogData.releases.find(r => r.id === releaseId);
+      if (!release) return;
+
+      currentRelease = release;
+      currentArtist = catalogData.artists.find(a => a.id === release.artistId) || null;
+
+      if (pushHistory) history.pushState(null, '', `?album=${release.id}`);
+      updateViewVisibility('release-detail');
+
+      document.getElementById('release-img').src = release.cover || DEFAULT_COVER;
+      document.getElementById('release-title').innerText = release.title;
+      document.getElementById('release-type-badge').innerText = release.type;
+      document.getElementById('release-artist-name').innerText = release.artistName;
+      document.getElementById('release-artist-name').onclick = () => {
+        if (currentArtist) openArtistDetail(currentArtist.id);
+      };
+      document.getElementById('release-date').innerText = `Lanzamiento: ${formatDate(release.date)}`;
+
+      playlist = release.tracks.map(t => ({
+        ...t,
+        youtubeId: t.youtubeId,
+        releaseId: release.id,
+        releaseTitle: release.title,
+        releaseType: release.type,
+        releaseDate: release.date,
+        cover: release.cover || DEFAULT_COVER,
+        artistName: release.artistName
+      }));
+
+      renderReleaseTracks(playlist);
+    }
+
+    // Inicialización del reproductor y evaluación de la URL actual
     document.getElementById('now-playing-img').src = DEFAULT_COVER;
 
-    showArtistsList();
+    handleRouting();
   </script>
 </body>
 </html>
