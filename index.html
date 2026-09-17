@@ -2,19 +2,19 @@
 <html lang="es" class="scroll-smooth">
 <head>
 <meta charset="UTF-8">
-<title>Radio Vaina — Plataforma Musical Libre e Independiente</title>
+<title>Vainalist — Plataforma Musical Libre e Independiente</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Metaetiquetas para Redes Sociales (Open Graph / WhatsApp / Telegram) -->
+<!-- Metaetiquetas para Redes Sociales -->
 <meta property="og:type" content="website">
-<meta property="og:title" content="Radio Vaina — Plataforma Musical Libre e Independiente">
-<meta property="og:description" content="Radio Vaina es un espacio independiente para escuchar y compartir música sin intermediarios, peajes ni corporativismo.">
+<meta property="og:title" content="Vainalist — Plataforma Musical Libre e Independiente">
+<meta property="og:description" content="Vainalist es un espacio independiente para escuchar y compartir música sin intermediarios, peajes ni corporativismo.">
 <meta property="og:image" content="https://i.imgur.com/KoqzHXq.png">
 <meta property="og:locale" content="es_ES">
 
 <!-- Twitter Cards -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Radio Vaina — Música Libre">
+<meta name="twitter:title" content="Vainalist — Música Libre">
 <meta name="twitter:description" content="Música libre de ataduras. Sin cobros ni exclusividades. Creada por amor al arte.">
 <meta name="twitter:image" content="https://i.imgur.com/KoqzHXq.png">
 
@@ -89,7 +89,7 @@ body {
   pointer-events: none;
 }
 
-/* Estilos de la barra de progreso con gradiente de reproducción */
+/* Estilos de la barra de progreso */
 input[type=range] {
   -webkit-appearance: none;
   background: transparent;
@@ -127,7 +127,6 @@ input[type=range]::-moz-range-thumb {
   border: none;
 }
 
-/* Utilidad para truncar texto a máximo 2 líneas */
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -135,45 +134,62 @@ input[type=range]::-moz-range-thumb {
   overflow: hidden;
 }
 
-/* Estilos y transiciones para el Fullscreen Player Modal */
+/* Transiciones Fullscreen Modal */
 #full-player-modal {
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+#full-player-modal.modal-closed {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transform: scale(0.96) translateY(12px);
-  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-              visibility 0.35s step-end;
 }
-
-#full-player-modal.is-open {
+#full-player-modal.modal-closed .modal-content {
+  transform: scale(0.95) translateY(20px);
+}
+#full-player-modal.modal-open {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
+}
+#full-player-modal.modal-open .modal-content {
   transform: scale(1) translateY(0);
-  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-              visibility 0s step-start;
+}
+.modal-content {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Custom scrollbar para la playlist dentro del modo PC Fullscreen */
-.custom-scrollbar::-webkit-scrollbar {
-  display: block;
-  width: 5px;
+/* Panel Deslizable de Cola (Drawer) */
+#queue-drawer {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
+#queue-drawer.drawer-closed {
+  transform: translateY(100%);
 }
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(150, 150, 150, 0.3);
-  border-radius: 9999px;
+#queue-drawer.drawer-open {
+  transform: translateY(0);
 }
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(150, 150, 150, 0.5);
+
+/* Toast de notificación */
+#toast-notification {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+#toast-notification.toast-hidden {
+  opacity: 0;
+  transform: translate(-50%, 20px);
+  pointer-events: none;
+}
+#toast-notification.toast-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
 }
 </style>
 </head>
 <body class="bg-white text-black dark:bg-[#121212] dark:text-zinc-100 selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black transition-colors duration-200">
+
+  <!-- Toast Notification -->
+  <div id="toast-notification" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 bg-black text-white dark:bg-white dark:text-black px-4 py-2 rounded-full shadow-2xl text-xs font-mono font-bold uppercase tracking-wider toast-hidden">
+    Canción añadida a la cola
+  </div>
 
   <!-- Navegación Superior -->
   <nav class="sticky top-0 z-40 bg-white/90 dark:bg-[#121212]/90 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 py-3.5 px-4 sm:px-6 transition-colors duration-200">
@@ -182,7 +198,7 @@ input[type=range]::-moz-range-thumb {
         <button id="btn-back" onclick="handleBackNavigation()" class="hidden items-center gap-2 text-xs font-mono uppercase font-bold px-3 py-1.5 border border-black dark:border-white rounded-full hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
           ← Volver
         </button>
-        <span class="font-syne font-black text-lg sm:text-xl uppercase tracking-tight cursor-pointer" onclick="showArtistsList()">RADIO VAINA</span>
+        <span class="font-syne font-black text-lg sm:text-xl uppercase tracking-tight cursor-pointer" onclick="showArtistsList()">VAINALIST</span>
       </div>
       
       <div class="flex items-center">
@@ -209,8 +225,6 @@ input[type=range]::-moz-range-thumb {
 
   <!-- VISTA 1: INICIO -->
   <main id="view-artists" class="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-10">
-    
-    <!-- SECCIÓN: Lanzamientos Más Recientes -->
     <section class="mb-8 sm:mb-16">
       <div class="mb-3 sm:mb-6">
         <span class="text-[9px] sm:text-xs font-mono uppercase text-zinc-400 font-bold tracking-widest block mb-0.5">Novedades</span>
@@ -224,7 +238,6 @@ input[type=range]::-moz-range-thumb {
       </div>
     </section>
 
-    <!-- SECCIÓN: Artistas -->
     <section class="mb-12 sm:mb-20">
       <header class="mb-4 sm:mb-8">
         <h2 class="text-xl sm:text-4xl font-black font-syne uppercase text-black dark:text-white">
@@ -235,7 +248,6 @@ input[type=range]::-moz-range-thumb {
         </p>
       </header>
 
-      <!-- BUSCADOR DE ARTISTAS -->
       <div class="relative mb-4 sm:mb-8 max-w-md">
         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
           <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -263,7 +275,6 @@ input[type=range]::-moz-range-thumb {
         </button>
       </div>
 
-      <!-- Grid de 3 columnas en móvil -->
       <div id="artists-grid" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-6 items-stretch">
         <!-- Dinámico via JS -->
       </div>
@@ -277,18 +288,18 @@ input[type=range]::-moz-range-thumb {
       <div class="max-w-4xl">
         <span class="text-[9px] sm:text-xs font-mono uppercase text-zinc-400 font-bold tracking-widest block mb-1.5">Manifiesto</span>
         <h2 class="text-xl sm:text-4xl font-black font-syne uppercase text-black dark:text-white mb-4 sm:mb-6">
-          Sobre Radio Vaina
+          Sobre Vainalist
         </h2>
         <div class="space-y-3 sm:space-y-4 text-xs sm:text-base text-zinc-600 dark:text-zinc-300 leading-relaxed font-normal">
           <p>
-            Radio Vaina nace como una respuesta libre e independiente para quienes buscan alternativas frente a las grandes plataformas digitales y la intermediación de las distribuidoras tradicionales. Creemos firmemente en una cultura accesible, sin peajes ni intereses corporativos.
+            Vainalist nace como una respuesta libre e independiente para quienes buscan alternativas frente a las grandes plataformas digitales y la intermediación de las distribuidoras tradicionales. Creemos firmemente en una cultura accesible, sin peajes ni intereses corporativos.
           </p>
           <p>
             Rechazamos cualquier vínculo con estructuras que prioricen el beneficio económico por encima de la ética. En este espacio nadie cobra ni paga un solo euro: ni el oyente por escuchar, ni el artista por compartir su obra. Es una alternativa real construida por amor al arte.
           </p>
           <p>
             <strong class="font-bold text-black dark:text-white block mb-0.5">No exigimos exclusividad a nuestros artistas</strong>
-            Entendemos las contradicciones de la industria actual y sabemos que muchos creadores necesitan el streaming tradicional para hacer llegar su trabajo. Radio Vaina no juzga tus canales de difusión; es un refugio abierto a cualquiera que comulgue con nuestros valores y quiera sumar su voz a un catálogo libre de ataduras.
+            Entendemos las contradicciones de la industria actual y sabemos que muchos creadores necesitan el streaming tradicional para hacer llegar su trabajo. Vainalist no juzga tus canales de difusión; es un refugio abierto a cualquiera que comulgue con nuestros valores y quiera sumar su voz a un catálogo libre de ataduras.
           </p>
         </div>
       </div>
@@ -310,7 +321,6 @@ input[type=range]::-moz-range-thumb {
       </div>
     </div>
 
-    <!-- Sección 1: Lo más reciente del Artista -->
     <section class="mb-12 sm:mb-16">
       <div class="flex items-center justify-between mb-3 sm:mb-4">
         <h2 class="text-xl sm:text-3xl font-bold font-syne uppercase text-black dark:text-white">Lo Último</h2>
@@ -321,7 +331,6 @@ input[type=range]::-moz-range-thumb {
       </div>
     </section>
 
-    <!-- Sección 2: Discografía del Artista -->
     <section class="mb-12 sm:mb-16">
       <h2 class="text-xl sm:text-3xl font-bold font-syne uppercase text-black dark:text-white mb-4 sm:mb-6">Discografía</h2>
 
@@ -332,7 +341,6 @@ input[type=range]::-moz-range-thumb {
         <button onclick="filterDiscography('single')" id="tab-single" class="disc-tab px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 text-black dark:text-white hover:border-black dark:hover:border-white rounded-full whitespace-nowrap">Singles</button>
       </div>
 
-      <!-- Cambiado a 3 columnas en móvil (grid-cols-3) -->
       <div id="discography-grid" class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-6">
         <!-- Dinámico -->
       </div>
@@ -360,7 +368,6 @@ input[type=range]::-moz-range-thumb {
       </div>
     </div>
 
-    <!-- Lista de Tracks -->
     <section class="mb-12">
       <h2 class="text-lg sm:text-2xl font-bold font-syne uppercase text-black dark:text-white mb-4">Canciones</h2>
       <div id="release-tracks-container" class="border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 shadow-sm">
@@ -372,10 +379,7 @@ input[type=range]::-moz-range-thumb {
   <!-- REPRODUCTOR FLOTANTE INFERIOR -->
   <div id="player-bar" class="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#121212]/95 backdrop-blur-md border-t border-zinc-200 dark:border-zinc-800 px-4 py-2.5 shadow-lg transition-colors duration-200">
     <div class="max-w-7xl mx-auto flex flex-col gap-2">
-      
       <div class="flex items-center justify-between gap-2">
-        
-        <!-- Track Info -->
         <div onclick="openFullPlayer()" class="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer group">
           <img id="now-playing-img" src="" onerror="this.src=DEFAULT_COVER" class="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded border border-zinc-200 dark:border-zinc-700 flex-shrink-0 bg-zinc-100 dark:bg-zinc-800 transition-transform group-hover:scale-105">
           <div class="truncate">
@@ -384,21 +388,19 @@ input[type=range]::-moz-range-thumb {
           </div>
         </div>
 
-        <!-- Controls -->
         <div class="flex items-center gap-3 sm:gap-4 flex-shrink-0">
-          <button onclick="playPrevTrack()" class="text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-colors p-1">
+          <button onclick="playPrevTrack()" class="text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-colors p-1" title="Anterior">
             <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-current" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
           </button>
           <button onclick="togglePlayPause()" id="btn-play-pause" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-transform active:scale-95 flex-shrink-0">
             <svg id="icon-play" class="w-4 h-4 sm:w-5 sm:h-5 fill-current translate-x-[1px]" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
             <svg id="icon-pause" class="w-4 h-4 sm:w-5 sm:h-5 fill-current hidden" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
           </button>
-          <button onclick="playNextTrack()" class="text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-colors p-1">
+          <button onclick="playNextTrack()" class="text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-colors p-1" title="Siguiente">
             <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-current" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
           </button>
         </div>
 
-        <!-- Visual indicator -->
         <div class="hidden sm:flex w-24 justify-end items-center flex-shrink-0">
           <div id="playing-wave" class="hidden items-center gap-1 h-4">
             <span class="sound-wave-bar bg-black dark:bg-white"></span>
@@ -407,65 +409,58 @@ input[type=range]::-moz-range-thumb {
             <span class="sound-wave-bar bg-black dark:bg-white"></span>
           </div>
         </div>
-
       </div>
 
-      <!-- Barra de Progreso -->
       <div class="w-full flex items-center gap-2 text-[10px] font-mono text-zinc-400">
         <span id="curr-time" class="w-8 text-right flex-shrink-0">0:00</span>
         <input type="range" id="progress-bar" value="0" min="0" max="100" class="w-full h-1.5 rounded-lg appearance-none cursor-pointer text-black dark:text-white">
         <span id="dur-time" class="w-8 text-left flex-shrink-0">0:00</span>
       </div>
-
     </div>
   </div>
 
-  <!-- REPRODUCTOR A PANTALLA COMPLETA (MODAL) -->
-  <div id="full-player-modal" class="fixed inset-0 z-50 bg-white/95 dark:bg-[#121316]/95 backdrop-blur-xl text-black dark:text-white flex flex-col justify-between p-4 sm:p-8 overflow-hidden transition-colors duration-200">
-    
-    <!-- Top Header Bar -->
-    <div class="flex items-center justify-between w-full max-w-6xl mx-auto flex-shrink-0 pb-4 border-b border-zinc-200/50 dark:border-zinc-800/50">
-      <button onclick="closeFullPlayer()" class="text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white transition-colors p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800" title="Minimizar">
-        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="6 9 12 15 18 9"></polyline>
-        </svg>
-      </button>
+  <!-- REPRODUCTOR A PANTALLA COMPLETA CON ANIMACIONES Y MEJORA EN PC -->
+  <div id="full-player-modal" class="fixed inset-0 z-50 bg-white dark:bg-[#121316] text-black dark:text-white modal-closed flex flex-col justify-between p-4 sm:p-8 overflow-hidden transition-all duration-300">
+    <div class="modal-content h-full flex flex-col justify-between max-w-6xl mx-auto w-full relative">
+      
+      <!-- Header -->
+      <div class="flex items-center justify-between z-10 flex-shrink-0 mb-4">
+        <button onclick="closeFullPlayer()" class="text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white transition-colors p-2 rounded-full border border-transparent hover:border-zinc-200 dark:hover:border-zinc-800" title="Minimizar">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
 
-      <div class="text-center">
-        <p class="text-[10px] sm:text-[11px] font-mono uppercase text-zinc-500 dark:text-zinc-400 tracking-widest font-bold">Modo Reproducción</p>
-        <p id="full-player-subtitle" class="text-xs sm:text-sm font-bold text-zinc-800 dark:text-zinc-200 truncate max-w-[200px] sm:max-w-xs">Radio Vaina</p>
+        <!-- Botón Ver Cola / Ocultar Cola -->
+        <button id="btn-toggle-queue" onclick="toggleQueueDrawer()" class="px-3.5 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-xs font-mono uppercase font-bold flex items-center gap-2 hover:border-black dark:hover:border-white transition-colors">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h10v2H4z"/></svg>
+          <span id="queue-btn-text">Ver Cola</span>
+        </button>
+
+        <button onclick="closeFullPlayer()" class="text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white transition-colors p-2 rounded-full border border-transparent hover:border-zinc-200 dark:hover:border-zinc-800" title="Cerrar">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
       </div>
 
-      <button onclick="closeFullPlayer()" class="text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white transition-colors p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800" title="Cerrar">
-        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
-    </div>
-
-    <!-- Main Content Area: Responsive Grid (Single column in mobile, 2 columns in PC) -->
-    <div class="my-auto w-full max-w-6xl mx-auto py-4 sm:py-6 overflow-y-auto custom-scrollbar flex-1 flex items-center justify-center">
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-12 w-full items-center">
+      <!-- Layout Principal Fullscreen -->
+      <div class="my-auto w-full flex-1 flex flex-col md:flex-row items-center justify-center md:gap-12 lg:gap-16 max-h-[80vh] overflow-y-auto sm:overflow-hidden relative">
         
-        <!-- Left Column (Desktop) / Main Area (Mobile): Artwork & Controls -->
-        <div class="md:col-span-6 lg:col-span-6 flex flex-col items-center max-w-md mx-auto w-full">
-          <div class="w-full aspect-square max-w-[280px] sm:max-w-[340px] md:max-w-[380px] rounded-2xl overflow-hidden shadow-2xl mb-6 sm:mb-8 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800/80 group">
-            <img id="full-player-img" src="" onerror="this.src=DEFAULT_COVER" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+        <!-- Columna Izquierda / Principal: Carátula e Información del Reproductor -->
+        <div class="w-full max-w-sm md:max-w-md lg:max-w-lg flex flex-col items-center flex-shrink-0">
+          <div class="w-full aspect-square max-w-[260px] sm:max-w-[320px] md:max-w-[360px] rounded-2xl overflow-hidden shadow-2xl mb-6 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800">
+            <img id="full-player-img" src="" onerror="this.src=DEFAULT_COVER" class="w-full h-full object-cover">
           </div>
 
-          <div class="w-full flex items-center justify-between mb-4 sm:mb-6 px-1">
-            <div class="truncate pr-4 text-left">
-              <h2 id="full-player-title" class="text-xl sm:text-2xl lg:text-3xl font-black font-syne uppercase truncate text-black dark:text-white leading-tight">--</h2>
-              <p id="full-player-artist" class="text-xs sm:text-sm font-mono text-zinc-500 dark:text-zinc-400 truncate mt-1">--</p>
-            </div>
-            <button onclick="copyCurrentReleaseShareLink()" class="p-2.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-xs hover:border-black dark:hover:border-white transition-colors flex-shrink-0" title="Compartir canción">
-              🔗
-            </button>
+          <div class="w-full text-center md:text-left mb-4 sm:mb-6">
+            <h2 id="full-player-title" class="text-xl sm:text-2xl md:text-3xl font-bold font-syne uppercase truncate text-black dark:text-white">--</h2>
+            <p id="full-player-artist" class="text-xs sm:text-sm font-mono text-zinc-500 dark:text-zinc-400 truncate mt-1">--</p>
           </div>
 
-          <!-- Progress Bar -->
-          <div class="w-full mb-6 sm:mb-8">
+          <!-- Slider de Progreso -->
+          <div class="w-full mb-6">
             <input type="range" id="full-progress-bar" value="0" min="0" max="100" class="w-full h-2 rounded-lg appearance-none cursor-pointer text-black dark:text-white">
             <div class="flex justify-between text-xs font-mono text-zinc-500 dark:text-zinc-400 mt-2">
               <span id="full-curr-time">0:00</span>
@@ -473,48 +468,50 @@ input[type=range]::-moz-range-thumb {
             </div>
           </div>
 
-          <!-- Playback Controls -->
-          <div class="flex items-center justify-between w-full">
-            <button onclick="playPrevTrack()" class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center text-black dark:text-white transition-all active:scale-95 shadow-sm">
+          <!-- Controles de Reproducción -->
+          <div class="flex items-center justify-center gap-4 sm:gap-6 w-full mb-2">
+            <button onclick="playPrevTrack()" class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center text-black dark:text-white transition-colors" title="Anterior">
               <svg class="w-5 h-5 sm:w-6 sm:h-6 fill-current" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
             </button>
             
-            <button onclick="togglePlayPause()" id="full-btn-play-pause" class="h-12 sm:h-14 px-8 sm:px-10 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-sm sm:text-base gap-2.5 hover:opacity-90 transition-transform active:scale-95 shadow-xl">
+            <button onclick="togglePlayPause()" id="full-btn-play-pause" class="h-12 sm:h-14 px-6 sm:px-8 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-sm sm:text-base gap-2 hover:opacity-90 transition-transform active:scale-95 shadow-lg">
               <svg id="full-icon-play" class="w-5 h-5 fill-current translate-x-[1px]" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
               <svg id="full-icon-pause" class="w-5 h-5 fill-current hidden" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
               <span id="full-play-label">Reproducir</span>
             </button>
             
-            <button onclick="playNextTrack()" class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center text-black dark:text-white transition-all active:scale-95 shadow-sm">
+            <button onclick="playNextTrack()" class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center text-black dark:text-white transition-colors" title="Siguiente">
               <svg class="w-5 h-5 sm:w-6 sm:h-6 fill-current" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
             </button>
           </div>
         </div>
 
-        <!-- Right Column (Desktop PC ONLY): Queue / Playlist view -->
-        <div class="hidden md:flex md:col-span-6 lg:col-span-6 flex-col h-full max-h-[480px] bg-zinc-50/70 dark:bg-zinc-900/50 border border-zinc-200/80 dark:border-zinc-800/80 rounded-2xl p-5 backdrop-blur-sm">
-          <div class="flex items-center justify-between pb-3 mb-3 border-b border-zinc-200 dark:border-zinc-800">
-            <div class="flex items-center gap-2">
-              <span class="text-xs font-mono uppercase font-bold text-zinc-400">Cola de Reproducción</span>
-              <span id="full-queue-count" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300">0 temas</span>
-            </div>
-            <span class="text-[10px] font-mono uppercase text-zinc-400">Lista Actual</span>
+        <!-- Columna Derecha (PC): Cola de Reproducción integrada permanente en pantallas grandes -->
+        <div class="hidden md:flex flex-col flex-1 h-full max-h-[520px] bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800/80 rounded-2xl p-4 overflow-hidden">
+          <div class="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800 mb-2">
+            <h3 class="text-xs font-mono font-bold uppercase text-zinc-500 dark:text-zinc-400 tracking-wider">Cola de Reproducción</h3>
+            <span id="desktop-queue-count" class="text-[10px] font-mono bg-zinc-200 dark:bg-zinc-800 px-2 py-0.5 rounded-full font-bold">0 canciones</span>
           </div>
 
-          <div id="full-player-playlist" class="overflow-y-auto custom-scrollbar flex-1 space-y-1 pr-1">
-            <!-- Dinámico vía JS -->
+          <div id="desktop-queue-list" class="flex-1 overflow-y-auto space-y-1.5 pr-1">
+            <!-- Dinámico -->
+          </div>
+        </div>
+
+        <!-- Drawer Móvil de la Cola de Reproducción (Animación Slide-Up de abajo a arriba) -->
+        <div id="queue-drawer" class="md:hidden absolute inset-0 z-30 bg-white dark:bg-[#121316] drawer-closed flex flex-col justify-between pt-2">
+          <div class="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800 mb-2 px-1">
+            <h3 class="text-xs font-mono font-bold uppercase text-zinc-500 dark:text-zinc-400 tracking-wider">A continuación en la Cola</h3>
+            <button onclick="toggleQueueDrawer()" class="text-xs font-mono uppercase underline text-zinc-500">Cerrar</button>
+          </div>
+
+          <div id="mobile-queue-list" class="flex-1 overflow-y-auto space-y-1 pr-1 pb-4">
+            <!-- Dinámico -->
           </div>
         </div>
 
       </div>
     </div>
-
-    <!-- Bottom Bar / Footer inside modal -->
-    <div class="w-full max-w-6xl mx-auto flex items-center justify-between text-[11px] font-mono text-zinc-400 pt-3 border-t border-zinc-200/50 dark:border-zinc-800/50 flex-shrink-0">
-      <span>Radio Vaina Player</span>
-      <span class="hidden sm:inline">Música Libre e Independiente</span>
-    </div>
-
   </div>
 
   <div id="youtube-player-container">
@@ -818,6 +815,10 @@ input[type=range]::-moz-range-thumb {
     let progressTimer = null;
     let isSeeking = false;
     let currentView = 'artists';
+    let isQueueDrawerOpen = false;
+
+    // Historial dinámico de navegación
+    let viewHistory = ['artists'];
 
     function initTheme() {
       const savedTheme = localStorage.getItem('theme');
@@ -854,17 +855,46 @@ input[type=range]::-moz-range-thumb {
       return `${day} ${months[monthIdx]} ${year}`;
     }
 
-    /* Manejo fluido de apertura y cierre con animaciones CSS */
+    function showToast(msg) {
+      const toast = document.getElementById('toast-notification');
+      toast.innerText = msg;
+      toast.classList.remove('toast-hidden');
+      toast.classList.add('toast-visible');
+      setTimeout(() => {
+        toast.classList.remove('toast-visible');
+        toast.classList.add('toast-hidden');
+      }, 2000);
+    }
+
     function openFullPlayer() {
       if (currentTrackIndex === -1) return;
       const modal = document.getElementById('full-player-modal');
-      modal.classList.add('is-open');
-      renderFullPlayerPlaylist();
+      modal.classList.remove('modal-closed');
+      modal.classList.add('modal-open');
+      renderQueueUI();
     }
 
     function closeFullPlayer() {
       const modal = document.getElementById('full-player-modal');
-      modal.classList.remove('is-open');
+      modal.classList.remove('modal-open');
+      modal.classList.add('modal-closed');
+      if (isQueueDrawerOpen) toggleQueueDrawer();
+    }
+
+    function toggleQueueDrawer() {
+      const drawer = document.getElementById('queue-drawer');
+      const btnText = document.getElementById('queue-btn-text');
+      isQueueDrawerOpen = !isQueueDrawerOpen;
+
+      if (isQueueDrawerOpen) {
+        drawer.classList.remove('drawer-closed');
+        drawer.classList.add('drawer-open');
+        btnText.innerText = "Ocultar Cola";
+      } else {
+        drawer.classList.remove('drawer-open');
+        drawer.classList.add('drawer-closed');
+        btnText.innerText = "Ver Cola";
+      }
     }
 
     function onYouTubeIframeAPIReady() {
@@ -906,10 +936,21 @@ input[type=range]::-moz-range-thumb {
     }
 
     function handleBackNavigation() {
-      if (currentView === 'release-detail' && currentArtist) {
-        openArtistDetail(currentArtist.id);
+      if (viewHistory.length > 1) {
+        viewHistory.pop(); // Quita la vista actual
+        const previous = viewHistory[viewHistory.length - 1];
+        
+        if (typeof previous === 'object') {
+          if (previous.type === 'artist') {
+            openArtistDetail(previous.id, false, false);
+          } else if (previous.type === 'release') {
+            openReleaseDetail(previous.id, false, false);
+          }
+        } else if (previous === 'artists') {
+          showArtistsList(false, false);
+        }
       } else {
-        showArtistsList();
+        showArtistsList(false, false);
       }
     }
 
@@ -925,12 +966,9 @@ input[type=range]::-moz-range-thumb {
         document.getElementById('view-artists').classList.remove('hidden');
         btnBack.classList.add('hidden');
         btnBack.classList.remove('flex');
-      } else if (viewName === 'artist-detail') {
-        document.getElementById('view-artist-detail').classList.remove('hidden');
-        btnBack.classList.remove('hidden');
-        btnBack.classList.add('flex');
-      } else if (viewName === 'release-detail') {
-        document.getElementById('view-release-detail').classList.remove('hidden');
+      } else if (viewName === 'artist-detail' || viewName === 'release-detail') {
+        if (viewName === 'artist-detail') document.getElementById('view-artist-detail').classList.remove('hidden');
+        if (viewName === 'release-detail') document.getElementById('view-release-detail').classList.remove('hidden');
         btnBack.classList.remove('hidden');
         btnBack.classList.add('flex');
       }
@@ -975,7 +1013,6 @@ input[type=range]::-moz-range-thumb {
       } else {
         clearBtn.classList.add('hidden');
       }
-
       renderArtistsGrid(query);
     }
 
@@ -1031,6 +1068,59 @@ input[type=range]::-moz-range-thumb {
       });
     }
 
+    function addToQueue(track, e) {
+      if (e) e.stopPropagation();
+      playlist.push(track);
+      if (currentTrackIndex === -1) {
+        playTrackAtIndex(0);
+      } else {
+        renderQueueUI();
+        showToast("Añadida a la cola");
+      }
+    }
+
+    function renderQueueUI() {
+      const desktopList = document.getElementById('desktop-queue-list');
+      const mobileList = document.getElementById('mobile-queue-list');
+      const countLabel = document.getElementById('desktop-queue-count');
+
+      if (countLabel) countLabel.innerText = `${playlist.length} canciones`;
+
+      [desktopList, mobileList].forEach(list => {
+        if (!list) return;
+        list.innerHTML = '';
+
+        if (playlist.length === 0) {
+          list.innerHTML = `<p class="text-xs font-mono text-zinc-500 text-center py-6">La cola está vacía</p>`;
+          return;
+        }
+
+        playlist.forEach((track, idx) => {
+          const isPlayingTrack = idx === currentTrackIndex;
+          const item = document.createElement('div');
+          item.className = `flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${
+            isPlayingTrack 
+              ? 'bg-black text-white dark:bg-white dark:text-black font-bold' 
+              : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200'
+          }`;
+          item.onclick = () => playTrackAtIndex(idx);
+
+          item.innerHTML = `
+            <div class="flex items-center gap-3 truncate pr-2">
+              <span class="text-xs font-mono w-4 text-center">${idx + 1}</span>
+              <img src="${track.cover || DEFAULT_COVER}" class="w-8 h-8 rounded object-cover flex-shrink-0">
+              <div class="truncate">
+                <p class="text-xs font-syne uppercase truncate leading-tight">${track.title}</p>
+                <p class="text-[10px] font-mono opacity-70 truncate">${track.artistName}</p>
+              </div>
+            </div>
+            ${isPlayingTrack ? '<span class="text-xs font-mono mr-2">▶</span>' : ''}
+          `;
+          list.appendChild(item);
+        });
+      });
+    }
+
     function renderReleaseTracks(tracks) {
       const container = document.getElementById('release-tracks-container');
       container.innerHTML = '';
@@ -1053,6 +1143,9 @@ input[type=range]::-moz-range-thumb {
             </div>
           </div>
           <div class="flex items-center gap-2 flex-shrink-0">
+            <button onclick="addToQueue(playlist[${idx}], event)" title="Añadir a la cola" class="p-1.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-xs hover:border-black dark:hover:border-white transition-colors flex items-center gap-1">
+              ➕
+            </button>
             <button onclick="event.stopPropagation(); copyTrackShareLink('${track.youtubeId}')" title="Compartir canción" class="p-1.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-xs hover:border-black dark:hover:border-white transition-colors">
               🔗
             </button>
@@ -1062,46 +1155,6 @@ input[type=range]::-moz-range-thumb {
           </div>
         `;
         container.appendChild(row);
-      });
-    }
-
-    /* Renderizado dinámico de la lista de reproducción dentro del modal Fullscreen para PC */
-    function renderFullPlayerPlaylist() {
-      const container = document.getElementById('full-player-playlist');
-      const countLabel = document.getElementById('full-queue-count');
-      if (!container) return;
-
-      container.innerHTML = '';
-      if (countLabel) countLabel.innerText = `${playlist.length} tema${playlist.length === 1 ? '' : 's'}`;
-
-      playlist.forEach((track, idx) => {
-        const isCurrent = idx === currentTrackIndex;
-        const item = document.createElement('div');
-        item.className = `flex items-center justify-between p-2.5 rounded-xl transition-all cursor-pointer ${
-          isCurrent 
-            ? 'bg-black text-white dark:bg-white dark:text-black shadow-md' 
-            : 'hover:bg-zinc-200/60 dark:hover:bg-zinc-800/60 text-black dark:text-white'
-        }`;
-        item.onclick = () => playTrackAtIndex(idx);
-
-        item.innerHTML = `
-          <div class="flex items-center gap-3 overflow-hidden pr-2">
-            <span class="font-mono text-xs font-bold w-5 flex-shrink-0 opacity-60">${idx + 1}</span>
-            <img src="${track.cover || DEFAULT_COVER}" onerror="this.src=DEFAULT_COVER" class="w-9 h-9 object-cover rounded-md flex-shrink-0">
-            <div class="truncate">
-              <h5 class="text-xs font-bold font-syne uppercase truncate">${track.title}</h5>
-              <p class="text-[10px] font-mono opacity-70 truncate">${track.artistName}</p>
-            </div>
-          </div>
-          ${isCurrent ? `
-            <div class="flex items-center gap-1 h-3 pr-2">
-              <span class="sound-wave-bar ${isCurrent ? 'bg-white dark:bg-black' : 'bg-black dark:bg-white'}"></span>
-              <span class="sound-wave-bar ${isCurrent ? 'bg-white dark:bg-black' : 'bg-black dark:bg-white'}"></span>
-              <span class="sound-wave-bar ${isCurrent ? 'bg-white dark:bg-black' : 'bg-black dark:bg-white'}"></span>
-            </div>
-          ` : ''}
-        `;
-        container.appendChild(item);
       });
     }
 
@@ -1115,7 +1168,7 @@ input[type=range]::-moz-range-thumb {
       if (!currentArtist) return;
       const shareUrl = `${window.location.origin}${window.location.pathname}?artist=${currentArtist.id}`;
       navigator.clipboard.writeText(shareUrl).then(() => {
-        alert("¡Enlace del perfil de artista copiado al portapapeles!");
+        showToast("¡Enlace del perfil copiado!");
       }).catch(err => console.error("Error al copiar: ", err));
     }
 
@@ -1123,14 +1176,14 @@ input[type=range]::-moz-range-thumb {
       if (!currentRelease) return;
       const shareUrl = `${window.location.origin}${window.location.pathname}?album=${currentRelease.id}`;
       navigator.clipboard.writeText(shareUrl).then(() => {
-        alert("¡Enlace del lanzamiento copiado al portapapeles!");
+        showToast("¡Enlace de la obra copiado!");
       }).catch(err => console.error("Error al copiar: ", err));
     }
 
     function copyTrackShareLink(youtubeId) {
       const shareUrl = `${window.location.origin}${window.location.pathname}?track=${youtubeId}`;
       navigator.clipboard.writeText(shareUrl).then(() => {
-        alert("¡Enlace directo a la canción copiado!");
+        showToast("¡Enlace a la canción copiado!");
       }).catch(err => console.error("Error al copiar: ", err));
     }
 
@@ -1159,6 +1212,9 @@ input[type=range]::-moz-range-thumb {
             </div>
           </div>
           <div class="flex items-center gap-2 flex-shrink-0">
+            <button onclick="addToQueue(playlist[${idx}], event)" title="Añadir a la cola" class="p-1.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-xs hover:border-black dark:hover:border-white transition-colors flex items-center gap-1">
+              ➕
+            </button>
             <button onclick="event.stopPropagation(); copyTrackShareLink('${track.youtubeId}')" title="Compartir canción" class="p-1.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-xs hover:border-black dark:hover:border-white transition-colors">
               🔗
             </button>
@@ -1222,7 +1278,6 @@ input[type=range]::-moz-range-thumb {
 
       document.getElementById('full-player-title').innerText = track.title;
       document.getElementById('full-player-artist').innerText = track.artistName;
-      document.getElementById('full-player-subtitle').innerText = track.artistName;
       document.getElementById('full-player-img').src = track.cover || DEFAULT_COVER;
 
       if (ytPlayer && ytPlayer.loadVideoById) {
@@ -1235,7 +1290,7 @@ input[type=range]::-moz-range-thumb {
         renderLatestTracks(playlist);
       }
 
-      renderFullPlayerPlaylist();
+      renderQueueUI();
     }
 
     function togglePlayPause() {
@@ -1295,8 +1350,6 @@ input[type=range]::-moz-range-thumb {
           wave.classList.remove('flex');
         }
       }
-
-      renderFullPlayerPlaylist();
     }
 
     function updateSliderBackground(slider) {
@@ -1414,21 +1467,24 @@ input[type=range]::-moz-range-thumb {
       handleRouting();
     });
 
-    function showArtistsList(pushHistory = true) {
+    function showArtistsList(pushHistory = true, updateStack = true) {
       if (pushHistory) history.pushState(null, '', window.location.pathname);
+      if (updateStack) viewHistory.push('artists');
+
       updateViewVisibility('artists');
-      
       renderLatestReleasesHome();
       const searchVal = document.getElementById('artist-search-input')?.value || '';
       renderArtistsGrid(searchVal);
     }
 
-    function openArtistDetail(artistId, pushHistory = true) {
+    function openArtistDetail(artistId, pushHistory = true, updateStack = true) {
       const artist = catalogData.artists.find(a => a.id === artistId);
       if (!artist) return;
       currentArtist = artist;
 
       if (pushHistory) history.pushState(null, '', `?artist=${artist.id}`);
+      if (updateStack) viewHistory.push({ type: 'artist', id: artist.id });
+
       updateViewVisibility('artist-detail');
 
       document.getElementById('artist-name').innerText = artist.name;
@@ -1456,10 +1512,9 @@ input[type=range]::-moz-range-thumb {
 
       renderLatestTracks(playlist);
       renderDiscography(artistReleases, 'todos');
-      renderFullPlayerPlaylist();
     }
 
-    function openReleaseDetail(releaseId, pushHistory = true) {
+    function openReleaseDetail(releaseId, pushHistory = true, updateStack = true) {
       const release = catalogData.releases.find(r => r.id === releaseId);
       if (!release) return;
 
@@ -1467,6 +1522,8 @@ input[type=range]::-moz-range-thumb {
       currentArtist = catalogData.artists.find(a => a.id === release.artistId) || null;
 
       if (pushHistory) history.pushState(null, '', `?album=${release.id}`);
+      if (updateStack) viewHistory.push({ type: 'release', id: release.id });
+
       updateViewVisibility('release-detail');
 
       document.getElementById('release-img').src = release.cover || DEFAULT_COVER;
@@ -1490,7 +1547,6 @@ input[type=range]::-moz-range-thumb {
       }));
 
       renderReleaseTracks(playlist);
-      renderFullPlayerPlaylist();
     }
 
     document.getElementById('now-playing-img').src = DEFAULT_COVER;
