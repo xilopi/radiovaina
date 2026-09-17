@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<title>Radio Vaina — Plataforma Musical Libre e Independiente</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Metaetiquetas para Redes Sociales (Open Graph / WhatsApp / Telegram) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Radio Vaina — Plataforma Musical Libre e Independiente">
+<meta property="og:description" content="Radio Vaina es un espacio independiente para escuchar y compartir música sin intermediarios, peajes ni corporativismo.">
+<meta property="og:image" content="https://i.imgur.com/KoqzHXq.png">
+<meta property="og:locale" content="es_ES">
+
+<!-- Twitter Cards -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Radio Vaina — Música Libre">
+<meta name="twitter:description" content="Música libre de ataduras. Sin cobros ni exclusividades. Creada por amor al arte.">
+<meta name="twitter:image" content="https://i.imgur.com/KoqzHXq.png">
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="https://i.imgur.com/KoqzHXq.png">
+
+<!-- Fuentes: Space Grotesk & Syne -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+  }
+</script>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+body {
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: -0.01em;
+  padding-bottom: 110px;
+}
+
+.font-syne {
+  font-family: 'Syne', sans-serif;
+}
+
+.track-row {
+  transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sound-wave-bar {
+  display: inline-block;
+  width: 3px;
+  border-radius: 2px;
+  animation: soundWave 1.2s infinite ease-in-out alternate;
+}
+@keyframes soundWave {
+  0% { height: 4px; }
+  100% { height: 16px; }
+}
+.sound-wave-bar:nth-child(2) { animation-delay: 0.2s; }
+.sound-wave-bar:nth-child(3) { animation-delay: 0.4s; }
+.sound-wave-bar:nth-child(4) { animation-delay: 0.1s; }
+
+#youtube-player-container {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Estilos de la barra de progreso con gradiente de reproducción */
+input[type=range] {
+  -webkit-appearance: none;
+  background: transparent;
+}
+input[type=range]:focus {
+  outline: none;
+}
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+  cursor: pointer;
+  border-radius: 9999px;
+}
+input[type=range]::-webkit-slider-thumb {
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: currentColor;
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: -3px;
+}
+input[type=range]::-moz-range-track {
+  width: 100%;
+  height: 6px;
+  cursor: pointer;
+  border-radius: 9999px;
+}
+input[type=range]::-moz-range-thumb {
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: currentColor;
+  cursor: pointer;
+  border: none;
+}
+
+/* Utilidad para truncar texto a máximo 2 líneas */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;  
+  overflow: hidden;
+}
+
+/* Estilos y transiciones para el Fullscreen Player Modal */
+#full-player-modal {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: scale(0.96) translateY(12px);
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.35s step-end;
+}
+
+#full-player-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: scale(1) translateY(0);
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0s step-start;
+}
+
+/* Custom scrollbar para la playlist dentro del modo PC Fullscreen */
+.custom-scrollbar::-webkit-scrollbar {
+  display: block;
+  width: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(150, 150, 150, 0.3);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(150, 150, 150, 0.5);
+}
+</style>
+</head>
+<body class="bg-white text-black dark:bg-[#121212] dark:text-zinc-100 selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black transition-colors duration-200">
+
+  <!-- Navegación Superior -->
+  <nav class="sticky top-0 z-40 bg-white/90 dark:bg-[#121212]/90 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 py-3.5 px-4 sm:px-6 transition-colors duration-200">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3 sm:gap-4">
+        <button id="btn-back" onclick="handleBackNavigation()" class="hidden items-center gap-2 text-xs font-mono uppercase font-bold px-3 py-1.5 border border-black dark:border-white rounded-full hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
+          ← Volver
+        </button>
+        <span class="font-syne font-black text-lg sm:text-xl uppercase tracking-tight cursor-pointer" onclick="showArtistsList()">RADIO VAINA</span>
+      </div>
+      
+      <div class="flex items-center">
+        <!-- Toggle Modo Claro / Oscuro -->
+        <button onclick="toggleDarkMode()" class="p-2 rounded-full border border-zinc-300 dark:border-zinc-700 hover:border-black dark:hover:border-white text-black dark:text-white transition-colors" title="Cambiar Tema">
+          <svg id="theme-icon-sun" class="w-4 h-4 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg id="theme-icon-moon" class="w-4 h-4 block dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- VISTA 1: INICIO -->
+  <main id="view-artists" class="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-10">
+    
+    <!-- SECCIÓN: Lanzamientos Más Recientes -->
+    <section class="mb-8 sm:mb-16">
+      <div class="mb-3 sm:mb-6">
+        <span class="text-[9px] sm:text-xs font-mono uppercase text-zinc-400 font-bold tracking-widest block mb-0.5">Novedades</span>
+        <h2 class="text-xl sm:text-4xl font-black font-syne uppercase text-black dark:text-white">
+          Últimos Lanzamientos
+        </h2>
+      </div>
+
+      <div id="latest-releases-grid" class="grid grid-cols-3 md:grid-cols-6 gap-2 sm:gap-4">
+        <!-- Dinámico via JS -->
+      </div>
+    </section>
+
+    <!-- SECCIÓN: Artistas -->
+    <section class="mb-12 sm:mb-20">
+      <header class="mb-4 sm:mb-8">
+        <h2 class="text-xl sm:text-4xl font-black font-syne uppercase text-black dark:text-white">
+          Artistas
+        </h2>
+        <p class="mt-0.5 text-zinc-500 dark:text-zinc-400 text-[11px] sm:text-sm font-normal">
+          Selecciona un artista para acceder a sus últimos lanzamientos y discografía completa.
+        </p>
+      </header>
+
+      <!-- BUSCADOR DE ARTISTAS -->
+      <div class="relative mb-4 sm:mb-8 max-w-md">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
+          <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
+        <input 
+          type="text" 
+          id="artist-search-input" 
+          placeholder="Buscar artista por nombre..." 
+          oninput="handleArtistSearch(this.value)"
+          class="w-full pl-9 pr-9 py-2 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-full text-xs sm:text-sm text-black dark:text-white placeholder-zinc-400 focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+        >
+        <button 
+          id="btn-clear-search" 
+          onclick="clearArtistSearch()" 
+          class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-black dark:hover:text-white transition-colors"
+          title="Borrar búsqueda"
+        >
+          <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Grid de 3 columnas en móvil -->
+      <div id="artists-grid" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-6 items-stretch">
+        <!-- Dinámico via JS -->
+      </div>
+      <div id="no-artists-found" class="hidden text-center py-8 text-zinc-400 text-xs font-mono">
+        No se ha encontrado ningún artista con ese nombre.
+      </div>
+    </section>
+
+    <!-- SECCIÓN: Manifiesto -->
+    <section class="border-t border-zinc-200 dark:border-zinc-800 pt-8 sm:pt-14">
+      <div class="max-w-4xl">
+        <span class="text-[9px] sm:text-xs font-mono uppercase text-zinc-400 font-bold tracking-widest block mb-1.5">Manifiesto</span>
+        <h2 class="text-xl sm:text-4xl font-black font-syne uppercase text-black dark:text-white mb-4 sm:mb-6">
+          Sobre Radio Vaina
+        </h2>
+        <div class="space-y-3 sm:space-y-4 text-xs sm:text-base text-zinc-600 dark:text-zinc-300 leading-relaxed font-normal">
+          <p>
+            Radio Vaina nace como una respuesta libre e independiente para quienes buscan alternativas frente a las grandes plataformas digitales y la intermediación de las distribuidoras tradicionales. Creemos firmemente en una cultura accesible, sin peajes ni intereses corporativos.
+          </p>
+          <p>
+            Rechazamos cualquier vínculo con estructuras que prioricen el beneficio económico por encima de la ética. En este espacio nadie cobra ni paga un solo euro: ni el oyente por escuchar, ni el artista por compartir su obra. Es una alternativa real construida por amor al arte.
+          </p>
+          <p>
+            <strong class="font-bold text-black dark:text-white block mb-0.5">No exigimos exclusividad a nuestros artistas</strong>
+            Entendemos las contradicciones de la industria actual y sabemos que muchos creadores necesitan el streaming tradicional para hacer llegar su trabajo. Radio Vaina no juzga tus canales de difusión; es un refugio abierto a cualquiera que comulgue con nuestros valores y quiera sumar su voz a un catálogo libre de ataduras.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- VISTA 2: PERFIL DEL ARTISTA -->
+  <main id="view-artist-detail" class="hidden max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+    <div class="flex flex-col sm:flex-row items-start sm:items-end gap-4 sm:gap-6 mb-8 sm:mb-12 pb-6 sm:pb-8 border-b border-zinc-200 dark:border-zinc-800">
+      <img id="artist-img" src="" alt="" onerror="this.src=DEFAULT_COVER" class="w-32 h-32 sm:w-56 sm:h-56 object-cover border border-zinc-300 dark:border-zinc-700 rounded-lg bg-zinc-100 dark:bg-zinc-800">
+      <div class="flex-1">
+        <span class="text-[10px] sm:text-xs font-mono uppercase text-zinc-400 font-bold tracking-wider">ARTISTA</span>
+        <h1 id="artist-name" class="text-3xl sm:text-6xl font-black font-syne uppercase tracking-tight text-black dark:text-white mt-0.5"></h1>
+        <div class="mt-4">
+          <button onclick="copyCurrentArtistShareLink()" class="p-2.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-xs hover:border-black dark:hover:border-white transition-colors" title="Compartir perfil de artista">
+            🔗 Compartir Perfil
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección 1: Lo más reciente del Artista -->
+    <section class="mb-12 sm:mb-16">
+      <div class="flex items-center justify-between mb-3 sm:mb-4">
+        <h2 class="text-xl sm:text-3xl font-bold font-syne uppercase text-black dark:text-white">Lo Último</h2>
+        <span class="text-[10px] sm:text-xs font-mono text-zinc-400">Orden cronológico</span>
+      </div>
+      <div class="border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 shadow-sm" id="latest-tracks-container">
+        <!-- Dinámico -->
+      </div>
+    </section>
+
+    <!-- Sección 2: Discografía del Artista -->
+    <section class="mb-12 sm:mb-16">
+      <h2 class="text-xl sm:text-3xl font-bold font-syne uppercase text-black dark:text-white mb-4 sm:mb-6">Discografía</h2>
+
+      <div class="flex gap-2 border-b border-zinc-200 dark:border-zinc-800 pb-3 mb-6 font-mono text-xs uppercase overflow-x-auto">
+        <button onclick="filterDiscography('todos')" id="tab-todos" class="disc-tab px-3 py-1.5 border border-black dark:border-white bg-black dark:bg-white text-white dark:text-black rounded-full whitespace-nowrap">Todos</button>
+        <button onclick="filterDiscography('album')" id="tab-album" class="disc-tab px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 text-black dark:text-white hover:border-black dark:hover:border-white rounded-full whitespace-nowrap">Álbumes</button>
+        <button onclick="filterDiscography('ep')" id="tab-ep" class="disc-tab px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 text-black dark:text-white hover:border-black dark:hover:border-white rounded-full whitespace-nowrap">EPs</button>
+        <button onclick="filterDiscography('single')" id="tab-single" class="disc-tab px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 text-black dark:text-white hover:border-black dark:hover:border-white rounded-full whitespace-nowrap">Singles</button>
+      </div>
+
+      <!-- Cambiado a 3 columnas en móvil (grid-cols-3) -->
+      <div id="discography-grid" class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-6">
+        <!-- Dinámico -->
+      </div>
+    </section>
+  </main>
+
+  <!-- VISTA 3: DETALLE DEL LANZAMIENTO -->
+  <main id="view-release-detail" class="hidden max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+    <div class="flex flex-col sm:flex-row items-start sm:items-end gap-6 sm:gap-8 mb-8 sm:mb-12 pb-6 sm:pb-8 border-b border-zinc-200 dark:border-zinc-800">
+      <img id="release-img" src="" alt="" onerror="this.src=DEFAULT_COVER" class="w-48 h-48 sm:w-64 sm:h-64 object-cover border border-zinc-300 dark:border-zinc-700 rounded-lg shadow-lg bg-zinc-100 dark:bg-zinc-800 flex-shrink-0">
+      <div class="flex-1 min-w-0">
+        <span id="release-type-badge" class="text-[10px] sm:text-xs font-mono uppercase px-2 py-0.5 border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 rounded inline-block font-bold">SINGLE</span>
+        <h1 id="release-title" class="text-3xl sm:text-5xl font-black font-syne uppercase tracking-tight text-black dark:text-white mt-2 leading-tight"></h1>
+        <p id="release-artist-name" class="text-base sm:text-xl font-bold text-zinc-700 dark:text-zinc-300 mt-1 cursor-pointer hover:underline"></p>
+        <p id="release-date" class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-2 font-normal"></p>
+        
+        <div class="mt-6 flex items-center gap-3">
+          <button id="btn-play-release" onclick="playCurrentRelease()" class="px-6 py-2.5 bg-black dark:bg-white text-white dark:text-black font-mono text-xs uppercase font-bold rounded-full hover:opacity-90 transition-opacity flex items-center gap-2">
+            <span>▶ Reproducir</span>
+          </button>
+          <button onclick="copyCurrentReleaseShareLink()" class="p-2.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-xs hover:border-black dark:hover:border-white transition-colors" title="Compartir este lanzamiento">
+            🔗 Compartir
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de Tracks -->
+    <section class="mb-12">
+      <h2 class="text-lg sm:text-2xl font-bold font-syne uppercase text-black dark:text-white mb-4">Canciones</h2>
+      <div id="release-tracks-container" class="border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 shadow-sm">
+        <!-- Dinámico -->
+      </div>
+    </section>
+  </main>
+
+  <!-- REPRODUCTOR FLOTANTE INFERIOR -->
+  <div id="player-bar" class="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#121212]/95 backdrop-blur-md border-t border-zinc-200 dark:border-zinc-800 px-4 py-2.5 shadow-lg transition-colors duration-200">
+    <div class="max-w-7xl mx-auto flex flex-col gap-2">
+      
+      <div class="flex items-center justify-between gap-2">
+        
+        <!-- Track Info -->
+        <div onclick="openFullPlayer()" class="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer group">
+          <img id="now-playing-img" src="" onerror="this.src=DEFAULT_COVER" class="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded border border-zinc-200 dark:border-zinc-700 flex-shrink-0 bg-zinc-100 dark:bg-zinc-800 transition-transform group-hover:scale-105">
+          <div class="truncate">
+            <h4 id="now-playing-title" class="text-xs sm:text-sm font-bold font-syne uppercase text-black dark:text-white truncate group-hover:underline">Selecciona una canción</h4>
+            <p id="now-playing-artist" class="text-[10px] sm:text-xs font-mono text-zinc-500 dark:text-zinc-400 truncate">--</p>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="flex items-center gap-3 sm:gap-4 flex-shrink-0">
+          <button onclick="playPrevTrack()" class="text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-colors p-1">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-current" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+          </button>
+          <button onclick="togglePlayPause()" id="btn-play-pause" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-transform active:scale-95 flex-shrink-0">
+            <svg id="icon-play" class="w-4 h-4 sm:w-5 sm:h-5 fill-current translate-x-[1px]" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            <svg id="icon-pause" class="w-4 h-4 sm:w-5 sm:h-5 fill-current hidden" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+          </button>
+          <button onclick="playNextTrack()" class="text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-colors p-1">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-current" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+          </button>
+        </div>
+
+        <!-- Visual indicator -->
+        <div class="hidden sm:flex w-24 justify-end items-center flex-shrink-0">
+          <div id="playing-wave" class="hidden items-center gap-1 h-4">
+            <span class="sound-wave-bar bg-black dark:bg-white"></span>
+            <span class="sound-wave-bar bg-black dark:bg-white"></span>
+            <span class="sound-wave-bar bg-black dark:bg-white"></span>
+            <span class="sound-wave-bar bg-black dark:bg-white"></span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Barra de Progreso -->
+      <div class="w-full flex items-center gap-2 text-[10px] font-mono text-zinc-400">
+        <span id="curr-time" class="w-8 text-right flex-shrink-0">0:00</span>
+        <input type="range" id="progress-bar" value="0" min="0" max="100" class="w-full h-1.5 rounded-lg appearance-none cursor-pointer text-black dark:text-white">
+        <span id="dur-time" class="w-8 text-left flex-shrink-0">0:00</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- REPRODUCTOR A PANTALLA COMPLETA (MODAL) -->
+  <div id="full-player-modal" class="fixed inset-0 z-50 bg-white/95 dark:bg-[#121316]/95 backdrop-blur-xl text-black dark:text-white flex flex-col justify-between p-4 sm:p-8 overflow-hidden transition-colors duration-200">
+    
+    <!-- Top Header Bar -->
+    <div class="flex items-center justify-between w-full max-w-6xl mx-auto flex-shrink-0 pb-4 border-b border-zinc-200/50 dark:border-zinc-800/50">
+      <button onclick="closeFullPlayer()" class="text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white transition-colors p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800" title="Minimizar">
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+
+      <div class="text-center">
+        <p class="text-[10px] sm:text-[11px] font-mono uppercase text-zinc-500 dark:text-zinc-400 tracking-widest font-bold">Modo Reproducción</p>
+        <p id="full-player-subtitle" class="text-xs sm:text-sm font-bold text-zinc-800 dark:text-zinc-200 truncate max-w-[200px] sm:max-w-xs">Radio Vaina</p>
+      </div>
+
+      <button onclick="closeFullPlayer()" class="text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white transition-colors p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800" title="Cerrar">
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Main Content Area: Responsive Grid (Single column in mobile, 2 columns in PC) -->
+    <div class="my-auto w-full max-w-6xl mx-auto py-4 sm:py-6 overflow-y-auto custom-scrollbar flex-1 flex items-center justify-center">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-12 w-full items-center">
+        
+        <!-- Left Column (Desktop) / Main Area (Mobile): Artwork & Controls -->
+        <div class="md:col-span-6 lg:col-span-6 flex flex-col items-center max-w-md mx-auto w-full">
+          <div class="w-full aspect-square max-w-[280px] sm:max-w-[340px] md:max-w-[380px] rounded-2xl overflow-hidden shadow-2xl mb-6 sm:mb-8 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800/80 group">
+            <img id="full-player-img" src="" onerror="this.src=DEFAULT_COVER" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+          </div>
+
+          <div class="w-full flex items-center justify-between mb-4 sm:mb-6 px-1">
+            <div class="truncate pr-4 text-left">
+              <h2 id="full-player-title" class="text-xl sm:text-2xl lg:text-3xl font-black font-syne uppercase truncate text-black dark:text-white leading-tight">--</h2>
+              <p id="full-player-artist" class="text-xs sm:text-sm font-mono text-zinc-500 dark:text-zinc-400 truncate mt-1">--</p>
+            </div>
+            <button onclick="copyCurrentReleaseShareLink()" class="p-2.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-xs hover:border-black dark:hover:border-white transition-colors flex-shrink-0" title="Compartir canción">
+              🔗
+            </button>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="w-full mb-6 sm:mb-8">
+            <input type="range" id="full-progress-bar" value="0" min="0" max="100" class="w-full h-2 rounded-lg appearance-none cursor-pointer text-black dark:text-white">
+            <div class="flex justify-between text-xs font-mono text-zinc-500 dark:text-zinc-400 mt-2">
+              <span id="full-curr-time">0:00</span>
+              <span id="full-dur-time">0:00</span>
+            </div>
+          </div>
+
+          <!-- Playback Controls -->
+          <div class="flex items-center justify-between w-full">
+            <button onclick="playPrevTrack()" class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center text-black dark:text-white transition-all active:scale-95 shadow-sm">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 fill-current" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+            </button>
+            
+            <button onclick="togglePlayPause()" id="full-btn-play-pause" class="h-12 sm:h-14 px-8 sm:px-10 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-sm sm:text-base gap-2.5 hover:opacity-90 transition-transform active:scale-95 shadow-xl">
+              <svg id="full-icon-play" class="w-5 h-5 fill-current translate-x-[1px]" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              <svg id="full-icon-pause" class="w-5 h-5 fill-current hidden" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+              <span id="full-play-label">Reproducir</span>
+            </button>
+            
+            <button onclick="playNextTrack()" class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center text-black dark:text-white transition-all active:scale-95 shadow-sm">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 fill-current" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Column (Desktop PC ONLY): Queue / Playlist view -->
+        <div class="hidden md:flex md:col-span-6 lg:col-span-6 flex-col h-full max-h-[480px] bg-zinc-50/70 dark:bg-zinc-900/50 border border-zinc-200/80 dark:border-zinc-800/80 rounded-2xl p-5 backdrop-blur-sm">
+          <div class="flex items-center justify-between pb-3 mb-3 border-b border-zinc-200 dark:border-zinc-800">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-mono uppercase font-bold text-zinc-400">Cola de Reproducción</span>
+              <span id="full-queue-count" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300">0 temas</span>
+            </div>
+            <span class="text-[10px] font-mono uppercase text-zinc-400">Lista Actual</span>
+          </div>
+
+          <div id="full-player-playlist" class="overflow-y-auto custom-scrollbar flex-1 space-y-1 pr-1">
+            <!-- Dinámico vía JS -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Bottom Bar / Footer inside modal -->
+    <div class="w-full max-w-6xl mx-auto flex items-center justify-between text-[11px] font-mono text-zinc-400 pt-3 border-t border-zinc-200/50 dark:border-zinc-800/50 flex-shrink-0">
+      <span>Radio Vaina Player</span>
+      <span class="hidden sm:inline">Música Libre e Independiente</span>
+    </div>
+
+  </div>
+
+  <div id="youtube-player-container">
+    <div id="youtube-player"></div>
+  </div>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+
+  <script>
+    const DEFAULT_COVER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%2318181b'/%3E%3Ccircle cx='150' cy='150' r='80' stroke='%233f3f46' stroke-width='4' fill='none'/%3E%3Ccircle cx='150' cy='150' r='30' fill='%233f3f46'/%3E%3Cpath d='M150 30 L150 70 M150 230 L150 270 M30 150 L70 150 M230 150 L270 150' stroke='%233f3f46' stroke-width='2'/%3E%3C/svg%3E";
+
+    const catalogData = {
+      artists: [
+        { id: "polix", name: "polix", img: "https://i.imgur.com/1qmfnGS.png" },
+        { id: "polix-sin", name: "Polix Sin", img: "https://i.imgur.com/zixU4kz.png" },
+        { id: "sulli", name: "Sulli!", img: "https://i.imgur.com/rOvOIFq.png" },
+        { id: "vittorio", name: "Vittorio Gazelle", img: "https://i.imgur.com/8MiOT06.png" },
+        { id: "kizzi", name: "Kizzi", img: "https://i.imgur.com/lnH4wE5.png" },
+        { id: "pretty-cher", name: "Pretty Cher", img: "https://i.imgur.com/8KCt4uK.png" },
+        { id: "dos-persas", name: "Dos Persas", img: "https://i.imgur.com/DjPwMf9.png" },
+        { id: "fer-ag", name: "Fer AG", img: "https://i.imgur.com/rdCIhJn.png" },
+        { id: "victorldv", name: "VíctorLDV", img: "https://i.imgur.com/Uq2XkgO.png" },
+        { id: "conman", name: "Conman", img: "https://i.imgur.com/rT3lgJ4.png" },
+        { id: "jjsaiko", name: "jjSaiko", img: "https://i.imgur.com/lZzilFM.png" },
+        { id: "sake-2k", name: "Sake 2k", img: "https://i.imgur.com/AkbOvPO.png" }
+      ],
+      releases: [
+        {
+          id: "rel-sake-2k-camerun",
+          artistId: "sake-2k",
+          artistIds: ["sake-2k"],
+          artistName: "Sake 2k",
+          title: "CAMERUN",
+          type: "single",
+          date: "2023-02-05",
+          cover: "https://i.imgur.com/6DiQIth.png",
+          tracks: [{ title: "CAMERUN", youtubeId: "1d1J0-Z2-mI", trackNo: 1 }]
+        },
+        {
+          id: "rel-pretty-cher-me-rayas",
+          artistId: "pretty-cher",
+          artistIds: ["pretty-cher", "fer-ag"],
+          artistName: "Pretty Cher, Fer AG",
+          title: "Me Rayas",
+          type: "single",
+          date: "2026-09-11",
+          cover: "https://i.scdn.co/image/ab67616d0000aa5438003f021dee033ac44f7d92",
+          tracks: [{ title: "Me Rayas", youtubeId: "xB-VZMC8uG0", trackNo: 1 }]
+        },
+        {
+          id: "rel-dos-persas-poquito-ruido",
+          artistId: "dos-persas",
+          artistIds: ["dos-persas"],
+          artistName: "Dos Persas",
+          title: "Poquito Ruido",
+          type: "single",
+          date: "2026-08-26",
+          cover: "https://i.scdn.co/image/ab67616d0000aa54be1d6e5ab047099a29ed4df0",
+          tracks: [{ title: "Poquito Ruido", youtubeId: "HEVToGFSV44", trackNo: 1 }]
+        },
+        {
+          id: "rel-victorldv-que-pena",
+          artistId: "victorldv",
+          artistIds: ["victorldv"],
+          artistName: "VíctorLDV",
+          title: "Que pena que no estés para verlo",
+          type: "single",
+          date: "2026-09-01",
+          cover: "https://i.scdn.co/image/ab67616d0000aa54738adb5f222b00672dff214f",
+          tracks: [{ title: "Que pena que no estés para verlo", youtubeId: "1lJgBlqCEeQ", trackNo: 1 }]
+        },
+        {
+          id: "rel-conman-squeezer",
+          artistId: "conman",
+          artistIds: ["conman", "victorldv"],
+          artistName: "Conman, VíctorLDV",
+          title: "SQUEEZER",
+          type: "single",
+          date: "2023-11-15",
+          cover: "https://i.imgur.com/XAovrai.png",
+          tracks: [{ title: "SQUEEZER", youtubeId: "isdDC6VAaDw", trackNo: 1 }]
+        },
+        {
+          id: "rel-jjsaiko-eso-no-alivia",
+          artistId: "jjsaiko",
+          artistIds: ["jjsaiko"],
+          artistName: "jjSaiko",
+          title: "ESO NO ALIVIA",
+          type: "single",
+          date: "2025-05-26",
+          cover: "https://i.imgur.com/QH09ogh.png",
+          tracks: [{ title: "ESO NO ALIVIA", youtubeId: "HrNeZ1wrwGE", trackNo: 1 }]
+        },
+        {
+          id: "rel-polix-depende-de-mi",
+          artistId: "polix",
+          artistIds: ["polix"],
+          artistName: "polix",
+          title: "depende de mí",
+          type: "single",
+          date: "2026-08-19",
+          cover: "https://i.imgur.com/jMk5XuG.jpeg",
+          tracks: [{ title: "depende de mí", youtubeId: "izG5XA7qxNo", trackNo: 1 }]
+        },
+        {
+          id: "rel-kizzi-cuando-no-estas",
+          artistId: "kizzi",
+          artistIds: ["kizzi"],
+          artistName: "Kizzi, whitelxck",
+          title: "Cuando No Estás",
+          type: "single",
+          date: "2025-09-12",
+          cover: "https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e0200f2dbefda9296b5b9fe1f3b",
+          tracks: [{ title: "Cuando No Estás", youtubeId: "uTRwAId7xeI", trackNo: 1 }]
+        },
+        {
+          id: "rel-kizzi-retrocesos",
+          artistId: "kizzi",
+          artistIds: ["kizzi"],
+          artistName: "Kizzi",
+          title: "Retrocesos",
+          type: "single",
+          date: "2025-09-12",
+          cover: "https://i.scdn.co/image/ab67616d0000b273d9b43394240d6a278d985bb7",
+          tracks: [{ title: "Retrocesos", youtubeId: "BgqxJl-VyiA", trackNo: 1 }]
+        },
+        {
+          id: "rel-kizzi-1",
+          artistId: "kizzi",
+          artistIds: ["kizzi"],
+          artistName: "Kizzi",
+          title: "Solamente Tú",
+          type: "single",
+          date: "2024-06-15",
+          cover: "https://i.imgur.com/xRSCHIJ.png",
+          tracks: [{ title: "Solamente Tú", youtubeId: "LlD2FUdrxn0", trackNo: 1 }]
+        },
+        {
+          id: "rel-polix-piazza",
+          artistId: "polix-sin",
+          artistIds: ["polix-sin"],
+          artistName: "Polix Sin",
+          title: "Piazza del Pigneto",
+          type: "single",
+          date: "2025-10-06",
+          cover: "https://i.scdn.co/image/ab67616d0000e1a3a333887213e7883f13f8078d",
+          tracks: [{ title: "Piazza del Pigneto", youtubeId: "mCYOAZuaVVg", trackNo: 1 }]
+        },
+        {
+          id: "rel-polix-veinticuatro",
+          artistId: "polix-sin",
+          artistIds: ["polix-sin"],
+          artistName: "Polix Sin",
+          title: "Veinticuatro",
+          type: "single",
+          date: "2025-01-24",
+          cover: "https://i.scdn.co/image/ab67616d0000e1a38e84f649c0e1b77eb4061257",
+          tracks: [{ title: "Veinticuatro", youtubeId: "eW2At9zL4yQ", trackNo: 1 }]
+        },
+        {
+          id: "rel-polix-luces",
+          artistId: "polix-sin",
+          artistIds: ["polix-sin"],
+          artistName: "Polix Sin",
+          title: "Luces y Absenta",
+          type: "single",
+          date: "2021-10-28",
+          cover: "https://i.imgur.com/6KDcESu.png",
+          tracks: [{ title: "Luces y Absenta", youtubeId: "lgcVdupp_Gg", trackNo: 1 }]
+        },
+        {
+          id: "rel-polix-mundo",
+          artistId: "polix-sin",
+          artistIds: ["polix-sin"],
+          artistName: "Polix Sin",
+          title: "Mundo De Dígitos",
+          type: "single",
+          date: "2021-07-24",
+          cover: "https://i.imgur.com/j6j2D9C.png",
+          tracks: [{ title: "Mundo De Dígitos", youtubeId: "Tl0DZRqvnlE", trackNo: 1 }]
+        },
+        {
+          id: "rel-polix-conflicto",
+          artistId: "polix-sin",
+          artistIds: ["polix-sin"],
+          artistName: "Polix Sin",
+          title: "Conflicto Interno",
+          type: "single",
+          date: "2020-10-06",
+          cover: "https://i.imgur.com/v4s6BTu.png",
+          tracks: [{ title: "Conflicto Interno", youtubeId: "81qYp931F9k", trackNo: 1 }]
+        },
+        {
+          id: "rel-polix-evasion",
+          artistId: "polix-sin",
+          artistIds: ["polix-sin"],
+          artistName: "Polix Sin",
+          title: "Evasión",
+          type: "single",
+          date: "2020-10-06",
+          cover: "https://i.imgur.com/v4s6BTu.png",
+          tracks: [{ title: "Evasión", youtubeId: "D0LDNEKSB18", trackNo: 1 }]
+        },
+        {
+          id: "rel-polix-1",
+          artistId: "polix-sin",
+          artistIds: ["polix-sin"],
+          artistName: "Polix Sin",
+          title: "Pequeños Cambios",
+          type: "single",
+          date: "2020-05-31",
+          cover: "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/9b/55/f9/9b55f9cf-4570-0558-2b45-2dcf811cda72/artwork.jpg/592x592bb.webp",
+          tracks: [{ title: "Pequeños Cambios", youtubeId: "v86HNqH6ll0", trackNo: 1 }]
+        },
+        {
+          id: "rel-sulli-1",
+          artistId: "sulli",
+          artistIds: ["sulli"],
+          artistName: "Sulli!",
+          title: "2023 freestyle",
+          type: "single",
+          date: "2025-03-16",
+          cover: "https://i.scdn.co/image/ab67616d0000e1a3d39b3fad623d8150ad38d9f7",
+          tracks: [{ title: "2023 freestyle", youtubeId: "2I9cQ53ALwM", trackNo: 1 }]
+        },
+        {
+          id: "rel-sulli-2",
+          artistId: "sulli",
+          artistIds: ["sulli"],
+          artistName: "Sulli!",
+          title: "Redención",
+          type: "single",
+          date: "2025-11-12",
+          cover: "https://i.scdn.co/image/ab67616d0000e1a3ceb272a24f5a7e34fe4a7cbd",
+          tracks: [{ title: "Redención", youtubeId: "KrqSYEl595Y", trackNo: 1 }]
+        },
+        {
+          id: "rel-sulli-3",
+          artistId: "sulli",
+          artistIds: ["sulli"],
+          artistName: "Sulli!",
+          title: "Missin'",
+          type: "single",
+          date: "2025-08-24",
+          cover: "https://i.scdn.co/image/ab67616d0000e1a3fb3ac8a05f4e431424845913",
+          tracks: [{ title: "Missin'", youtubeId: "iyKMj8znM0I", trackNo: 1 }]
+        },
+        {
+          id: "rel-sulli-4",
+          artistId: "sulli",
+          artistIds: ["sulli"],
+          artistName: "Sulli!",
+          title: "La Luz",
+          type: "single",
+          date: "2025-01-24",
+          cover: "https://i.scdn.co/image/ab67616d0000e1a3220dfe9278901aeea81dab28",
+          tracks: [{ title: "La Luz", youtubeId: "uLmelDAnIo0", trackNo: 1 }]
+        },
+        {
+          id: "rel-sulli-5",
+          artistId: "sulli",
+          artistIds: ["sulli"],
+          artistName: "Sulli!",
+          title: "Maravilla",
+          type: "single",
+          date: "2024-08-14",
+          cover: "https://i.scdn.co/image/ab67616d0000e1a3436cb7e1040ff52c95ec9600",
+          tracks: [{ title: "Maravilla", youtubeId: "iBd1DSR43cY", trackNo: 1 }]
+        },
+        {
+          id: "rel-sulli-6",
+          artistId: "sulli",
+          artistIds: ["sulli"],
+          artistName: "Sulli!",
+          title: "MANIACS",
+          type: "single",
+          date: "2023-10-24",
+          cover: "https://i.imgur.com/l9lmrQc.png",
+          tracks: [{ title: "MANIACS", youtubeId: "A9KyR1cIrkg", trackNo: 1 }]
+        },
+        {
+          id: "rel-vittorio-1",
+          artistId: "vittorio",
+          artistIds: ["vittorio"],
+          artistName: "Vittorio Gazelle",
+          title: "impossible romance",
+          type: "single",
+          date: "2026-09-02",
+          cover: "https://i.imgur.com/Q08fLJm.png",
+          tracks: [{ title: "impossible romance", youtubeId: "p9ggYEJSgL0", trackNo: 1 }]
+        }
+      ]
+    };
+
+    let currentArtist = null;
+    let currentRelease = null;
+    let playlist = [];
+    let currentTrackIndex = -1;
+    let ytPlayer = null;
+    let isPlaying = false;
+    let progressTimer = null;
+    let isSeeking = false;
+    let currentView = 'artists';
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      updateSliderBackground(document.getElementById('progress-bar'));
+      updateSliderBackground(document.getElementById('full-progress-bar'));
+    }
+
+    initTheme();
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const parts = dateStr.split('-');
+      if (parts.length !== 3) return dateStr;
+      
+      const year = parts[0];
+      const monthIdx = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+
+      const months = [
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+      ];
+
+      return `${day} ${months[monthIdx]} ${year}`;
+    }
+
+    /* Manejo fluido de apertura y cierre con animaciones CSS */
+    function openFullPlayer() {
+      if (currentTrackIndex === -1) return;
+      const modal = document.getElementById('full-player-modal');
+      modal.classList.add('is-open');
+      renderFullPlayerPlaylist();
+    }
+
+    function closeFullPlayer() {
+      const modal = document.getElementById('full-player-modal');
+      modal.classList.remove('is-open');
+    }
+
+    function onYouTubeIframeAPIReady() {
+      ytPlayer = new YT.Player('youtube-player', {
+        height: '0',
+        width: '0',
+        events: {
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange
+        }
+      });
+    }
+
+    function onPlayerReady() {}
+
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.PLAYING) {
+        isPlaying = true;
+        updatePlayerUI();
+        startProgressLoop();
+      } else if (event.data === YT.PlayerState.PAUSED) {
+        isPlaying = false;
+        updatePlayerUI();
+        stopProgressLoop();
+      } else if (event.data === YT.PlayerState.ENDED) {
+        isPlaying = false;
+        playNextTrack();
+      }
+    }
+
+    function getLatestReleaseDate(artistId) {
+      const artistReleases = catalogData.releases.filter(r => 
+        r.artistId === artistId || (r.artistIds && r.artistIds.includes(artistId))
+      );
+      if (artistReleases.length === 0) return '1970-01-01';
+      
+      artistReleases.sort((a, b) => new Date(b.date) - new Date(a.date));
+      return artistReleases[0].date;
+    }
+
+    function handleBackNavigation() {
+      if (currentView === 'release-detail' && currentArtist) {
+        openArtistDetail(currentArtist.id);
+      } else {
+        showArtistsList();
+      }
+    }
+
+    function updateViewVisibility(viewName) {
+      currentView = viewName;
+      document.getElementById('view-artists').classList.add('hidden');
+      document.getElementById('view-artist-detail').classList.add('hidden');
+      document.getElementById('view-release-detail').classList.add('hidden');
+
+      const btnBack = document.getElementById('btn-back');
+
+      if (viewName === 'artists') {
+        document.getElementById('view-artists').classList.remove('hidden');
+        btnBack.classList.add('hidden');
+        btnBack.classList.remove('flex');
+      } else if (viewName === 'artist-detail') {
+        document.getElementById('view-artist-detail').classList.remove('hidden');
+        btnBack.classList.remove('hidden');
+        btnBack.classList.add('flex');
+      } else if (viewName === 'release-detail') {
+        document.getElementById('view-release-detail').classList.remove('hidden');
+        btnBack.classList.remove('hidden');
+        btnBack.classList.add('flex');
+      }
+      window.scrollTo(0, 0);
+    }
+
+    function renderLatestReleasesHome() {
+      const grid = document.getElementById('latest-releases-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      const top6 = [...catalogData.releases]
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 6);
+
+      top6.forEach(rel => {
+        const card = document.createElement('div');
+        card.className = "group border border-zinc-200 dark:border-zinc-800 rounded-lg sm:rounded-xl p-1.5 sm:p-3 bg-white dark:bg-zinc-900 cursor-pointer hover:border-black dark:hover:border-white transition-all flex flex-col justify-between shadow-sm hover:shadow-md";
+        card.onclick = () => openReleaseDetail(rel.id);
+
+        card.innerHTML = `
+          <div>
+            <div class="w-full aspect-square overflow-hidden rounded bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 mb-1.5">
+              <img src="${rel.cover || DEFAULT_COVER}" onerror="this.src=DEFAULT_COVER" alt="${rel.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            </div>
+            <span class="text-[8px] sm:text-[9px] font-mono uppercase px-1 py-0.2 border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 rounded inline-block font-bold">${rel.type}</span>
+            <h3 class="text-xs sm:text-sm font-bold font-syne uppercase text-black dark:text-white group-hover:text-zinc-600 dark:group-hover:text-zinc-300 leading-tight mt-1 truncate">
+              ${rel.title}
+            </h3>
+            <p class="text-[9px] sm:text-[11px] font-mono text-zinc-500 dark:text-zinc-400 truncate mt-0.5">${rel.artistName}</p>
+          </div>
+          <span class="text-[8px] sm:text-[10px] font-mono text-zinc-400 block mt-1 sm:mt-2">${formatDate(rel.date)}</span>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function handleArtistSearch(query) {
+      const clearBtn = document.getElementById('btn-clear-search');
+      if (query.trim().length > 0) {
+        clearBtn.classList.remove('hidden');
+      } else {
+        clearBtn.classList.add('hidden');
+      }
+
+      renderArtistsGrid(query);
+    }
+
+    function clearArtistSearch() {
+      const input = document.getElementById('artist-search-input');
+      input.value = '';
+      document.getElementById('btn-clear-search').classList.add('hidden');
+      renderArtistsGrid('');
+      input.focus();
+    }
+
+    function renderArtistsGrid(searchTerm = '') {
+      const grid = document.getElementById('artists-grid');
+      const noResults = document.getElementById('no-artists-found');
+      grid.innerHTML = '';
+
+      const term = searchTerm.toLowerCase().trim();
+
+      const sortedArtists = [...catalogData.artists].sort((a, b) => {
+        const dateA = new Date(getLatestReleaseDate(a.id));
+        const dateB = new Date(getLatestReleaseDate(b.id));
+        return dateB - dateA;
+      });
+
+      const filtered = sortedArtists.filter(a => a.name.toLowerCase().includes(term));
+
+      if (filtered.length === 0) {
+        noResults.classList.remove('hidden');
+      } else {
+        noResults.classList.add('hidden');
+      }
+
+      filtered.forEach(artist => {
+        const card = document.createElement('div');
+        card.className = "group border border-zinc-200 dark:border-zinc-800 rounded-lg sm:rounded-xl p-1.5 sm:p-4 bg-white dark:bg-zinc-900 cursor-pointer hover:border-black dark:hover:border-white transition-all flex flex-col justify-between h-full shadow-sm hover:shadow-md";
+        card.onclick = () => openArtistDetail(artist.id);
+
+        card.innerHTML = `
+          <div class="flex flex-col h-full">
+            <div class="w-full aspect-square overflow-hidden rounded bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 mb-1.5 sm:mb-3 flex-shrink-0">
+              <img src="${artist.img || DEFAULT_COVER}" onerror="this.src=DEFAULT_COVER" alt="${artist.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            </div>
+            
+            <div class="flex-1 flex flex-col justify-start">
+              <span class="text-[8px] sm:text-[10px] font-mono uppercase text-zinc-400 font-bold block tracking-wider mb-0.5">Artista</span>
+              <h3 class="text-[10px] sm:text-base font-black font-syne uppercase text-black dark:text-white group-hover:text-zinc-600 dark:group-hover:text-zinc-300 leading-tight break-words line-clamp-2">
+                ${artist.name}
+              </h3>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function renderReleaseTracks(tracks) {
+      const container = document.getElementById('release-tracks-container');
+      container.innerHTML = '';
+
+      tracks.forEach((track, idx) => {
+        const row = document.createElement('div');
+        const isActive = currentTrackIndex === idx;
+
+        row.className = `track-row flex items-center justify-between p-3 sm:p-4 cursor-pointer group border-b border-zinc-200 dark:border-zinc-800 last:border-0 ${
+          isActive ? 'bg-zinc-100 dark:bg-zinc-800/80' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/40'
+        }`;
+        row.onclick = () => playTrackAtIndex(idx);
+
+        row.innerHTML = `
+          <div class="flex items-center gap-3 sm:gap-4 overflow-hidden pr-2">
+            <span class="font-mono text-xs text-zinc-400 font-bold w-4 sm:w-5 flex-shrink-0">${idx + 1}</span>
+            <div class="truncate">
+              <h4 class="text-xs sm:text-sm font-bold font-syne uppercase text-black dark:text-white truncate group-hover:text-zinc-600 dark:group-hover:text-zinc-300">${track.title}</h4>
+              <p class="text-[10px] sm:text-xs font-mono text-zinc-500 dark:text-zinc-400 truncate">${track.artistName}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <button onclick="event.stopPropagation(); copyTrackShareLink('${track.youtubeId}')" title="Compartir canción" class="p-1.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-xs hover:border-black dark:hover:border-white transition-colors">
+              🔗
+            </button>
+            <button class="px-2.5 py-1 border border-zinc-300 dark:border-zinc-700 rounded-full text-[10px] sm:text-xs font-mono uppercase group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors">
+              ▶ Play
+            </button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    /* Renderizado dinámico de la lista de reproducción dentro del modal Fullscreen para PC */
+    function renderFullPlayerPlaylist() {
+      const container = document.getElementById('full-player-playlist');
+      const countLabel = document.getElementById('full-queue-count');
+      if (!container) return;
+
+      container.innerHTML = '';
+      if (countLabel) countLabel.innerText = `${playlist.length} tema${playlist.length === 1 ? '' : 's'}`;
+
+      playlist.forEach((track, idx) => {
+        const isCurrent = idx === currentTrackIndex;
+        const item = document.createElement('div');
+        item.className = `flex items-center justify-between p-2.5 rounded-xl transition-all cursor-pointer ${
+          isCurrent 
+            ? 'bg-black text-white dark:bg-white dark:text-black shadow-md' 
+            : 'hover:bg-zinc-200/60 dark:hover:bg-zinc-800/60 text-black dark:text-white'
+        }`;
+        item.onclick = () => playTrackAtIndex(idx);
+
+        item.innerHTML = `
+          <div class="flex items-center gap-3 overflow-hidden pr-2">
+            <span class="font-mono text-xs font-bold w-5 flex-shrink-0 opacity-60">${idx + 1}</span>
+            <img src="${track.cover || DEFAULT_COVER}" onerror="this.src=DEFAULT_COVER" class="w-9 h-9 object-cover rounded-md flex-shrink-0">
+            <div class="truncate">
+              <h5 class="text-xs font-bold font-syne uppercase truncate">${track.title}</h5>
+              <p class="text-[10px] font-mono opacity-70 truncate">${track.artistName}</p>
+            </div>
+          </div>
+          ${isCurrent ? `
+            <div class="flex items-center gap-1 h-3 pr-2">
+              <span class="sound-wave-bar ${isCurrent ? 'bg-white dark:bg-black' : 'bg-black dark:bg-white'}"></span>
+              <span class="sound-wave-bar ${isCurrent ? 'bg-white dark:bg-black' : 'bg-black dark:bg-white'}"></span>
+              <span class="sound-wave-bar ${isCurrent ? 'bg-white dark:bg-black' : 'bg-black dark:bg-white'}"></span>
+            </div>
+          ` : ''}
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function playCurrentRelease() {
+      if (playlist.length > 0) {
+        playTrackAtIndex(0);
+      }
+    }
+
+    function copyCurrentArtistShareLink() {
+      if (!currentArtist) return;
+      const shareUrl = `${window.location.origin}${window.location.pathname}?artist=${currentArtist.id}`;
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        alert("¡Enlace del perfil de artista copiado al portapapeles!");
+      }).catch(err => console.error("Error al copiar: ", err));
+    }
+
+    function copyCurrentReleaseShareLink() {
+      if (!currentRelease) return;
+      const shareUrl = `${window.location.origin}${window.location.pathname}?album=${currentRelease.id}`;
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        alert("¡Enlace del lanzamiento copiado al portapapeles!");
+      }).catch(err => console.error("Error al copiar: ", err));
+    }
+
+    function copyTrackShareLink(youtubeId) {
+      const shareUrl = `${window.location.origin}${window.location.pathname}?track=${youtubeId}`;
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        alert("¡Enlace directo a la canción copiado!");
+      }).catch(err => console.error("Error al copiar: ", err));
+    }
+
+    function renderLatestTracks(tracks) {
+      const container = document.getElementById('latest-tracks-container');
+      container.innerHTML = '';
+
+      tracks.forEach((track, idx) => {
+        const row = document.createElement('div');
+        const isActive = currentTrackIndex === idx;
+        
+        row.className = `track-row flex items-center justify-between p-2.5 sm:p-4 cursor-pointer group border-b border-zinc-200 dark:border-zinc-800 last:border-0 ${
+          isActive 
+            ? 'bg-zinc-100 dark:bg-zinc-800/80' 
+            : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/40'
+        }`;
+        row.onclick = () => playTrackAtIndex(idx);
+
+        row.innerHTML = `
+          <div class="flex items-center gap-2.5 sm:gap-4 overflow-hidden pr-2">
+            <span class="font-mono text-xs text-zinc-400 font-bold w-4 sm:w-5 flex-shrink-0">${idx + 1}</span>
+            <img src="${track.cover}" onerror="this.src=DEFAULT_COVER" class="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded border border-zinc-200 dark:border-zinc-700 flex-shrink-0 bg-zinc-100 dark:bg-zinc-800">
+            <div class="truncate">
+              <h4 class="text-xs sm:text-sm font-bold font-syne uppercase text-black dark:text-white truncate group-hover:text-zinc-600 dark:group-hover:text-zinc-300">${track.title}</h4>
+              <p class="text-[10px] sm:text-xs font-mono text-zinc-500 dark:text-zinc-400 truncate">${track.artistName}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <button onclick="event.stopPropagation(); copyTrackShareLink('${track.youtubeId}')" title="Compartir canción" class="p-1.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-xs hover:border-black dark:hover:border-white transition-colors">
+              🔗
+            </button>
+            <button class="px-2.5 py-1 border border-zinc-300 dark:border-zinc-700 rounded-full text-[10px] sm:text-xs font-mono uppercase group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors">
+              ▶ Play
+            </button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function renderDiscography(releases, filter) {
+      const grid = document.getElementById('discography-grid');
+      grid.innerHTML = '';
+
+      const filtered = filter === 'todos' 
+        ? releases 
+        : releases.filter(r => r.type === filter);
+
+      filtered.forEach(rel => {
+        const card = document.createElement('div');
+        card.className = "group cursor-pointer";
+        card.onclick = () => openReleaseDetail(rel.id);
+
+        card.innerHTML = `
+          <div class="aspect-square w-full overflow-hidden rounded-md mb-1.5 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800">
+            <img src="${rel.cover || DEFAULT_COVER}" onerror="this.src=DEFAULT_COVER" alt="${rel.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+          </div>
+          <span class="text-[8px] sm:text-[9px] font-mono uppercase px-1.5 py-0.5 border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 rounded inline-block">${rel.type}</span>
+          <h4 class="text-xs sm:text-sm font-bold font-syne uppercase text-black dark:text-white mt-1 truncate">${rel.title}</h4>
+          <p class="text-[10px] sm:text-xs font-mono text-zinc-400 dark:text-zinc-500">${rel.artistName} • ${rel.date.split('-')[0]}</p>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function filterDiscography(type) {
+      document.querySelectorAll('.disc-tab').forEach(b => {
+        b.classList.remove('bg-black', 'text-white', 'dark:bg-white', 'dark:text-black');
+        b.classList.add('text-black', 'dark:text-white');
+      });
+      const activeBtn = document.getElementById(`tab-${type}`);
+      activeBtn.classList.add('bg-black', 'text-white', 'dark:bg-white', 'dark:text-black');
+
+      const artistReleases = catalogData.releases
+        .filter(r => r.artistId === currentArtist.id || (r.artistIds && r.artistIds.includes(currentArtist.id)))
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      renderDiscography(artistReleases, type);
+    }
+
+    function playTrackAtIndex(index) {
+      if (index < 0 || index >= playlist.length) return;
+      currentTrackIndex = index;
+      const track = playlist[currentTrackIndex];
+
+      document.getElementById('now-playing-title').innerText = track.title;
+      document.getElementById('now-playing-artist').innerText = track.artistName;
+      document.getElementById('now-playing-img').src = track.cover || DEFAULT_COVER;
+
+      document.getElementById('full-player-title').innerText = track.title;
+      document.getElementById('full-player-artist').innerText = track.artistName;
+      document.getElementById('full-player-subtitle').innerText = track.artistName;
+      document.getElementById('full-player-img').src = track.cover || DEFAULT_COVER;
+
+      if (ytPlayer && ytPlayer.loadVideoById) {
+        ytPlayer.loadVideoById(track.youtubeId);
+      }
+
+      if (currentView === 'release-detail') {
+        renderReleaseTracks(playlist);
+      } else if (currentView === 'artist-detail') {
+        renderLatestTracks(playlist);
+      }
+
+      renderFullPlayerPlaylist();
+    }
+
+    function togglePlayPause() {
+      if (!ytPlayer || currentTrackIndex === -1) {
+        if (playlist.length > 0) playTrackAtIndex(0);
+        return;
+      }
+
+      if (isPlaying) {
+        ytPlayer.pauseVideo();
+      } else {
+        ytPlayer.playVideo();
+      }
+    }
+
+    function playNextTrack() {
+      if (currentTrackIndex + 1 < playlist.length) {
+        playTrackAtIndex(currentTrackIndex + 1);
+      }
+    }
+
+    function playPrevTrack() {
+      if (currentTrackIndex - 1 >= 0) {
+        playTrackAtIndex(currentTrackIndex - 1);
+      }
+    }
+
+    function updatePlayerUI() {
+      const iconPlay = document.getElementById('icon-play');
+      const iconPause = document.getElementById('icon-pause');
+      const wave = document.getElementById('playing-wave');
+
+      const fullIconPlay = document.getElementById('full-icon-play');
+      const fullIconPause = document.getElementById('full-icon-pause');
+      const fullPlayLabel = document.getElementById('full-play-label');
+
+      if (isPlaying) {
+        iconPlay.classList.add('hidden');
+        iconPause.classList.remove('hidden');
+        fullIconPlay.classList.add('hidden');
+        fullIconPause.classList.remove('hidden');
+        if (fullPlayLabel) fullPlayLabel.innerText = "Pausar";
+
+        if (wave) {
+          wave.classList.remove('hidden');
+          wave.classList.add('flex');
+        }
+      } else {
+        iconPlay.classList.remove('hidden');
+        iconPause.classList.add('hidden');
+        fullIconPlay.classList.remove('hidden');
+        fullIconPause.classList.add('hidden');
+        if (fullPlayLabel) fullPlayLabel.innerText = "Reproducir";
+
+        if (wave) {
+          wave.classList.add('hidden');
+          wave.classList.remove('flex');
+        }
+      }
+
+      renderFullPlayerPlaylist();
+    }
+
+    function updateSliderBackground(slider) {
+      if (!slider) return;
+      const val = slider.value;
+      const isDark = document.documentElement.classList.contains('dark');
+      const activeColor = isDark ? '#ffffff' : '#000000';
+      const trackColor = isDark ? '#27272a' : '#e4e4e7';
+
+      slider.style.background = `linear-gradient(to right, ${activeColor} 0%, ${activeColor} ${val}%, ${trackColor} ${val}%, ${trackColor} 100%)`;
+    }
+
+    function startProgressLoop() {
+      stopProgressLoop();
+      progressTimer = setInterval(() => {
+        if (!isSeeking && ytPlayer && ytPlayer.getCurrentTime) {
+          const curr = ytPlayer.getCurrentTime() || 0;
+          const dur = ytPlayer.getDuration() || 0;
+          
+          const timeText = formatTime(curr);
+          const durText = formatTime(dur);
+
+          document.getElementById('curr-time').innerText = timeText;
+          document.getElementById('dur-time').innerText = durText;
+
+          document.getElementById('full-curr-time').innerText = timeText;
+          document.getElementById('full-dur-time').innerText = durText;
+
+          if (dur > 0) {
+            const pct = (curr / dur) * 100;
+            const pb = document.getElementById('progress-bar');
+            const fpb = document.getElementById('full-progress-bar');
+
+            pb.value = pct;
+            fpb.value = pct;
+
+            updateSliderBackground(pb);
+            updateSliderBackground(fpb);
+          }
+        }
+      }, 500);
+    }
+
+    function stopProgressLoop() {
+      if (progressTimer) clearInterval(progressTimer);
+    }
+
+    const progressBar = document.getElementById('progress-bar');
+    const fullProgressBar = document.getElementById('full-progress-bar');
+
+    function bindSeekEvents(element) {
+      element.addEventListener('mousedown', () => { isSeeking = true; });
+      element.addEventListener('touchstart', () => { isSeeking = true; });
+
+      element.addEventListener('input', (e) => {
+        updateSliderBackground(e.target);
+        if (ytPlayer && ytPlayer.getDuration) {
+          const dur = ytPlayer.getDuration();
+          const targetSec = (e.target.value / 100) * dur;
+          const formatted = formatTime(targetSec);
+          document.getElementById('curr-time').innerText = formatted;
+          document.getElementById('full-curr-time').innerText = formatted;
+        }
+      });
+
+      element.addEventListener('change', (e) => {
+        if (ytPlayer && ytPlayer.getDuration) {
+          const dur = ytPlayer.getDuration();
+          const targetSec = (e.target.value / 100) * dur;
+          ytPlayer.seekTo(targetSec, true);
+        }
+        isSeeking = false;
+      });
+    }
+
+    bindSeekEvents(progressBar);
+    bindSeekEvents(fullProgressBar);
+
+    updateSliderBackground(progressBar);
+    updateSliderBackground(fullProgressBar);
+
+    function formatTime(seconds) {
+      const min = Math.floor(seconds / 60);
+      const sec = Math.floor(seconds % 60);
+      return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+    }
+
+    function handleRouting() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const artistId = urlParams.get('artist');
+      const albumId = urlParams.get('album');
+      const trackId = urlParams.get('track');
+
+      if (artistId) {
+        openArtistDetail(artistId, false);
+      } else if (albumId) {
+        openReleaseDetail(albumId, false);
+      } else if (trackId) {
+        const release = catalogData.releases.find(r => r.tracks.some(t => t.youtubeId === trackId));
+        if (release) {
+          openReleaseDetail(release.id, false);
+          const trackIdx = playlist.findIndex(t => t.youtubeId === trackId);
+          if (trackIdx !== -1) {
+            playTrackAtIndex(trackIdx);
+          }
+        } else {
+          showArtistsList(false);
+        }
+      } else {
+        showArtistsList(false);
+      }
+    }
+
+    window.addEventListener('popstate', () => {
+      handleRouting();
+    });
+
+    function showArtistsList(pushHistory = true) {
+      if (pushHistory) history.pushState(null, '', window.location.pathname);
+      updateViewVisibility('artists');
+      
+      renderLatestReleasesHome();
+      const searchVal = document.getElementById('artist-search-input')?.value || '';
+      renderArtistsGrid(searchVal);
+    }
+
+    function openArtistDetail(artistId, pushHistory = true) {
+      const artist = catalogData.artists.find(a => a.id === artistId);
+      if (!artist) return;
+      currentArtist = artist;
+
+      if (pushHistory) history.pushState(null, '', `?artist=${artist.id}`);
+      updateViewVisibility('artist-detail');
+
+      document.getElementById('artist-name').innerText = artist.name;
+      document.getElementById('artist-img').src = artist.img || DEFAULT_COVER;
+
+      const artistReleases = catalogData.releases
+        .filter(r => r.artistId === artistId || (r.artistIds && r.artistIds.includes(artistId)))
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      playlist = [];
+      artistReleases.forEach(rel => {
+        rel.tracks.forEach(track => {
+          playlist.push({
+            ...track,
+            youtubeId: track.youtubeId,
+            releaseId: rel.id,
+            releaseTitle: rel.title,
+            releaseType: rel.type,
+            releaseDate: rel.date,
+            cover: rel.cover || DEFAULT_COVER,
+            artistName: rel.artistName || artist.name
+          });
+        });
+      });
+
+      renderLatestTracks(playlist);
+      renderDiscography(artistReleases, 'todos');
+      renderFullPlayerPlaylist();
+    }
+
+    function openReleaseDetail(releaseId, pushHistory = true) {
+      const release = catalogData.releases.find(r => r.id === releaseId);
+      if (!release) return;
+
+      currentRelease = release;
+      currentArtist = catalogData.artists.find(a => a.id === release.artistId) || null;
+
+      if (pushHistory) history.pushState(null, '', `?album=${release.id}`);
+      updateViewVisibility('release-detail');
+
+      document.getElementById('release-img').src = release.cover || DEFAULT_COVER;
+      document.getElementById('release-title').innerText = release.title;
+      document.getElementById('release-type-badge').innerText = release.type;
+      document.getElementById('release-artist-name').innerText = release.artistName;
+      document.getElementById('release-artist-name').onclick = () => {
+        if (currentArtist) openArtistDetail(currentArtist.id);
+      };
+      document.getElementById('release-date').innerText = `Lanzamiento: ${formatDate(release.date)}`;
+
+      playlist = release.tracks.map(t => ({
+        ...t,
+        youtubeId: t.youtubeId,
+        releaseId: release.id,
+        releaseTitle: release.title,
+        releaseType: release.type,
+        releaseDate: release.date,
+        cover: release.cover || DEFAULT_COVER,
+        artistName: release.artistName
+      }));
+
+      renderReleaseTracks(playlist);
+      renderFullPlayerPlaylist();
+    }
+
+    document.getElementById('now-playing-img').src = DEFAULT_COVER;
+
+    handleRouting();
+  </script>
+</body>
+</html>
