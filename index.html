@@ -126,6 +126,14 @@ input[type=range]::-moz-range-thumb {
   cursor: pointer;
   border: none;
 }
+
+/* Utilidad para truncar texto a máximo 2 líneas */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;  
+  overflow: hidden;
+}
 </style>
 </head>
 <body class="bg-white text-black dark:bg-[#121212] dark:text-zinc-100 selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black transition-colors duration-200">
@@ -162,7 +170,7 @@ input[type=range]::-moz-range-thumb {
     </div>
   </nav>
 
-  <!-- VISTA 1: INICIO (LANZAMIENTOS RECIENTES + ARTISTAS + BUSCADOR + MANIFIESTO) -->
+  <!-- VISTA 1: INICIO -->
   <main id="view-artists" class="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-10">
     
     <!-- SECCIÓN: Lanzamientos Más Recientes -->
@@ -174,7 +182,6 @@ input[type=range]::-moz-range-thumb {
         </h2>
       </div>
 
-      <!-- Grid de 3 columnas en móvil -->
       <div id="latest-releases-grid" class="grid grid-cols-3 md:grid-cols-6 gap-2 sm:gap-4">
         <!-- Dinámico via JS -->
       </div>
@@ -288,13 +295,14 @@ input[type=range]::-moz-range-thumb {
         <button onclick="filterDiscography('single')" id="tab-single" class="disc-tab px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 text-black dark:text-white hover:border-black dark:hover:border-white rounded-full whitespace-nowrap">Singles</button>
       </div>
 
-      <div id="discography-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-6">
+      <!-- Cambiado a 3 columnas en móvil (grid-cols-3) -->
+      <div id="discography-grid" class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-6">
         <!-- Dinámico -->
       </div>
     </section>
   </main>
 
-  <!-- VISTA 3: DETALLE DEL LANZAMIENTO (ÁLBUM / SINGLE) -->
+  <!-- VISTA 3: DETALLE DEL LANZAMIENTO -->
   <main id="view-release-detail" class="hidden max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
     <div class="flex flex-col sm:flex-row items-start sm:items-end gap-6 sm:gap-8 mb-8 sm:mb-12 pb-6 sm:pb-8 border-b border-zinc-200 dark:border-zinc-800">
       <img id="release-img" src="" alt="" onerror="this.src=DEFAULT_COVER" class="w-48 h-48 sm:w-64 sm:h-64 object-cover border border-zinc-300 dark:border-zinc-700 rounded-lg shadow-lg bg-zinc-100 dark:bg-zinc-800 flex-shrink-0">
@@ -302,7 +310,8 @@ input[type=range]::-moz-range-thumb {
         <span id="release-type-badge" class="text-[10px] sm:text-xs font-mono uppercase px-2 py-0.5 border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 rounded inline-block font-bold">SINGLE</span>
         <h1 id="release-title" class="text-3xl sm:text-5xl font-black font-syne uppercase tracking-tight text-black dark:text-white mt-2 leading-tight"></h1>
         <p id="release-artist-name" class="text-base sm:text-xl font-bold text-zinc-700 dark:text-zinc-300 mt-1 cursor-pointer hover:underline"></p>
-        <p id="release-date" class="text-xs font-mono text-zinc-400 mt-2"></p>
+        <!-- Tipografía cambiada a la general de la página (sin font-mono) -->
+        <p id="release-date" class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-2 font-normal"></p>
         
         <div class="mt-6 flex items-center gap-3">
           <button id="btn-play-release" onclick="playCurrentRelease()" class="px-6 py-2.5 bg-black dark:bg-white text-white dark:text-black font-mono text-xs uppercase font-bold rounded-full hover:opacity-90 transition-opacity flex items-center gap-2">
@@ -315,7 +324,7 @@ input[type=range]::-moz-range-thumb {
       </div>
     </div>
 
-    <!-- Lista de Tracks del Lanzamiento -->
+    <!-- Lista de Tracks -->
     <section class="mb-12">
       <h2 class="text-lg sm:text-2xl font-bold font-syne uppercase text-black dark:text-white mb-4">Canciones</h2>
       <div id="release-tracks-container" class="border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 shadow-sm">
@@ -365,7 +374,7 @@ input[type=range]::-moz-range-thumb {
 
       </div>
 
-      <!-- Barra de Progreso con cambio de color en parte reproducida -->
+      <!-- Barra de Progreso -->
       <div class="w-full flex items-center gap-2 text-[10px] font-mono text-zinc-400">
         <span id="curr-time" class="w-8 text-right flex-shrink-0">0:00</span>
         <input type="range" id="progress-bar" value="0" min="0" max="100" class="w-full h-1.5 rounded-lg appearance-none cursor-pointer text-black dark:text-white">
@@ -796,9 +805,7 @@ input[type=range]::-moz-range-thumb {
       });
     }
 
-    function onPlayerReady() {
-      // Player ready
-    }
+    function onPlayerReady() {}
 
     function onPlayerStateChange(event) {
       if (event.data === YT.PlayerState.PLAYING) {
@@ -857,7 +864,6 @@ input[type=range]::-moz-range-thumb {
       window.scrollTo(0, 0);
     }
 
-    // Renderiza los 6 lanzamientos más recientes para encajar perfecto en 3 columnas
     function renderLatestReleasesHome() {
       const grid = document.getElementById('latest-releases-grid');
       if (!grid) return;
@@ -889,7 +895,6 @@ input[type=range]::-moz-range-thumb {
       });
     }
 
-    // Buscador
     function handleArtistSearch(query) {
       const clearBtn = document.getElementById('btn-clear-search');
       if (query.trim().length > 0) {
@@ -909,6 +914,7 @@ input[type=range]::-moz-range-thumb {
       input.focus();
     }
 
+    // Ajustado tamaño de texto e interlineado para nombres largos en tarjetas de artista
     function renderArtistsGrid(searchTerm = '') {
       const grid = document.getElementById('artists-grid');
       const noResults = document.getElementById('no-artists-found');
@@ -941,9 +947,9 @@ input[type=range]::-moz-range-thumb {
               <img src="${artist.img || DEFAULT_COVER}" onerror="this.src=DEFAULT_COVER" alt="${artist.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
             </div>
             
-            <div class="flex-1 flex flex-col justify-center">
+            <div class="flex-1 flex flex-col justify-start">
               <span class="text-[8px] sm:text-[10px] font-mono uppercase text-zinc-400 font-bold block tracking-wider mb-0.5">Artista</span>
-              <h3 class="text-xs sm:text-lg font-black font-syne uppercase text-black dark:text-white group-hover:text-zinc-600 dark:group-hover:text-zinc-300 leading-tight break-words">
+              <h3 class="text-[10px] sm:text-base font-black font-syne uppercase text-black dark:text-white group-hover:text-zinc-600 dark:group-hover:text-zinc-300 leading-tight break-words line-clamp-2">
                 ${artist.name}
               </h3>
             </div>
@@ -1016,6 +1022,7 @@ input[type=range]::-moz-range-thumb {
       }).catch(err => console.error("Error al copiar: ", err));
     }
 
+    // Se eliminó la fecha de reproducción en "Lo Último"
     function renderLatestTracks(tracks) {
       const container = document.getElementById('latest-tracks-container');
       container.innerHTML = '';
@@ -1037,7 +1044,7 @@ input[type=range]::-moz-range-thumb {
             <img src="${track.cover}" onerror="this.src=DEFAULT_COVER" class="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded border border-zinc-200 dark:border-zinc-700 flex-shrink-0 bg-zinc-100 dark:bg-zinc-800">
             <div class="truncate">
               <h4 class="text-xs sm:text-sm font-bold font-syne uppercase text-black dark:text-white truncate group-hover:text-zinc-600 dark:group-hover:text-zinc-300">${track.title}</h4>
-              <p class="text-[10px] sm:text-xs font-mono text-zinc-500 dark:text-zinc-400 truncate">${track.artistName} • ${formatDate(track.releaseDate)}</p>
+              <p class="text-[10px] sm:text-xs font-mono text-zinc-500 dark:text-zinc-400 truncate">${track.artistName}</p>
             </div>
           </div>
           <div class="flex items-center gap-2 flex-shrink-0">
@@ -1070,7 +1077,7 @@ input[type=range]::-moz-range-thumb {
           <div class="aspect-square w-full overflow-hidden rounded-md mb-1.5 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800">
             <img src="${rel.cover || DEFAULT_COVER}" onerror="this.src=DEFAULT_COVER" alt="${rel.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
           </div>
-          <span class="text-[9px] font-mono uppercase px-1.5 py-0.5 border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 rounded inline-block">${rel.type}</span>
+          <span class="text-[8px] sm:text-[9px] font-mono uppercase px-1.5 py-0.5 border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 rounded inline-block">${rel.type}</span>
           <h4 class="text-xs sm:text-sm font-bold font-syne uppercase text-black dark:text-white mt-1 truncate">${rel.title}</h4>
           <p class="text-[10px] sm:text-xs font-mono text-zinc-400 dark:text-zinc-500">${rel.artistName} • ${rel.date.split('-')[0]}</p>
         `;
@@ -1177,7 +1184,6 @@ input[type=range]::-moz-range-thumb {
       }
     }
 
-    // Función para actualizar dinámicamente el color del progreso reproducido
     function updateSliderBackground(slider) {
       if (!slider) return;
       const val = slider.value;
@@ -1254,7 +1260,6 @@ input[type=range]::-moz-range-thumb {
     bindSeekEvents(progressBar);
     bindSeekEvents(fullProgressBar);
 
-    // Inicializar color estático inicial de los sliders
     updateSliderBackground(progressBar);
     updateSliderBackground(fullProgressBar);
 
@@ -1264,7 +1269,6 @@ input[type=range]::-moz-range-thumb {
       return `${min}:${sec < 10 ? '0' : ''}${sec}`;
     }
 
-    // Manejo de rutas
     function handleRouting() {
       const urlParams = new URLSearchParams(window.location.search);
       const artistId = urlParams.get('artist');
