@@ -182,27 +182,83 @@ input[type=range]::-moz-range-thumb {
   opacity: 1;
   transform: translate(-50%, 0);
 }
+
+/* Animación Marquee para texto largo en Fullscreen */
+.marquee-container {
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+  width: 100%;
+}
+.marquee-content {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 12s linear infinite;
+}
+.marquee-container:hover .marquee-content {
+  animation-play-state: paused;
+}
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
 </style>
 </head>
 <body class="bg-white text-black dark:bg-[#121212] dark:text-zinc-100 selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black transition-colors duration-200">
 
   <!-- Toast Notification -->
   <div id="toast-notification" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 bg-black text-white dark:bg-white dark:text-black px-4 py-2 rounded-full shadow-2xl text-xs font-mono font-bold uppercase tracking-wider toast-hidden">
-    Canción añadida a la cola
+    Notificación
   </div>
 
-  <!-- Navegación Superior -->
-  <nav class="sticky top-0 z-40 bg-white/90 dark:bg-[#121212]/90 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 py-3.5 px-4 sm:px-6 transition-colors duration-200">
-    <div class="max-w-7xl mx-auto flex items-center justify-between">
-      <div class="flex items-center gap-3 sm:gap-4">
-        <button id="btn-back" onclick="handleBackNavigation()" class="hidden items-center gap-2 text-xs font-mono uppercase font-bold px-3 py-1.5 border border-black dark:border-white rounded-full hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
+  <!-- Navegación Superior con Buscador Global Integrado -->
+  <nav class="sticky top-0 z-40 bg-white/90 dark:bg-[#121212]/90 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 py-2.5 px-3 sm:px-6 transition-colors duration-200">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
+      
+      <div class="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+        <button id="btn-back" onclick="handleBackNavigation()" class="hidden items-center gap-1.5 text-[10px] sm:text-xs font-mono uppercase font-bold px-2.5 py-1 sm:px-3 sm:py-1.5 border border-black dark:border-white rounded-full hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
           ← Volver
         </button>
-        <span class="font-syne font-black text-lg sm:text-xl uppercase tracking-tight cursor-pointer" onclick="showArtistsList()">VAINALIST</span>
+        <span class="font-syne font-black text-base sm:text-xl uppercase tracking-tight cursor-pointer" onclick="showArtistsList()">VAINALIST</span>
+      </div>
+
+      <!-- BUSCADOR GLOBAL HEADER -->
+      <div class="relative flex-1 max-w-xs sm:max-w-md mx-2">
+        <div class="relative flex items-center">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+          <input 
+            type="text" 
+            id="global-search-input" 
+            placeholder="Buscar artista, canción o lanzamiento..." 
+            oninput="handleGlobalSearch(this.value)"
+            onfocus="if(this.value.trim().length > 0) openGlobalSearchDropdown()"
+            class="w-full pl-8 pr-8 py-1.5 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-full text-xs text-black dark:text-white placeholder-zinc-400 focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+          >
+          <button 
+            id="btn-clear-global-search" 
+            onclick="clearGlobalSearch()" 
+            class="hidden absolute inset-y-0 right-0 pr-2.5 flex items-center text-zinc-400 hover:text-black dark:hover:text-white transition-colors"
+            title="Borrar búsqueda"
+          >
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Dropdown con Resultados de Búsqueda -->
+        <div id="global-search-results" class="hidden absolute left-0 right-0 top-full mt-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-2xl overflow-hidden max-h-96 overflow-y-auto z-50 p-2 space-y-3">
+          <!-- Resultados dinámicos -->
+        </div>
       </div>
       
-      <div class="flex items-center">
-        <!-- Toggle Modo Claro / Oscuro -->
+      <div class="flex items-center flex-shrink-0">
         <button onclick="toggleDarkMode()" class="p-2 rounded-full border border-zinc-300 dark:border-zinc-700 hover:border-black dark:hover:border-white text-black dark:text-white transition-colors" title="Cambiar Tema">
           <svg id="theme-icon-sun" class="w-4 h-4 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="5"></circle>
@@ -248,38 +304,8 @@ input[type=range]::-moz-range-thumb {
         </p>
       </header>
 
-      <div class="relative mb-4 sm:mb-8 max-w-md">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
-          <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-        </div>
-        <input 
-          type="text" 
-          id="artist-search-input" 
-          placeholder="Buscar artista por nombre..." 
-          oninput="handleArtistSearch(this.value)"
-          class="w-full pl-9 pr-9 py-2 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-full text-xs sm:text-sm text-black dark:text-white placeholder-zinc-400 focus:outline-none focus:border-black dark:focus:border-white transition-colors"
-        >
-        <button 
-          id="btn-clear-search" 
-          onclick="clearArtistSearch()" 
-          class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-black dark:hover:text-white transition-colors"
-          title="Borrar búsqueda"
-        >
-          <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-      </div>
-
       <div id="artists-grid" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-6 items-stretch">
         <!-- Dinámico via JS -->
-      </div>
-      <div id="no-artists-found" class="hidden text-center py-8 text-zinc-400 text-xs font-mono">
-        No se ha encontrado ningún artista con ese nombre.
       </div>
     </section>
 
@@ -321,6 +347,7 @@ input[type=range]::-moz-range-thumb {
       </div>
     </div>
 
+    <!-- Sección Lo Último (Modificada: Sin botón de copiar link y botón Play solo como triángulo) -->
     <section class="mb-12 sm:mb-16">
       <div class="flex items-center justify-between mb-3 sm:mb-4">
         <h2 class="text-xl sm:text-3xl font-bold font-syne uppercase text-black dark:text-white">Lo Último</h2>
@@ -331,6 +358,7 @@ input[type=range]::-moz-range-thumb {
       </div>
     </section>
 
+    <!-- Sección Discografía (Modificada: Tarjetas contenidas estilo Últimos Lanzamientos) -->
     <section class="mb-12 sm:mb-16">
       <h2 class="text-xl sm:text-3xl font-bold font-syne uppercase text-black dark:text-white mb-4 sm:mb-6">Discografía</h2>
 
@@ -341,7 +369,7 @@ input[type=range]::-moz-range-thumb {
         <button onclick="filterDiscography('single')" id="tab-single" class="disc-tab px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 text-black dark:text-white hover:border-black dark:hover:border-white rounded-full whitespace-nowrap">Singles</button>
       </div>
 
-      <div id="discography-grid" class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-6">
+      <div id="discography-grid" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-4">
         <!-- Dinámico -->
       </div>
     </section>
@@ -419,11 +447,11 @@ input[type=range]::-moz-range-thumb {
     </div>
   </div>
 
-  <!-- REPRODUCTOR A PANTALLA COMPLETA CON ANIMACIONES Y MEJORA EN PC -->
+  <!-- REPRODUCTOR A PANTALLA COMPLETA -->
   <div id="full-player-modal" class="fixed inset-0 z-50 bg-white dark:bg-[#121316] text-black dark:text-white modal-closed flex flex-col justify-between p-4 sm:p-8 overflow-hidden transition-all duration-300">
     <div class="modal-content h-full flex flex-col justify-between max-w-6xl mx-auto w-full relative">
       
-      <!-- Header -->
+      <!-- Header del Fullscreen Modal -->
       <div class="flex items-center justify-between z-10 flex-shrink-0 mb-4">
         <button onclick="closeFullPlayer()" class="text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white transition-colors p-2 rounded-full border border-transparent hover:border-zinc-200 dark:hover:border-zinc-800" title="Minimizar">
           <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -431,8 +459,8 @@ input[type=range]::-moz-range-thumb {
           </svg>
         </button>
 
-        <!-- Botón Ver Cola / Ocultar Cola -->
-        <button id="btn-toggle-queue" onclick="toggleQueueDrawer()" class="px-3.5 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-xs font-mono uppercase font-bold flex items-center gap-2 hover:border-black dark:hover:border-white transition-colors">
+        <!-- Botón Ver Cola / Ocultar Cola (Solo Visible en Móviles) -->
+        <button id="btn-toggle-queue" onclick="toggleQueueDrawer()" class="md:hidden px-3.5 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-xs font-mono uppercase font-bold flex items-center gap-2 hover:border-black dark:hover:border-white transition-colors">
           <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h10v2H4z"/></svg>
           <span id="queue-btn-text">Ver Cola</span>
         </button>
@@ -448,15 +476,20 @@ input[type=range]::-moz-range-thumb {
       <!-- Layout Principal Fullscreen -->
       <div class="my-auto w-full flex-1 flex flex-col md:flex-row items-center justify-center md:gap-12 lg:gap-16 max-h-[80vh] overflow-y-auto sm:overflow-hidden relative">
         
-        <!-- Columna Izquierda / Principal: Carátula e Información del Reproductor -->
+        <!-- Columna Izquierda / Principal -->
         <div class="w-full max-w-sm md:max-w-md lg:max-w-lg flex flex-col items-center flex-shrink-0">
           <div class="w-full aspect-square max-w-[260px] sm:max-w-[320px] md:max-w-[360px] rounded-2xl overflow-hidden shadow-2xl mb-6 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800">
             <img id="full-player-img" src="" onerror="this.src=DEFAULT_COVER" class="w-full h-full object-cover">
           </div>
 
-          <div class="w-full text-center md:text-left mb-4 sm:mb-6">
-            <h2 id="full-player-title" class="text-xl sm:text-2xl md:text-3xl font-bold font-syne uppercase truncate text-black dark:text-white">--</h2>
-            <p id="full-player-artist" class="text-xs sm:text-sm font-mono text-zinc-500 dark:text-zinc-400 truncate mt-1">--</p>
+          <!-- Título y Artista con Marquee si no cabe -->
+          <div class="w-full text-center mb-4 sm:mb-6 overflow-hidden px-2">
+            <div id="full-title-container" class="w-full overflow-hidden">
+              <h2 id="full-player-title" class="text-xl sm:text-2xl md:text-3xl font-bold font-syne uppercase text-black dark:text-white transition-all">--</h2>
+            </div>
+            <div id="full-artist-container" class="w-full overflow-hidden mt-1">
+              <p id="full-player-artist" onclick="navigateToCurrentArtistProfile()" class="text-xs sm:text-sm font-mono text-zinc-500 dark:text-zinc-400 cursor-pointer hover:underline hover:text-black dark:hover:text-white transition-colors inline-block">--</p>
+            </div>
           </div>
 
           <!-- Slider de Progreso -->
@@ -486,11 +519,16 @@ input[type=range]::-moz-range-thumb {
           </div>
         </div>
 
-        <!-- Columna Derecha (PC): Cola de Reproducción integrada permanente en pantallas grandes -->
+        <!-- Columna Derecha (PC): Cola de Reproducción Permanente -->
         <div class="hidden md:flex flex-col flex-1 h-full max-h-[520px] bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800/80 rounded-2xl p-4 overflow-hidden">
           <div class="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800 mb-2">
-            <h3 class="text-xs font-mono font-bold uppercase text-zinc-500 dark:text-zinc-400 tracking-wider">Cola de Reproducción</h3>
-            <span id="desktop-queue-count" class="text-[10px] font-mono bg-zinc-200 dark:bg-zinc-800 px-2 py-0.5 rounded-full font-bold">0 canciones</span>
+            <div class="flex items-center gap-2">
+              <h3 class="text-xs font-mono font-bold uppercase text-zinc-500 dark:text-zinc-400 tracking-wider">Cola de Reproducción</h3>
+              <span id="desktop-queue-count" class="text-[10px] font-mono bg-zinc-200 dark:bg-zinc-800 px-2 py-0.5 rounded-full font-bold">0 canciones</span>
+            </div>
+            <button onclick="clearQueue()" class="text-[10px] font-mono uppercase px-2.5 py-1 border border-zinc-300 dark:border-zinc-700 hover:border-red-500 hover:text-red-500 rounded-full transition-colors">
+              Vaciar cola
+            </button>
           </div>
 
           <div id="desktop-queue-list" class="flex-1 overflow-y-auto space-y-1.5 pr-1">
@@ -498,11 +536,14 @@ input[type=range]::-moz-range-thumb {
           </div>
         </div>
 
-        <!-- Drawer Móvil de la Cola de Reproducción (Animación Slide-Up de abajo a arriba) -->
+        <!-- Drawer Móvil de la Cola (Animación Slide-Up) -->
         <div id="queue-drawer" class="md:hidden absolute inset-0 z-30 bg-white dark:bg-[#121316] drawer-closed flex flex-col justify-between pt-2">
           <div class="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800 mb-2 px-1">
-            <h3 class="text-xs font-mono font-bold uppercase text-zinc-500 dark:text-zinc-400 tracking-wider">A continuación en la Cola</h3>
-            <button onclick="toggleQueueDrawer()" class="text-xs font-mono uppercase underline text-zinc-500">Cerrar</button>
+            <h3 class="text-xs font-mono font-bold uppercase text-zinc-500 dark:text-zinc-400 tracking-wider">En Cola</h3>
+            <div class="flex items-center gap-3">
+              <button onclick="clearQueue()" class="text-[10px] font-mono uppercase px-2 py-0.5 border border-zinc-300 dark:border-zinc-700 text-red-500 rounded-full">Vaciar</button>
+              <button onclick="toggleQueueDrawer()" class="text-xs font-mono uppercase underline text-zinc-500">Cerrar</button>
+            </div>
           </div>
 
           <div id="mobile-queue-list" class="flex-1 overflow-y-auto space-y-1 pr-1 pb-4">
@@ -817,7 +858,6 @@ input[type=range]::-moz-range-thumb {
     let currentView = 'artists';
     let isQueueDrawerOpen = false;
 
-    // Historial dinámico de navegación
     let viewHistory = ['artists'];
 
     function initTheme() {
@@ -872,6 +912,7 @@ input[type=range]::-moz-range-thumb {
       modal.classList.remove('modal-closed');
       modal.classList.add('modal-open');
       renderQueueUI();
+      checkMarquee();
     }
 
     function closeFullPlayer() {
@@ -908,7 +949,33 @@ input[type=range]::-moz-range-thumb {
       });
     }
 
-    function onPlayerReady() {}
+    function onPlayerReady() {
+      loadSavedTrack();
+    }
+
+    function loadSavedTrack() {
+      const saved = localStorage.getItem('lastTrack');
+      if (saved) {
+        try {
+          const track = JSON.parse(saved);
+          playlist = [track];
+          currentTrackIndex = 0;
+          
+          document.getElementById('now-playing-title').innerText = track.title;
+          document.getElementById('now-playing-artist').innerText = track.artistName;
+          document.getElementById('now-playing-img').src = track.cover || DEFAULT_COVER;
+
+          document.getElementById('full-player-title').innerText = track.title;
+          document.getElementById('full-player-artist').innerText = track.artistName;
+          document.getElementById('full-player-img').src = track.cover || DEFAULT_COVER;
+
+          if (ytPlayer && ytPlayer.cueVideoById) {
+            ytPlayer.cueVideoById(track.youtubeId);
+          }
+          renderQueueUI();
+        } catch(e) {}
+      }
+    }
 
     function onPlayerStateChange(event) {
       if (event.data === YT.PlayerState.PLAYING) {
@@ -937,20 +1004,20 @@ input[type=range]::-moz-range-thumb {
 
     function handleBackNavigation() {
       if (viewHistory.length > 1) {
-        viewHistory.pop(); // Quita la vista actual
+        viewHistory.pop();
         const previous = viewHistory[viewHistory.length - 1];
         
         if (typeof previous === 'object') {
           if (previous.type === 'artist') {
-            openArtistDetail(previous.id, false, false);
+            openArtistDetail(previous.id, false);
           } else if (previous.type === 'release') {
-            openReleaseDetail(previous.id, false, false);
+            openReleaseDetail(previous.id, false);
           }
         } else if (previous === 'artists') {
-          showArtistsList(false, false);
+          showArtistsList(false);
         }
       } else {
-        showArtistsList(false, false);
+        showArtistsList(false);
       }
     }
 
@@ -1006,30 +1073,130 @@ input[type=range]::-moz-range-thumb {
       });
     }
 
-    function handleArtistSearch(query) {
-      const clearBtn = document.getElementById('btn-clear-search');
+    /* BUSCADOR GLOBAL HEADER */
+    function handleGlobalSearch(query) {
+      const clearBtn = document.getElementById('btn-clear-global-search');
+      const dropdown = document.getElementById('global-search-results');
+      
       if (query.trim().length > 0) {
         clearBtn.classList.remove('hidden');
+        renderGlobalSearchResults(query.trim());
+        dropdown.classList.remove('hidden');
       } else {
         clearBtn.classList.add('hidden');
+        dropdown.classList.add('hidden');
       }
-      renderArtistsGrid(query);
     }
 
-    function clearArtistSearch() {
-      const input = document.getElementById('artist-search-input');
+    function openGlobalSearchDropdown() {
+      const input = document.getElementById('global-search-input');
+      if (input.value.trim().length > 0) {
+        document.getElementById('global-search-results').classList.remove('hidden');
+      }
+    }
+
+    function clearGlobalSearch() {
+      const input = document.getElementById('global-search-input');
       input.value = '';
-      document.getElementById('btn-clear-search').classList.add('hidden');
-      renderArtistsGrid('');
-      input.focus();
+      document.getElementById('btn-clear-global-search').classList.add('hidden');
+      document.getElementById('global-search-results').classList.add('hidden');
     }
 
-    function renderArtistsGrid(searchTerm = '') {
-      const grid = document.getElementById('artists-grid');
-      const noResults = document.getElementById('no-artists-found');
-      grid.innerHTML = '';
+    document.addEventListener('click', (e) => {
+      const searchContainer = document.getElementById('global-search-input')?.parentElement?.parentElement;
+      if (searchContainer && !searchContainer.contains(e.target)) {
+        document.getElementById('global-search-results').classList.add('hidden');
+      }
+    });
 
-      const term = searchTerm.toLowerCase().trim();
+    function renderGlobalSearchResults(term) {
+      const container = document.getElementById('global-search-results');
+      container.innerHTML = '';
+      const lTerm = term.toLowerCase();
+
+      // Artistas
+      const artists = catalogData.artists.filter(a => a.name.toLowerCase().includes(lTerm));
+      // Lanzamientos
+      const releases = catalogData.releases.filter(r => r.title.toLowerCase().includes(lTerm));
+      // Canciones
+      const tracks = [];
+      catalogData.releases.forEach(r => {
+        r.tracks.forEach(t => {
+          if (t.title.toLowerCase().includes(lTerm)) {
+            tracks.push({ ...t, cover: r.cover, artistName: r.artistName, releaseId: r.id });
+          }
+        });
+      });
+
+      if (artists.length === 0 && releases.length === 0 && tracks.length === 0) {
+        container.innerHTML = `<p class="text-xs font-mono text-zinc-400 text-center py-4">No se encontraron resultados</p>`;
+        return;
+      }
+
+      // Render Artistas
+      if (artists.length > 0) {
+        const sec = document.createElement('div');
+        sec.innerHTML = `<h4 class="text-[10px] font-mono uppercase text-zinc-400 px-2 font-bold mb-1">Artistas</h4>`;
+        artists.forEach(a => {
+          const item = document.createElement('div');
+          item.className = "flex items-center gap-2.5 p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg cursor-pointer";
+          item.onclick = () => { openArtistDetail(a.id); clearGlobalSearch(); };
+          item.innerHTML = `
+            <img src="${a.img || DEFAULT_COVER}" class="w-8 h-8 rounded-full object-cover">
+            <span class="text-xs font-bold font-syne uppercase text-black dark:text-white truncate">${a.name}</span>
+          `;
+          sec.appendChild(item);
+        });
+        container.appendChild(sec);
+      }
+
+      // Render Lanzamientos
+      if (releases.length > 0) {
+        const sec = document.createElement('div');
+        sec.innerHTML = `<h4 class="text-[10px] font-mono uppercase text-zinc-400 px-2 font-bold mb-1 mt-1">Lanzamientos</h4>`;
+        releases.forEach(r => {
+          const item = document.createElement('div');
+          item.className = "flex items-center gap-2.5 p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg cursor-pointer";
+          item.onclick = () => { openReleaseDetail(r.id); clearGlobalSearch(); };
+          item.innerHTML = `
+            <img src="${r.cover || DEFAULT_COVER}" class="w-8 h-8 rounded object-cover">
+            <div class="truncate">
+              <p class="text-xs font-bold font-syne uppercase text-black dark:text-white truncate">${r.title}</p>
+              <p class="text-[10px] font-mono text-zinc-400 truncate">${r.artistName}</p>
+            </div>
+          `;
+          sec.appendChild(item);
+        });
+        container.appendChild(sec);
+      }
+
+      // Render Canciones
+      if (tracks.length > 0) {
+        const sec = document.createElement('div');
+        sec.innerHTML = `<h4 class="text-[10px] font-mono uppercase text-zinc-400 px-2 font-bold mb-1 mt-1">Canciones</h4>`;
+        tracks.forEach(t => {
+          const item = document.createElement('div');
+          item.className = "flex items-center gap-2.5 p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg cursor-pointer";
+          item.onclick = () => { 
+            openReleaseDetail(t.releaseId); 
+            clearGlobalSearch(); 
+          };
+          item.innerHTML = `
+            <img src="${t.cover || DEFAULT_COVER}" class="w-8 h-8 rounded object-cover">
+            <div class="truncate">
+              <p class="text-xs font-bold font-syne uppercase text-black dark:text-white truncate">${t.title}</p>
+              <p class="text-[10px] font-mono text-zinc-400 truncate">${t.artistName}</p>
+            </div>
+          `;
+          sec.appendChild(item);
+        });
+        container.appendChild(sec);
+      }
+    }
+
+    function renderArtistsGrid() {
+      const grid = document.getElementById('artists-grid');
+      grid.innerHTML = '';
 
       const sortedArtists = [...catalogData.artists].sort((a, b) => {
         const dateA = new Date(getLatestReleaseDate(a.id));
@@ -1037,15 +1204,7 @@ input[type=range]::-moz-range-thumb {
         return dateB - dateA;
       });
 
-      const filtered = sortedArtists.filter(a => a.name.toLowerCase().includes(term));
-
-      if (filtered.length === 0) {
-        noResults.classList.remove('hidden');
-      } else {
-        noResults.classList.add('hidden');
-      }
-
-      filtered.forEach(artist => {
+      sortedArtists.forEach(artist => {
         const card = document.createElement('div');
         card.className = "group border border-zinc-200 dark:border-zinc-800 rounded-lg sm:rounded-xl p-1.5 sm:p-4 bg-white dark:bg-zinc-900 cursor-pointer hover:border-black dark:hover:border-white transition-all flex flex-col justify-between h-full shadow-sm hover:shadow-md";
         card.onclick = () => openArtistDetail(artist.id);
@@ -1079,6 +1238,36 @@ input[type=range]::-moz-range-thumb {
       }
     }
 
+    function removeFromQueue(index, e) {
+      if (e) e.stopPropagation();
+      if (index < 0 || index >= playlist.length) return;
+
+      playlist.splice(index, 1);
+      if (index < currentTrackIndex) {
+        currentTrackIndex--;
+      } else if (index === currentTrackIndex) {
+        if (playlist.length > 0) {
+          playTrackAtIndex(Math.min(index, playlist.length - 1));
+        } else {
+          currentTrackIndex = -1;
+        }
+      }
+      renderQueueUI();
+    }
+
+    function clearQueue() {
+      if (playlist.length === 0) return;
+      if (currentTrackIndex !== -1) {
+        const current = playlist[currentTrackIndex];
+        playlist = [current];
+        currentTrackIndex = 0;
+      } else {
+        playlist = [];
+      }
+      renderQueueUI();
+      showToast("Cola vaciada");
+    }
+
     function renderQueueUI() {
       const desktopList = document.getElementById('desktop-queue-list');
       const mobileList = document.getElementById('mobile-queue-list');
@@ -1107,14 +1296,19 @@ input[type=range]::-moz-range-thumb {
 
           item.innerHTML = `
             <div class="flex items-center gap-3 truncate pr-2">
-              <span class="text-xs font-mono w-4 text-center">${idx + 1}</span>
+              <span class="text-xs font-mono w-4 text-center opacity-70">${idx + 1}</span>
               <img src="${track.cover || DEFAULT_COVER}" class="w-8 h-8 rounded object-cover flex-shrink-0">
               <div class="truncate">
                 <p class="text-xs font-syne uppercase truncate leading-tight">${track.title}</p>
                 <p class="text-[10px] font-mono opacity-70 truncate">${track.artistName}</p>
               </div>
             </div>
-            ${isPlayingTrack ? '<span class="text-xs font-mono mr-2">▶</span>' : ''}
+            <div class="flex items-center gap-2">
+              ${isPlayingTrack ? '<span class="text-xs font-mono">▶</span>' : ''}
+              <button onclick="removeFromQueue(${idx}, event)" title="Quitar de la cola" class="p-1 hover:text-red-500 transition-colors text-xs opacity-70 hover:opacity-100">
+                ✕
+              </button>
+            </div>
           `;
           list.appendChild(item);
         });
@@ -1149,8 +1343,8 @@ input[type=range]::-moz-range-thumb {
             <button onclick="event.stopPropagation(); copyTrackShareLink('${track.youtubeId}')" title="Compartir canción" class="p-1.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-xs hover:border-black dark:hover:border-white transition-colors">
               🔗
             </button>
-            <button class="px-2.5 py-1 border border-zinc-300 dark:border-zinc-700 rounded-full text-[10px] sm:text-xs font-mono uppercase group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors">
-              ▶ Play
+            <button class="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-zinc-300 dark:border-zinc-700 flex items-center justify-center text-xs group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors">
+              ▶
             </button>
           </div>
         `;
@@ -1169,7 +1363,7 @@ input[type=range]::-moz-range-thumb {
       const shareUrl = `${window.location.origin}${window.location.pathname}?artist=${currentArtist.id}`;
       navigator.clipboard.writeText(shareUrl).then(() => {
         showToast("¡Enlace del perfil copiado!");
-      }).catch(err => console.error("Error al copiar: ", err));
+      }).catch(err => console.error(err));
     }
 
     function copyCurrentReleaseShareLink() {
@@ -1177,16 +1371,17 @@ input[type=range]::-moz-range-thumb {
       const shareUrl = `${window.location.origin}${window.location.pathname}?album=${currentRelease.id}`;
       navigator.clipboard.writeText(shareUrl).then(() => {
         showToast("¡Enlace de la obra copiado!");
-      }).catch(err => console.error("Error al copiar: ", err));
+      }).catch(err => console.error(err));
     }
 
     function copyTrackShareLink(youtubeId) {
       const shareUrl = `${window.location.origin}${window.location.pathname}?track=${youtubeId}`;
       navigator.clipboard.writeText(shareUrl).then(() => {
         showToast("¡Enlace a la canción copiado!");
-      }).catch(err => console.error("Error al copiar: ", err));
+      }).catch(err => console.error(err));
     }
 
+    /* LO ÚLTIMO (Modificado: Sin copiar link y con botón de reproducción solo con triángulo) */
     function renderLatestTracks(tracks) {
       const container = document.getElementById('latest-tracks-container');
       container.innerHTML = '';
@@ -1203,10 +1398,10 @@ input[type=range]::-moz-range-thumb {
         row.onclick = () => playTrackAtIndex(idx);
 
         row.innerHTML = `
-          <div class="flex items-center gap-2.5 sm:gap-4 overflow-hidden pr-2">
+          <div class="flex items-center gap-2.5 sm:gap-4 overflow-hidden pr-2 flex-1">
             <span class="font-mono text-xs text-zinc-400 font-bold w-4 sm:w-5 flex-shrink-0">${idx + 1}</span>
             <img src="${track.cover}" onerror="this.src=DEFAULT_COVER" class="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded border border-zinc-200 dark:border-zinc-700 flex-shrink-0 bg-zinc-100 dark:bg-zinc-800">
-            <div class="truncate">
+            <div class="truncate flex-1">
               <h4 class="text-xs sm:text-sm font-bold font-syne uppercase text-black dark:text-white truncate group-hover:text-zinc-600 dark:group-hover:text-zinc-300">${track.title}</h4>
               <p class="text-[10px] sm:text-xs font-mono text-zinc-500 dark:text-zinc-400 truncate">${track.artistName}</p>
             </div>
@@ -1215,11 +1410,8 @@ input[type=range]::-moz-range-thumb {
             <button onclick="addToQueue(playlist[${idx}], event)" title="Añadir a la cola" class="p-1.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-xs hover:border-black dark:hover:border-white transition-colors flex items-center gap-1">
               ➕
             </button>
-            <button onclick="event.stopPropagation(); copyTrackShareLink('${track.youtubeId}')" title="Compartir canción" class="p-1.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-xs hover:border-black dark:hover:border-white transition-colors">
-              🔗
-            </button>
-            <button class="px-2.5 py-1 border border-zinc-300 dark:border-zinc-700 rounded-full text-[10px] sm:text-xs font-mono uppercase group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors">
-              ▶ Play
+            <button class="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-zinc-300 dark:border-zinc-700 flex items-center justify-center text-xs group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors">
+              ▶
             </button>
           </div>
         `;
@@ -1227,6 +1419,7 @@ input[type=range]::-moz-range-thumb {
       });
     }
 
+    /* DISCOGRAFÍA (Modificado: Estilo tarjeta contenedor como Últimos Lanzamientos) */
     function renderDiscography(releases, filter) {
       const grid = document.getElementById('discography-grid');
       grid.innerHTML = '';
@@ -1237,16 +1430,21 @@ input[type=range]::-moz-range-thumb {
 
       filtered.forEach(rel => {
         const card = document.createElement('div');
-        card.className = "group cursor-pointer";
+        card.className = "group border border-zinc-200 dark:border-zinc-800 rounded-lg sm:rounded-xl p-1.5 sm:p-3 bg-white dark:bg-zinc-900 cursor-pointer hover:border-black dark:hover:border-white transition-all flex flex-col justify-between shadow-sm hover:shadow-md";
         card.onclick = () => openReleaseDetail(rel.id);
 
         card.innerHTML = `
-          <div class="aspect-square w-full overflow-hidden rounded-md mb-1.5 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800">
-            <img src="${rel.cover || DEFAULT_COVER}" onerror="this.src=DEFAULT_COVER" alt="${rel.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+          <div>
+            <div class="w-full aspect-square overflow-hidden rounded bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 mb-1.5">
+              <img src="${rel.cover || DEFAULT_COVER}" onerror="this.src=DEFAULT_COVER" alt="${rel.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            </div>
+            <span class="text-[8px] sm:text-[9px] font-mono uppercase px-1 py-0.2 border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 rounded inline-block font-bold">${rel.type}</span>
+            <h3 class="text-xs sm:text-sm font-bold font-syne uppercase text-black dark:text-white group-hover:text-zinc-600 dark:group-hover:text-zinc-300 leading-tight mt-1 truncate">
+              ${rel.title}
+            </h3>
+            <p class="text-[9px] sm:text-[11px] font-mono text-zinc-500 dark:text-zinc-400 truncate mt-0.5">${rel.artistName}</p>
           </div>
-          <span class="text-[8px] sm:text-[9px] font-mono uppercase px-1.5 py-0.5 border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 rounded inline-block">${rel.type}</span>
-          <h4 class="text-xs sm:text-sm font-bold font-syne uppercase text-black dark:text-white mt-1 truncate">${rel.title}</h4>
-          <p class="text-[10px] sm:text-xs font-mono text-zinc-400 dark:text-zinc-500">${rel.artistName} • ${rel.date.split('-')[0]}</p>
+          <span class="text-[8px] sm:text-[10px] font-mono text-zinc-400 block mt-1 sm:mt-2">${rel.date.split('-')[0]}</span>
         `;
         grid.appendChild(card);
       });
@@ -1272,6 +1470,8 @@ input[type=range]::-moz-range-thumb {
       currentTrackIndex = index;
       const track = playlist[currentTrackIndex];
 
+      localStorage.setItem('lastTrack', JSON.stringify(track));
+
       document.getElementById('now-playing-title').innerText = track.title;
       document.getElementById('now-playing-artist').innerText = track.artistName;
       document.getElementById('now-playing-img').src = track.cover || DEFAULT_COVER;
@@ -1291,6 +1491,37 @@ input[type=range]::-moz-range-thumb {
       }
 
       renderQueueUI();
+      checkMarquee();
+    }
+
+    function checkMarquee() {
+      const titleEl = document.getElementById('full-player-title');
+      const titleCont = document.getElementById('full-title-container');
+      
+      if (titleEl && titleCont) {
+        if (titleEl.scrollWidth > titleCont.clientWidth) {
+          titleCont.classList.add('marquee-container');
+          titleEl.className = 'marquee-content text-xl sm:text-2xl md:text-3xl font-bold font-syne uppercase text-black dark:text-white';
+          titleEl.innerHTML = `${titleEl.innerText} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${titleEl.innerText} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`;
+        } else {
+          titleCont.classList.remove('marquee-container');
+          titleEl.className = 'text-xl sm:text-2xl md:text-3xl font-bold font-syne uppercase truncate text-black dark:text-white';
+        }
+      }
+    }
+
+    function navigateToCurrentArtistProfile() {
+      if (currentTrackIndex === -1) return;
+      const track = playlist[currentTrackIndex];
+      let artist = catalogData.artists.find(a => a.name.toLowerCase() === track.artistName.toLowerCase());
+      if (!artist && track.releaseId) {
+        const release = catalogData.releases.find(r => r.id === track.releaseId);
+        if (release) artist = catalogData.artists.find(a => a.id === release.artistId);
+      }
+      if (artist) {
+        closeFullPlayer();
+        openArtistDetail(artist.id);
+      }
     }
 
     function togglePlayPause() {
@@ -1437,53 +1668,19 @@ input[type=range]::-moz-range-thumb {
       return `${min}:${sec < 10 ? '0' : ''}${sec}`;
     }
 
-    function handleRouting() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const artistId = urlParams.get('artist');
-      const albumId = urlParams.get('album');
-      const trackId = urlParams.get('track');
-
-      if (artistId) {
-        openArtistDetail(artistId, false);
-      } else if (albumId) {
-        openReleaseDetail(albumId, false);
-      } else if (trackId) {
-        const release = catalogData.releases.find(r => r.tracks.some(t => t.youtubeId === trackId));
-        if (release) {
-          openReleaseDetail(release.id, false);
-          const trackIdx = playlist.findIndex(t => t.youtubeId === trackId);
-          if (trackIdx !== -1) {
-            playTrackAtIndex(trackIdx);
-          }
-        } else {
-          showArtistsList(false);
-        }
-      } else {
-        showArtistsList(false);
-      }
-    }
-
-    window.addEventListener('popstate', () => {
-      handleRouting();
-    });
-
-    function showArtistsList(pushHistory = true, updateStack = true) {
-      if (pushHistory) history.pushState(null, '', window.location.pathname);
-      if (updateStack) viewHistory.push('artists');
-
+    function showArtistsList(pushHistory = true) {
+      if (pushHistory) viewHistory.push('artists');
       updateViewVisibility('artists');
       renderLatestReleasesHome();
-      const searchVal = document.getElementById('artist-search-input')?.value || '';
-      renderArtistsGrid(searchVal);
+      renderArtistsGrid();
     }
 
-    function openArtistDetail(artistId, pushHistory = true, updateStack = true) {
+    function openArtistDetail(artistId, pushHistory = true) {
       const artist = catalogData.artists.find(a => a.id === artistId);
       if (!artist) return;
       currentArtist = artist;
 
-      if (pushHistory) history.pushState(null, '', `?artist=${artist.id}`);
-      if (updateStack) viewHistory.push({ type: 'artist', id: artist.id });
+      if (pushHistory) viewHistory.push({ type: 'artist', id: artist.id });
 
       updateViewVisibility('artist-detail');
 
@@ -1514,15 +1711,14 @@ input[type=range]::-moz-range-thumb {
       renderDiscography(artistReleases, 'todos');
     }
 
-    function openReleaseDetail(releaseId, pushHistory = true, updateStack = true) {
+    function openReleaseDetail(releaseId, pushHistory = true) {
       const release = catalogData.releases.find(r => r.id === releaseId);
       if (!release) return;
 
       currentRelease = release;
       currentArtist = catalogData.artists.find(a => a.id === release.artistId) || null;
 
-      if (pushHistory) history.pushState(null, '', `?album=${release.id}`);
-      if (updateStack) viewHistory.push({ type: 'release', id: release.id });
+      if (pushHistory) viewHistory.push({ type: 'release', id: release.id });
 
       updateViewVisibility('release-detail');
 
@@ -1551,7 +1747,8 @@ input[type=range]::-moz-range-thumb {
 
     document.getElementById('now-playing-img').src = DEFAULT_COVER;
 
-    handleRouting();
+    /* Forzado constante a la página principal al abrir / refrescar */
+    showArtistsList(false);
   </script>
 </body>
 </html>
