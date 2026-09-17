@@ -111,21 +111,43 @@ body {
     </div>
   </nav>
 
-  <!-- VISTA 1: LISTA DE ARTISTAS Y MANIFIESTO -->
+  <!-- VISTA 1: INICIO (NUEVO: LANZAMIENTOS RECIENTES + ARTISTAS + MANIFIESTO) -->
   <main id="view-artists" class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
-    <header class="mb-6 sm:mb-10">
-      <h1 class="text-3xl sm:text-6xl font-black font-syne uppercase tracking-tight text-black dark:text-white">
-        ARTISTAS
-      </h1>
-      <p class="mt-1 sm:mt-2 text-zinc-500 dark:text-zinc-400 text-xs sm:text-base font-normal">
-        Selecciona un artista para acceder a sus últimos lanzamientos y discografía completa.
-      </p>
-    </header>
+    
+    <!-- NUEVA SECCIÓN: Lanzamientos Más Recientes -->
+    <section class="mb-12 sm:mb-16">
+      <div class="flex items-center justify-between mb-4 sm:mb-6">
+        <div>
+          <span class="text-[10px] sm:text-xs font-mono uppercase text-zinc-400 font-bold tracking-widest block mb-1">Novedades</span>
+          <h2 class="text-2xl sm:text-4xl font-black font-syne uppercase text-black dark:text-white">
+            Últimos Lanzamientos
+          </h2>
+        </div>
+        <span class="text-[10px] sm:text-xs font-mono text-zinc-400">Top 5 más recientes</span>
+      </div>
 
-    <div id="artists-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 mb-16 sm:mb-20 items-stretch">
-      <!-- Dinámico -->
-    </div>
+      <div id="latest-releases-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
+        <!-- Dinámico via JS -->
+      </div>
+    </section>
 
+    <!-- SECCIÓN: Artistas -->
+    <section class="mb-16 sm:mb-20">
+      <header class="mb-6 sm:mb-8">
+        <h2 class="text-2xl sm:text-4xl font-black font-syne uppercase text-black dark:text-white">
+          Artistas
+        </h2>
+        <p class="mt-1 text-zinc-500 dark:text-zinc-400 text-xs sm:text-sm font-normal">
+          Selecciona un artista para acceder a sus últimos lanzamientos y discografía completa.
+        </p>
+      </header>
+
+      <div id="artists-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 items-stretch">
+        <!-- Dinámico via JS -->
+      </div>
+    </section>
+
+    <!-- SECCIÓN: Manifiesto -->
     <section class="border-t border-zinc-200 dark:border-zinc-800 pt-10 sm:pt-14">
       <div class="max-w-4xl">
         <span class="text-[10px] sm:text-xs font-mono uppercase text-zinc-400 font-bold tracking-widest block mb-2">Manifiesto</span>
@@ -163,7 +185,7 @@ body {
       </div>
     </div>
 
-    <!-- Sección 1: Lo más reciente -->
+    <!-- Sección 1: Lo más reciente del Artista -->
     <section class="mb-12 sm:mb-16">
       <div class="flex items-center justify-between mb-3 sm:mb-4">
         <h2 class="text-xl sm:text-3xl font-bold font-syne uppercase text-black dark:text-white">Lo Último</h2>
@@ -174,7 +196,7 @@ body {
       </div>
     </section>
 
-    <!-- Sección 2: Discografía -->
+    <!-- Sección 2: Discografía del Artista -->
     <section class="mb-12 sm:mb-16">
       <h2 class="text-xl sm:text-3xl font-bold font-syne uppercase text-black dark:text-white mb-4 sm:mb-6">Discografía</h2>
 
@@ -349,7 +371,7 @@ body {
         { id: "vittorio", name: "Vittorio Gazelle", img: "https://i.imgur.com/8MiOT06.png" },
         { id: "kizzi", name: "Kizzi", img: "https://i.imgur.com/lnH4wE5.png" },
         { id: "pretty-cher", name: "Pretty Cher", img: "https://i.imgur.com/8KCt4uK.png" },
-        { id: "dos-persas", name: "Dos Persas", img: "https://i.imgur.com/DjPwMf9.png" },
+        { id: "dos-persas", name: "Dos Persas", img: "https://i.imgur.com/kZCfan6.png" },
         { id: "fer-ag", name: "Fer AG", img: "https://i.imgur.com/rdCIhJn.png" },
         { id: "victorldv", name: "VíctorLDV", img: "https://i.imgur.com/Uq2XkgO.png" },
         { id: "conman", name: "Conman", img: "https://i.imgur.com/rT3lgJ4.png" },
@@ -692,7 +714,7 @@ body {
     }
 
     function onPlayerReady() {
-      // El reproductor ya está listo para arrancar audio si se pulsa play
+      //
     }
 
     function onPlayerStateChange(event) {
@@ -750,6 +772,37 @@ body {
         btnBack.classList.add('flex');
       }
       window.scrollTo(0, 0);
+    }
+
+    function renderLatestReleasesHome() {
+      const grid = document.getElementById('latest-releases-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      const top5 = [...catalogData.releases]
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 5);
+
+      top5.forEach(rel => {
+        const card = document.createElement('div');
+        card.className = "group border border-zinc-200 dark:border-zinc-800 rounded-xl p-2.5 sm:p-3 bg-white dark:bg-zinc-900 cursor-pointer hover:border-black dark:hover:border-white transition-all flex flex-col justify-between shadow-sm hover:shadow-md";
+        card.onclick = () => openReleaseDetail(rel.id);
+
+        card.innerHTML = `
+          <div>
+            <div class="w-full aspect-square overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 mb-2">
+              <img src="${rel.cover || DEFAULT_COVER}" onerror="this.src=DEFAULT_COVER" alt="${rel.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            </div>
+            <span class="text-[9px] font-mono uppercase px-1.5 py-0.5 border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 rounded inline-block font-bold">${rel.type}</span>
+            <h3 class="text-sm font-bold font-syne uppercase text-black dark:text-white group-hover:text-zinc-600 dark:group-hover:text-zinc-300 leading-tight mt-1 truncate">
+              ${rel.title}
+            </h3>
+            <p class="text-[11px] font-mono text-zinc-500 dark:text-zinc-400 truncate mt-0.5">${rel.artistName}</p>
+          </div>
+          <span class="text-[10px] font-mono text-zinc-400 block mt-2">${formatDate(rel.date)}</span>
+        `;
+        grid.appendChild(card);
+      });
     }
 
     function renderReleaseTracks(tracks) {
@@ -1066,6 +1119,11 @@ body {
     function showArtistsList(pushHistory = true) {
       if (pushHistory) history.pushState(null, '', window.location.pathname);
       updateViewVisibility('artists');
+      
+      // Renderizar los 5 lanzamientos más recientes
+      renderLatestReleasesHome();
+
+      // Renderizar la lista de artistas
       const grid = document.getElementById('artists-grid');
       grid.innerHTML = '';
 
