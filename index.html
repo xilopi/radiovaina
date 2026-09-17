@@ -111,10 +111,10 @@ body {
     </div>
   </nav>
 
-  <!-- VISTA 1: INICIO (NUEVO: LANZAMIENTOS RECIENTES + ARTISTAS + MANIFIESTO) -->
+  <!-- VISTA 1: INICIO (LANZAMIENTOS RECIENTES + ARTISTAS + BUSCADOR + MANIFIESTO) -->
   <main id="view-artists" class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
     
-    <!-- NUEVA SECCIÓN: Lanzamientos Más Recientes -->
+    <!-- SECCIÓN: Lanzamientos Más Recientes -->
     <section class="mb-12 sm:mb-16">
       <div class="flex items-center justify-between mb-4 sm:mb-6">
         <div>
@@ -142,8 +142,39 @@ body {
         </p>
       </header>
 
+      <!-- BUSCADOR DE ARTISTAS -->
+      <div class="relative mb-6 sm:mb-8 max-w-md">
+        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
+        <input 
+          type="text" 
+          id="artist-search-input" 
+          placeholder="Buscar artista por nombre..." 
+          oninput="handleArtistSearch(this.value)"
+          class="w-full pl-10 pr-10 py-2.5 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-full text-xs sm:text-sm text-black dark:text-white placeholder-zinc-400 focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+        >
+        <button 
+          id="btn-clear-search" 
+          onclick="clearArtistSearch()" 
+          class="hidden absolute inset-y-0 right-0 pr-3.5 flex items-center text-zinc-400 hover:text-black dark:hover:text-white transition-colors"
+          title="Borrar búsqueda"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
       <div id="artists-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 items-stretch">
         <!-- Dinámico via JS -->
+      </div>
+      <div id="no-artists-found" class="hidden text-center py-12 text-zinc-400 text-sm font-mono">
+        No se ha encontrado ningún artista con ese nombre.
       </div>
     </section>
 
@@ -156,7 +187,7 @@ body {
         </h2>
         <div class="space-y-4 text-sm sm:text-base text-zinc-600 dark:text-zinc-300 leading-relaxed font-normal">
           <p>
-            Radio Vaina nace como una respuesta libre e independiente para quienes buscan alternatives frente a las grandes plataformas digitales y la intermediación de las distribuidoras tradicionales. Creemos firmemente en una cultura accesible, sin peajes ni intereses corporativos.
+            Radio Vaina nace como una respuesta libre e independiente para quienes buscan alternativas frente a las grandes plataformas digitales y la intermediación de las distribuidoras tradicionales. Creemos firmemente en una cultura accesible, sin peajes ni intereses corporativos.
           </p>
           <p>
             Rechazamos cualquier vínculo con estructuras que prioricen el beneficio económico por encima de la ética. En este espacio nadie cobra ni paga un solo euro: ni el oyente por escuchar, ni el artista por compartir su obra. Es una alternativa real construida por amor al arte.
@@ -805,6 +836,70 @@ body {
       });
     }
 
+    // --- FUNCIONES DEL BUSCADOR DE ARTISTAS ---
+    function handleArtistSearch(query) {
+      const clearBtn = document.getElementById('btn-clear-search');
+      if (query.trim().length > 0) {
+        clearBtn.classList.remove('hidden');
+      } else {
+        clearBtn.classList.add('hidden');
+      }
+
+      renderArtistsGrid(query);
+    }
+
+    function clearArtistSearch() {
+      const input = document.getElementById('artist-search-input');
+      input.value = '';
+      document.getElementById('btn-clear-search').classList.add('hidden');
+      renderArtistsGrid('');
+      input.focus();
+    }
+
+    function renderArtistsGrid(searchTerm = '') {
+      const grid = document.getElementById('artists-grid');
+      const noResults = document.getElementById('no-artists-found');
+      grid.innerHTML = '';
+
+      const term = searchTerm.toLowerCase().trim();
+
+      const sortedArtists = [...catalogData.artists].sort((a, b) => {
+        const dateA = new Date(getLatestReleaseDate(a.id));
+        const dateB = new Date(getLatestReleaseDate(b.id));
+        return dateB - dateA;
+      });
+
+      const filtered = sortedArtists.filter(a => a.name.toLowerCase().includes(term));
+
+      if (filtered.length === 0) {
+        noResults.classList.remove('hidden');
+      } else {
+        noResults.classList.add('hidden');
+      }
+
+      filtered.forEach(artist => {
+        const card = document.createElement('div');
+        card.className = "group border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 sm:p-5 bg-white dark:bg-zinc-900 cursor-pointer hover:border-black dark:hover:border-white transition-all flex flex-col justify-between h-full shadow-sm hover:shadow-md";
+        card.onclick = () => openArtistDetail(artist.id);
+
+        card.innerHTML = `
+          <div class="flex flex-col h-full">
+            <div class="w-full aspect-square overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 mb-3 flex-shrink-0">
+              <img src="${artist.img || DEFAULT_COVER}" onerror="this.src=DEFAULT_COVER" alt="${artist.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            </div>
+            
+            <div class="flex-1 flex flex-col justify-center">
+              <span class="text-[9px] sm:text-xs font-mono uppercase text-zinc-400 font-bold block tracking-wider mb-0.5">Artista</span>
+              <h3 class="text-base sm:text-2xl font-black font-syne uppercase text-black dark:text-white group-hover:text-zinc-600 dark:group-hover:text-zinc-300 leading-snug break-words">
+                ${artist.name}
+              </h3>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
     function renderReleaseTracks(tracks) {
       const container = document.getElementById('release-tracks-container');
       container.innerHTML = '';
@@ -1123,37 +1218,9 @@ body {
       // Renderizar los 5 lanzamientos más recientes
       renderLatestReleasesHome();
 
-      // Renderizar la lista de artistas
-      const grid = document.getElementById('artists-grid');
-      grid.innerHTML = '';
-
-      const sortedArtists = [...catalogData.artists].sort((a, b) => {
-        const dateA = new Date(getLatestReleaseDate(a.id));
-        const dateB = new Date(getLatestReleaseDate(b.id));
-        return dateB - dateA;
-      });
-
-      sortedArtists.forEach(artist => {
-        const card = document.createElement('div');
-        card.className = "group border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 sm:p-5 bg-white dark:bg-zinc-900 cursor-pointer hover:border-black dark:hover:border-white transition-all flex flex-col justify-between h-full shadow-sm hover:shadow-md";
-        card.onclick = () => openArtistDetail(artist.id);
-
-        card.innerHTML = `
-          <div class="flex flex-col h-full">
-            <div class="w-full aspect-square overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 mb-3 flex-shrink-0">
-              <img src="${artist.img || DEFAULT_COVER}" onerror="this.src=DEFAULT_COVER" alt="${artist.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-            </div>
-            
-            <div class="flex-1 flex flex-col justify-center">
-              <span class="text-[9px] sm:text-xs font-mono uppercase text-zinc-400 font-bold block tracking-wider mb-0.5">Artista</span>
-              <h3 class="text-base sm:text-2xl font-black font-syne uppercase text-black dark:text-white group-hover:text-zinc-600 dark:group-hover:text-zinc-300 leading-snug break-words">
-                ${artist.name}
-              </h3>
-            </div>
-          </div>
-        `;
-        grid.appendChild(card);
-      });
+      // Renderizar la lista de artistas según la búsqueda actual
+      const searchVal = document.getElementById('artist-search-input')?.value || '';
+      renderArtistsGrid(searchVal);
     }
 
     function openArtistDetail(artistId, pushHistory = true) {
