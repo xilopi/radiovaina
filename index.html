@@ -123,10 +123,10 @@ body {
             Últimos Lanzamientos
           </h2>
         </div>
-        <span class="text-[10px] sm:text-xs font-mono text-zinc-400">Top 5 más recientes</span>
+        <span class="text-[10px] sm:text-xs font-mono text-zinc-400">Top 4 más recientes</span>
       </div>
 
-      <div id="latest-releases-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
+      <div id="latest-releases-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <!-- Dinámico via JS -->
       </div>
     </section>
@@ -812,7 +812,7 @@ body {
 
       const top5 = [...catalogData.releases]
         .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .slice(0, 5);
+        .slice(0, 4);
 
       top5.forEach(rel => {
         const card = document.createElement('div');
