@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<title>Vainalist — Plataforma Musical Libre e Independiente · v62</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Metaetiquetas para Redes Sociales -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Vainalist — Plataforma Musical Libre e Independiente">
+<meta property="og:description" content="Vainalist es un espacio independiente para escuchar y compartir música sin intermediarios, peajes ni corporativismo.">
+<meta property="og:image" content="https://i.imgur.com/KoqzHXq.png">
+<meta property="og:locale" content="es_ES">
+
+<!-- Twitter Cards -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Vainalist — Música Libre">
+<meta name="twitter:description" content="Música libre de ataduras. Sin cobros ni exclusividades. Creada por amor al arte.">
+<meta name="twitter:image" content="https://i.imgur.com/KoqzHXq.png">
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="https://i.imgur.com/KoqzHXq.png">
+
+<!-- Fuentes: Space Grotesk & Syne -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+  }
+</script>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+body {
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: -0.01em;
+  padding-bottom: 110px;
+}
+
+.font-syne {
+  font-family: 'Syne', sans-serif;
+}
+
+.track-row {
+  transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sound-wave-bar {
+  display: inline-block;
+  width: 3px;
+  border-radius: 2px;
+  animation: soundWave 1.2s infinite ease-in-out alternate;
+}
+@keyframes soundWave {
+  0% { height: 4px; }
+  100% { height: 16px; }
+}
+.sound-wave-bar:nth-child(2) { animation-delay: 0.2s; }
+.sound-wave-bar:nth-child(3) { animation-delay: 0.4s; }
+.sound-wave-bar:nth-child(4) { animation-delay: 0.1s; }
+
+#youtube-player-container {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Estilos de la barra de progreso */
+input[type=range] {
+  -webkit-appearance: none;
+  background: transparent;
+}
+input[type=range]:focus {
+  outline: none;
+}
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+  cursor: pointer;
+  border-radius: 9999px;
+}
+input[type=range]::-webkit-slider-thumb {
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: currentColor;
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: -3px;
+}
+input[type=range]::-moz-range-track {
+  width: 100%;
+  height: 6px;
+  cursor: pointer;
+  border-radius: 9999px;
+}
+input[type=range]::-moz-range-thumb {
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: currentColor;
+  cursor: pointer;
+  border: none;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;  
+  overflow: hidden;
+}
+
+/* Transiciones Fullscreen Modal */
+#full-player-modal {
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+#full-player-modal.modal-closed {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+#full-player-modal.modal-closed .modal-content {
+  transform: scale(0.95) translateY(20px);
+}
+#full-player-modal.modal-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+#full-player-modal.modal-open .modal-content {
+  transform: scale(1) translateY(0);
+}
+.modal-content {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Panel Deslizable de Cola (Drawer) */
+#queue-drawer {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#queue-drawer.drawer-closed {
+  transform: translateY(100%);
+}
+#queue-drawer.drawer-open {
+  transform: translateY(0);
+}
+
+/* Toast de notificación */
+#toast-notification {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+#toast-notification.toast-hidden {
+  opacity: 0;
+  transform: translate(-50%, 20px);
+  pointer-events: none;
+}
+#toast-notification.toast-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+</style>
+</head>
+<body class="bg-[#f5f5f3] text-black dark:bg-[#121212] dark:text-zinc-100 selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black transition-colors duration-200">
+
+  <!-- Toast Notification -->
+  <div id="toast-notification" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 bg-black text-white dark:bg-white dark:text-black px-4 py-2 rounded-full shadow-2xl text-xs font-mono font-bold uppercase tracking-wider toast-hidden">
+    Notificación
+  </div>
+
+  <!-- Navegación Superior Simpificada -->
+<!-- Navegación Superior con Buscador Integrado Responsivo -->
+  <nav class="sticky top-0 z-40 bg-[#f5f5f3]/90 dark:bg-[#121212]/90 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 py-3 px-3 sm:px-6 transition-colors duration-200">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      
+      <!-- Izquierda: Botón Volver + Título VAINALIST -->
+      <div class="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+        <button id="btn-back" onclick="handleBackNavigation()" class="hidden items-center gap-1.5 text-[10px] sm:text-xs font-mono uppercase font-bold px-2.5 py-1 sm:px-3 sm:py-1.5 border border-black dark:border-white rounded-full hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
+          ← Volver
+        </button>
+        <span class="font-syne font-black text-lg sm:text-2xl uppercase tracking-tight cursor-pointer" onclick="showArtistsList()">VAINALIST</span>
+      </div>
+
+      <!-- Buscador Global: Abajo en Móvil, En el Centro/Misma altura en PC -->
+      <div class="relative w-full md:max-w-md md:mx-4 order-3 md:order-2">
+        <div class="relative flex items-center">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+          <input 
+            type="text" 
+            id="global-search-input" 
+            placeholder="Buscar artista, canción o lanzamiento..." 
+            oninput="handleGlobalSearch(this.value)"
+            onfocus="if(this.value.trim().length > 0) openGlobalSearchDropdown()"
+            class="w-full pl-10 pr-10 py-2 bg-[#ededeb] dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-sm text-black dark:text-white placeholder-zinc-400 focus:outline-none focus:border-black dark:focus:border-white transition-colors shadow-sm"
+          >
+          <button 
+            id="btn-clear-global-search" 
+            onclick="clearGlobalSearch()" 
+            class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-black dark:hover:text-white transition-colors"
+            title="Borrar búsqueda"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Dropdown con Resultados de Búsqueda -->
+        <div id="global-search-results" class="hidden absolute left-0 right-0 top-full mt-2 bg-[#ffffff] dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-2xl overflow-hidden max-h-96 overflow-y-auto z-50 p-2 space-y-3">
+          <!-- Resultados dinámicos -->
+        </div>
+      </div>
+
+      <!-- Derecha: Admin Mode + Modo Oscuro -->
+      <div class="flex items-center justify-end gap-2 flex-shrink-0 absolute top-3 right-3 md:relative md:top-auto md:right-auto order-2 md:order-3">
+        <button id="btn-god-mode" onclick="openAuthModal()" class="px-2.5 py-1.5 rounded-full border border-black dark:border-white text-[10px] sm:text-xs font-mono uppercase font-bold hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors" title="Iniciar sesión">
+          Iniciar sesión
+        </button>
+        <button onclick="toggleDarkMode()" class="p-2 rounded-full border border-zinc-300 dark:border-zinc-700 hover:border-black dark:hover:border-white text-black dark:text-white transition-colors" title="Cambiar Tema">
+          <svg id="theme-icon-sun" class="w-4 h-4 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg id="theme-icon-moon" class="w-4 h-4 block dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </nav>
+      <!-- Dropdown con Resultados de Búsqueda -->
+      <div id="global-search-results" class="hidden absolute left-0 right-0 top-full mt-2 bg-[#ffffff] dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-2xl overflow-hidden max-h-96 overflow-y-auto z-50 p-2 space-y-3">
+        <!-- Resultados dinámicos -->
+      </div>
+    </div>
+  </div>
+
+  <!-- VISTA 1: INICIO -->
+  <main id="view-artists" class="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-8">
+    <section class="mb-8 sm:mb-16">
+      <div class="mb-3 sm:mb-6">
+        <span class="text-[9px] sm:text-xs font-mono uppercase text-zinc-400 font-bold tracking-widest block mb-0.5">Novedades</span>
+        <h2 class="text-xl sm:text-4xl font-black font-syne uppercase text-black dark:text-white">
+          Últimos Lanzamientos
+        </h2>
+      </div>
+
+      <div id="latest-releases-grid" class="grid grid-cols-3 md:grid-cols-6 gap-2 sm:gap-4">
+        <!-- Dinámico via JS -->
+      </div>
+    </section>
+
+    <section class="mb-12 sm:mb-20">
+      <header class="mb-4 sm:mb-8">
+        <h2 class="text-xl sm:text-4xl font-black font-syne uppercase text-black dark:text-white">
+          Artistas
+        </h2>
+        <p class="mt-0.5 text-zinc-500 dark:text-zinc-400 text-[11px] sm:text-sm font-normal">
+          Selecciona un artista para acceder a sus últimos lanzamientos y discografía completa.
+        </p>
+      </header>
+
+      <div id="artists-grid" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-6 items-stretch">
+        <!-- Dinámico via JS -->
+      </div>
+    </section>
+
+    <!-- SECCIÓN: Manifiesto -->
+    <section class="border-t border-zinc-200 dark:border-zinc-800 pt-8 sm:pt-14">
+      <div class="max-w-4xl">
+        <span class="text-[9px] sm:text-xs font-mono uppercase text-zinc-400 font-bold tracking-widest block mb-1.5">Manifiesto</span>
+        <h2 class="text-xl sm:text-4xl font-black font-syne uppercase text-black dark:text-white mb-4 sm:mb-6">
+          Sobre Vainalist
+        </h2>
+        <div class="space-y-3 sm:space-y-4 text-xs sm:text-base text-zinc-600 dark:text-zinc-300 leading-relaxed font-normal">
+          <p>
+            Vainalist nace como una respuesta libre e independiente para quienes buscan alternativas frente a las grandes plataformas digitales y la intermediación de las distribuidoras tradicionales. Creemos firmemente en una cultura accesible, sin peajes ni intereses corporativos.
+          </p>
+          <p>
+            Rechazamos cualquier vínculo con estructuras que prioricen el beneficio económico por encima de la ética. En este espacio nadie cobra ni paga un solo euro: ni el oyente por escuchar, ni el artista por compartir su obra. Es una alternativa real construida por amor al arte.
+          </p>
+          <p>
+            <strong class="font-bold text-black dark:text-white block mb-0.5">No exigimos exclusividad a nuestros artistas</strong>
+            Entendemos las contradicciones de la industria actual y sabemos que muchos creadores necesitan el streaming tradicional para hacer llegar su trabajo. Vainalist no juzga tus canales de difusión; es un refugio abierto a cualquiera que comulgue con nuestros valores y quiera sumar su voz a un catálogo libre de ataduras.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- VISTA 2: PERFIL DEL ARTISTA -->
+  <main id="view-artist-detail" class="hidden max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <div class="flex flex-col sm:flex-row items-start sm:items-end gap-4 sm:gap-6 mb-8 sm:mb-12 pb-6 sm:pb-8 border-b border-zinc-200 dark:border-zinc-800">
+      <img id="artist-img" src="" alt="" onerror="this.src=DEFAULT_COVER" class="w-32 h-32 sm:w-56 sm:h-56 object-cover border border-zinc-300 dark:border-zinc-700 rounded-lg bg-[#ededeb] dark:bg-zinc-800">
+      <div class="flex-1">
+        <span class="text-[10px] sm:text-xs font-mono uppercase text-zinc-400 font-bold tracking-wider">ARTISTA</span>
+        <h1 id="artist-name" class="text-3xl sm:text-6xl font-black font-syne uppercase tracking-tight text-black dark:text-white mt-0.5"></h1>
+        <div class="mt-4">
+          <button onclick="copyCurrentArtistShareLink()" class="p-2.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-xs hover:border-black dark:hover:border-white transition-colors" title="Compartir perfil de artista">
+            🔗 Compartir Perfil
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección Lo Último -->
+    <section class="mb-12 sm:mb-16">
+      <div class="flex items-center justify-between mb-3 sm:mb-4">
+        <h2 class="text-xl sm:text-3xl font-bold font-syne uppercase text-black dark:text-white">Lo Último</h2>
+        <span class="text-[10px] sm:text-xs font-mono text-zinc-400">Orden cronológico</span>
+      </div>
+      <div class="border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-[#ffffff] dark:bg-zinc-900 shadow-sm" id="latest-tracks-container">
+        <!-- Dinámico -->
+      </div>
+    </section>
+
+    <!-- Sección Discografía -->
+    <section class="mb-12 sm:mb-16">
+      <h2 class="text-xl sm:text-3xl font-bold font-syne uppercase text-black dark:text-white mb-4 sm:mb-6">Discografía</h2>
+
+      <div class="flex gap-2 border-b border-zinc-200 dark:border-zinc-800 pb-3 mb-6 font-mono text-xs uppercase overflow-x-auto">
+        <button onclick="filterDiscography('todos')" id="tab-todos" class="disc-tab px-3 py-1.5 border border-black dark:border-white bg-black dark:bg-white text-white dark:text-black rounded-full whitespace-nowrap">Todos</button>
+        <button onclick="filterDiscography('album')" id="tab-album" class="disc-tab px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 text-black dark:text-white hover:border-black dark:hover:border-white rounded-full whitespace-nowrap">Álbumes</button>
+        <button onclick="filterDiscography('ep')" id="tab-ep" class="disc-tab px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 text-black dark:text-white hover:border-black dark:hover:border-white rounded-full whitespace-nowrap">EPs</button>
+        <button onclick="filterDiscography('single')" id="tab-single" class="disc-tab px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 text-black dark:text-white hover:border-black dark:hover:border-white rounded-full whitespace-nowrap">Singles</button>
+      </div>
+
+      <div id="discography-grid" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-4">
+        <!-- Dinámico -->
+      </div>
+    </section>
+  </main>
+
+  <!-- VISTA 3: DETALLE DEL LANZAMIENTO -->
+  <main id="view-release-detail" class="hidden max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <div class="flex flex-col sm:flex-row items-start sm:items-end gap-6 sm:gap-8 mb-8 sm:mb-12 pb-6 sm:pb-8 border-b border-zinc-200 dark:border-zinc-800">
+      <img id="release-img" src="" alt="" onerror="this.src=DEFAULT_COVER" class="w-48 h-48 sm:w-64 sm:h-64 object-cover border border-zinc-300 dark:border-zinc-700 rounded-lg shadow-lg bg-[#ededeb] dark:bg-zinc-800 flex-shrink-0">
+      <div class="flex-1 min-w-0">
+        <span id="release-type-badge" class="text-[10px] sm:text-xs font-mono uppercase px-2 py-0.5 border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 rounded inline-block font-bold">SINGLE</span>
+        <h1 id="release-title" class="text-3xl sm:text-5xl font-black font-syne uppercase tracking-tight text-black dark:text-white mt-2 leading-tight"></h1>
+        <p id="release-artist-name" class="text-base sm:text-xl font-bold text-zinc-700 dark:text-zinc-300 mt-1 cursor-pointer hover:underline"></p>
+        <p id="release-date" class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-2 font-normal"></p>
+        
+        <div class="mt-6 flex items-center gap-3">
+          <button id="btn-play-release" onclick="playCurrentRelease()" class="px-6 py-2.5 bg-black dark:bg-white text-white dark:text-black font-mono text-xs uppercase font-bold rounded-full hover:opacity-90 transition-opacity flex items-center gap-2">
+            <span>▶ Reproducir</span>
+          </button>
+          <button onclick="copyCurrentReleaseShareLink()" class="p-2.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-xs hover:border-black dark:hover:border-white transition-colors" title="Compartir este lanzamiento">
+            🔗 Compartir
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <section class="mb-12">
+      <h2 class="text-lg sm:text-2xl font-bold font-syne uppercase text-black dark:text-white mb-4">Canciones</h2>
+      <div id="release-tracks-container" class="border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-[#ffffff] dark:bg-zinc-900 shadow-sm">
+        <!-- Dinámico -->
+      </div>
+    </section>
+  </main>
+
+
+  <!-- =========================================================
+       ADMIN MODE · LOGIN / PANEL ADMINISTRACIÓN
+       ========================================================= -->
+
+  <div id="god-login-modal" class="hidden fixed inset-0 z-[80] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-[#ffffff] dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-700 rounded-2xl shadow-2xl p-6 sm:p-8">
+      <div class="flex items-start justify-between gap-4 mb-6">
+        <div>
+          <span class="text-[10px] font-mono uppercase text-zinc-400 font-bold tracking-widest">Vainalist</span>
+          <h2 class="text-2xl sm:text-3xl font-black font-syne uppercase mt-1">Admin Mode</h2>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-2">Acceso exclusivo de administración.</p>
+        </div>
+        <button onclick="closeGodLogin()" class="text-zinc-400 hover:text-black dark:hover:text-white text-xl">×</button>
+      </div>
+
+      <form onsubmit="handleGodLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-[10px] font-mono uppercase font-bold text-zinc-500 mb-1.5">Correo</label>
+          <input id="god-email" type="email" autocomplete="email" required
+            class="w-full px-3 py-2.5 rounded-xl bg-[#f5f5f3] dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-black dark:focus:border-white text-sm">
+        </div>
+        <div>
+          <label class="block text-[10px] font-mono uppercase font-bold text-zinc-500 mb-1.5">Contraseña</label>
+          <input id="god-password" type="password" autocomplete="current-password" required
+            class="w-full px-3 py-2.5 rounded-xl bg-[#f5f5f3] dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-black dark:focus:border-white text-sm">
+        </div>
+        <p id="god-login-error" class="hidden text-xs text-red-500 font-mono"></p>
+        <button id="god-login-submit" type="submit"
+          class="w-full py-3 bg-black dark:bg-white text-white dark:text-black rounded-full font-mono text-xs uppercase font-bold hover:opacity-90">
+          Entrar en Admin Mode
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div id="auth-modal" class="hidden fixed inset-0 z-[82] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-[#ffffff] dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-700 rounded-2xl shadow-2xl p-6 sm:p-8">
+      <div class="flex items-start justify-between gap-4 mb-6">
+        <div><span class="text-[10px] font-mono uppercase text-zinc-400 font-bold tracking-widest">Vainalist</span><h2 id="auth-title" class="text-2xl sm:text-3xl font-black font-syne uppercase mt-1">Iniciar sesión</h2><p id="auth-subtitle" class="text-xs text-zinc-500 dark:text-zinc-400 mt-2">Accede a tu perfil de artista.</p></div>
+        <button onclick="closeAuthModal()" class="text-zinc-400 hover:text-black dark:hover:text-white text-xl">×</button>
+      </div>
+      <form onsubmit="handleAuthSubmit(event)" class="space-y-4">
+        <div id="auth-name-wrap" class="hidden"><label class="block text-[10px] font-mono uppercase font-bold text-zinc-500 mb-1.5">Nombre artístico</label><input id="auth-name" type="text" maxlength="80" autocomplete="name" class="w-full px-3 py-2.5 rounded-xl bg-[#f5f5f3] dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-black dark:focus:border-white text-sm"></div>
+        <div><label class="block text-[10px] font-mono uppercase font-bold text-zinc-500 mb-1.5">Correo</label><input id="auth-email" type="email" autocomplete="email" required class="w-full px-3 py-2.5 rounded-xl bg-[#f5f5f3] dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-black dark:focus:border-white text-sm"></div>
+        <div><label class="block text-[10px] font-mono uppercase font-bold text-zinc-500 mb-1.5">Contraseña</label><input id="auth-password" type="password" minlength="6" autocomplete="current-password" required class="w-full px-3 py-2.5 rounded-xl bg-[#f5f5f3] dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-black dark:focus:border-white text-sm"></div>
+        <p id="auth-error" class="hidden text-xs text-red-500 font-mono"></p>
+        <button id="auth-submit" type="submit" class="w-full py-3 bg-black dark:bg-white text-white dark:text-black rounded-full font-mono text-xs uppercase font-bold hover:opacity-90">Entrar</button>
+      </form>
+      <button id="auth-switch" onclick="toggleAuthMode()" class="w-full mt-3 py-2.5 border border-zinc-200 dark:border-zinc-700 rounded-full text-[10px] font-mono uppercase font-bold hover:border-black dark:hover:border-white">Crear cuenta</button>
+    </div>
+  </div>
+
+  <div id="artist-panel" class="hidden fixed inset-0 z-[75] bg-[#f5f5f3] dark:bg-[#121212] overflow-y-auto">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+      <header class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800 pb-5 mb-6">
+        <div>
+          <span class="text-[10px] font-mono uppercase text-zinc-400 font-bold tracking-widest">Área privada</span>
+          <h1 class="text-3xl sm:text-5xl font-black font-syne uppercase mt-1">Modo Artista</h1>
+          <p class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-2">Gestiona tu perfil y solicita la vinculación con un artista existente.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="closeArtistMode()" class="px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-full text-[10px] font-mono uppercase font-bold hover:border-black dark:hover:border-white">← Volver</button>
+          <button onclick="godLogout()" class="px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-full text-[10px] font-mono uppercase font-bold hover:border-red-500 hover:text-red-500">Cerrar sesión</button>
+        </div>
+      </header>
+
+      <div id="artist-mode-message" class="hidden mb-5 p-4 rounded-xl border text-xs font-mono"></div>
+
+      <section class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 mb-6">
+        <div class="flex items-start justify-between gap-4 mb-5">
+          <div><h2 class="text-xl sm:text-2xl font-bold font-syne uppercase">Mi perfil</h2><p class="text-xs text-zinc-500 mt-1">Solo nombre e imagen.</p></div>
+          <span id="artist-linked-badge" class="text-[10px] font-mono uppercase px-2.5 py-1 rounded-full border border-zinc-200 dark:border-zinc-700">Sin vincular</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-5 items-start">
+          <img id="artist-mode-preview" src="" onerror="this.src=DEFAULT_COVER" class="w-28 h-28 rounded-xl object-cover border border-zinc-200 dark:border-zinc-700 bg-[#ededeb] dark:bg-zinc-800">
+          <div class="space-y-4">
+            <div><label class="block text-[10px] font-mono uppercase font-bold text-zinc-500 mb-1.5">Nombre artístico</label><input id="artist-mode-name" maxlength="120" class="w-full px-3 py-2.5 rounded-xl bg-[#f5f5f3] dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-black dark:focus:border-white text-sm"></div>
+            <div><label class="block text-[10px] font-mono uppercase font-bold text-zinc-500 mb-1.5">Imagen (URL)</label><input id="artist-mode-img" type="url" class="w-full px-3 py-2.5 rounded-xl bg-[#f5f5f3] dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-black dark:focus:border-white text-sm" placeholder="https://..."></div>
+            <button onclick="saveArtistProfile()" class="px-4 py-2.5 bg-black dark:bg-white text-white dark:text-black rounded-full text-[10px] font-mono uppercase font-bold">Guardar perfil</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="artist-link-section" class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 mb-6">
+        <div class="mb-5"><h2 class="text-xl sm:text-2xl font-bold font-syne uppercase">Vincular artista existente</h2><p class="text-xs text-zinc-500 mt-1">Si tu música ya está en Vainalist, puedes pedir que tu cuenta gestione ese perfil.</p></div>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <select id="artist-link-select" class="flex-1 px-3 py-2.5 rounded-xl bg-[#f5f5f3] dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 text-sm focus:outline-none"></select>
+          <button onclick="requestArtistLink()" class="px-4 py-2.5 bg-black dark:bg-white text-white dark:text-black rounded-full text-[10px] font-mono uppercase font-bold">Solicitar vinculación</button>
+        </div>
+        <div id="artist-link-status" class="mt-4 text-xs font-mono text-zinc-500"></div>
+      </section>
+
+      <section class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 sm:p-6">
+        <h2 class="text-xl sm:text-2xl font-bold font-syne uppercase">Mi música</h2>
+        <p class="text-xs text-zinc-500 mt-1">Aquí aparecerán tus lanzamientos y canciones cuando conectemos el editor musical.</p>
+        <div class="mt-4 p-4 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700 text-xs text-zinc-500 font-mono">🎵 Editor de lanzamientos y subida de audio: siguiente fase.</div>
+      </section>
+    </div>
+  </div>
+
+  <div id="god-panel" class="hidden fixed inset-0 z-[75] bg-[#f5f5f3] dark:bg-[#121212] overflow-y-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+      <header class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800 pb-5 mb-6">
+        <div>
+          <span class="text-[10px] font-mono uppercase text-zinc-400 font-bold tracking-widest">Administración</span>
+          <h1 class="text-3xl sm:text-5xl font-black font-syne uppercase mt-1">Admin Mode</h1>
+          <p class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-2">Gestiona el catálogo de Vainalist desde Supabase.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="closeGodMode()" class="px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-full text-[10px] font-mono uppercase font-bold hover:border-black dark:hover:border-white">← Volver</button>
+          <button onclick="godLogout()" class="px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-full text-[10px] font-mono uppercase font-bold hover:border-red-500 hover:text-red-500">Cerrar sesión</button>
+        </div>
+      </header>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+        <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5">
+          <span class="text-[10px] font-mono uppercase text-zinc-400">Sesión</span>
+          <p id="god-session-email" class="font-bold mt-2 truncate">—</p>
+          <p id="god-session-role" class="text-xs text-zinc-500 mt-1">—</p>
+        </div>
+        <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5">
+          <span class="text-[10px] font-mono uppercase text-zinc-400">Artistas</span>
+          <p id="god-count-artists" class="text-3xl font-black font-syne mt-1">—</p>
+        </div>
+        <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5">
+          <span class="text-[10px] font-mono uppercase text-zinc-400">Lanzamientos / canciones</span>
+          <p id="god-count-content" class="text-3xl font-black font-syne mt-1">—</p>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-bold font-syne uppercase">Catálogo</h2>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">La base actual del HTML sigue intacta. En el siguiente paso podremos importarla y editarla aquí.</p>
+          </div>
+          <button onclick="refreshGodStats()" class="px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-full text-[10px] font-mono uppercase font-bold hover:border-black dark:hover:border-white">
+            ↻ Actualizar
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <button onclick="openAdminLinkRequests()" class="p-4 border border-zinc-200 dark:border-zinc-800 rounded-xl text-left hover:border-black dark:hover:border-white transition-colors">
+            <span class="text-lg">📨</span>
+            <strong class="block text-sm mt-2">Solicitudes</strong>
+            <span class="text-[10px] text-zinc-500">Revisa peticiones de vinculación.</span>
+          </button>
+          <button onclick="openAdminArtists()" class="p-4 border border-zinc-200 dark:border-zinc-800 rounded-xl text-left hover:border-black dark:hover:border-white transition-colors">
+            <span class="text-lg">👤</span>
+            <strong class="block text-sm mt-2">Artistas</strong>
+            <span class="text-[10px] text-zinc-500">Crear, editar y vincular perfiles.</span>
+          </button>
+          <button onclick="showToast('Editor de lanzamientos: siguiente paso')" class="p-4 border border-zinc-200 dark:border-zinc-800 rounded-xl text-left hover:border-black dark:hover:border-white transition-colors">
+            <span class="text-lg">💿</span>
+            <strong class="block text-sm mt-2">Lanzamientos</strong>
+            <span class="text-[10px] text-zinc-500">Singles, EPs, álbumes y portadas.</span>
+          </button>
+          <button onclick="showToast('Editor de canciones: siguiente paso')" class="p-4 border border-zinc-200 dark:border-zinc-800 rounded-xl text-left hover:border-black dark:hover:border-white transition-colors">
+            <span class="text-lg">🎵</span>
+            <strong class="block text-sm mt-2">Canciones</strong>
+            <span class="text-[10px] text-zinc-500">YouTube, audio, categoría Radio y publicación.</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="admin-link-requests-panel" class="hidden bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 mb-6">
+        <div class="flex items-center justify-between gap-3 mb-5"><div><h2 class="text-xl sm:text-2xl font-bold font-syne uppercase">Solicitudes de vinculación</h2><p class="text-xs text-zinc-500 mt-1">Solo el administrador puede aprobar o rechazar una vinculación.</p></div><button onclick="loadArtistLinkRequests()" class="px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-full text-[10px] font-mono uppercase font-bold">↻ Actualizar</button></div>
+        <div id="admin-link-requests-list" class="space-y-2"></div>
+      </div>
+      <div id="admin-artists-panel" class="hidden bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+          <div><h2 class="text-xl sm:text-2xl font-bold font-syne uppercase">Artistas</h2><p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Gestiona nombre e imagen. Las solicitudes pendientes se gestionan desde «Solicitudes».</p></div>
+          <button onclick="openArtistEditor()" class="px-3 py-2 bg-black dark:bg-white text-white dark:text-black rounded-full text-[10px] font-mono uppercase font-bold">+ Nuevo artista</button>
+        </div>
+        <div id="admin-artists-list" class="space-y-2"></div>
+      </div>
+      <div id="artist-editor-modal" class="hidden fixed inset-0 z-[90] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-2xl p-6">
+          <div class="flex justify-between items-center mb-5"><h3 id="artist-editor-title" class="text-xl font-bold font-syne uppercase">Nuevo artista</h3><button onclick="closeArtistEditor()" class="text-xl text-zinc-400">×</button></div>
+          <input type="hidden" id="artist-edit-id">
+          <div class="space-y-4">
+            <div><label class="block text-[10px] font-mono uppercase font-bold text-zinc-500 mb-1.5">Nombre</label><input id="artist-edit-name" type="text" maxlength="120" class="w-full px-3 py-2.5 rounded-xl bg-[#f5f5f3] dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-black dark:focus:border-white text-sm"></div>
+            <div><label class="block text-[10px] font-mono uppercase font-bold text-zinc-500 mb-1.5">Imagen (URL)</label><input id="artist-edit-img" type="url" class="w-full px-3 py-2.5 rounded-xl bg-[#f5f5f3] dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-black dark:focus:border-white text-sm"></div>
+            <p id="artist-editor-error" class="hidden text-xs text-red-500 font-mono"></p>
+            <button onclick="saveArtistFromAdmin()" class="w-full py-3 bg-black dark:bg-white text-white dark:text-black rounded-full font-mono text-xs uppercase font-bold">Guardar artista</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="god-config-warning" class="border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/20 rounded-2xl p-4 text-xs text-amber-800 dark:text-amber-300">
+        <strong>Configuración pendiente:</strong> introduce la URL y la clave pública de tu proyecto Supabase en el código. No pongas nunca aquí la <em>service_role key</em>.
+      </div>
+    </div>
+  </div>
+
+  <!-- REPRODUCTOR FLOTANTE INFERIOR -->
+  <div id="player-bar" class="fixed bottom-0 left-0 right-0 z-50 bg-[#f5f5f3]/95 dark:bg-[#121212]/95 backdrop-blur-md border-t border-zinc-200 dark:border-zinc-800 px-4 py-2.5 shadow-lg transition-colors duration-200">
+    <div class="max-w-7xl mx-auto flex flex-col gap-2">
+      <div class="flex items-center justify-between gap-2">
+        <div onclick="openFullPlayer()" class="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer group">
+          <img id="now-playing-img" src="" onerror="this.src=DEFAULT_COVER" class="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded border border-zinc-200 dark:border-zinc-700 flex-shrink-0 bg-[#ededeb] dark:bg-zinc-800 transition-transform group-hover:scale-105">
+          <div class="truncate">
+            <h4 id="now-playing-title" class="text-xs sm:text-sm font-bold font-syne uppercase text-black dark:text-white truncate group-hover:underline">Selecciona una canción</h4>
+            <p id="now-playing-artist" class="text-[10px] sm:text-xs font-mono text-zinc-500 dark:text-zinc-400 truncate">--</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 sm:gap-4 flex-shrink-0">
+          <button onclick="playPrevTrack()" class="text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-colors p-1" title="Anterior">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-current" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+          </button>
+          <button onclick="togglePlayPause()" id="btn-play-pause" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center hover:bg-zinc-800 dark:hover:bg-[#e6e6e3] transition-transform active:scale-95 flex-shrink-0">
+            <svg id="icon-play" class="w-4 h-4 sm:w-5 sm:h-5 fill-current translate-x-[1px]" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            <svg id="icon-pause" class="w-4 h-4 sm:w-5 sm:h-5 fill-current hidden" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+          </button>
+          <button onclick="playNextTrack()" class="text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-colors p-1" title="Siguiente">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-current" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+          </button>
+        </div>
+
+        <div class="hidden sm:flex w-24 justify-end items-center flex-shrink-0">
+          <div id="playing-wave" class="hidden items-center gap-1 h-4">
+            <span class="sound-wave-bar bg-black dark:bg-white"></span>
+            <span class="sound-wave-bar bg-black dark:bg-white"></span>
+            <span class="sound-wave-bar bg-black dark:bg-white"></span>
+            <span class="sound-wave-bar bg-black dark:bg-white"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="w-full flex items-center gap-2 text-[10px] font-mono text-zinc-400">
+        <span id="curr-time" class="w-8 text-right flex-shrink-0">0:00</span>
+        <input type="range" id="progress-bar" value="0" min="0" max="100" class="w-full h-1.5 rounded-lg appearance-none cursor-pointer text-black dark:text-white">
+        <span id="dur-time" class="w-8 text-left flex-shrink-0">0:00</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- REPRODUCTOR A PANTALLA COMPLETA -->
+  <div id="full-player-modal" class="fixed inset-0 z-50 bg-[#ffffff] dark:bg-[#121316] text-black dark:text-white modal-closed flex flex-col justify-between p-4 sm:p-8 overflow-hidden transition-all duration-300">
+    <div class="modal-content h-full flex flex-col justify-between max-w-6xl mx-auto w-full relative">
+      
+      <!-- Header del Fullscreen Modal -->
+      <div class="flex items-center justify-between z-10 flex-shrink-0 mb-4">
+        <button onclick="closeFullPlayer()" class="text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white transition-colors p-2 rounded-full border border-transparent hover:border-zinc-200 dark:hover:border-zinc-800" title="Minimizar">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+
+        <!-- Botón Ver Cola / Ocultar Cola (Solo Visible en Móviles) -->
+        <button id="btn-toggle-queue" onclick="toggleQueueDrawer()" class="md:hidden px-3.5 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-xs font-mono uppercase font-bold flex items-center gap-2 hover:border-black dark:hover:border-white transition-colors">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h10v2H4z"/></svg>
+          <span id="queue-btn-text">Ver Cola</span>
+        </button>
+
+        <button onclick="closeFullPlayer()" class="text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white transition-colors p-2 rounded-full border border-transparent hover:border-zinc-200 dark:hover:border-zinc-800" title="Cerrar">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Layout Principal Fullscreen -->
+      <div class="my-auto w-full flex-1 flex flex-col md:flex-row items-center justify-center md:gap-12 lg:gap-16 max-h-[80vh] overflow-y-auto sm:overflow-hidden relative">
+        
+        <!-- Columna Izquierda / Principal -->
+        <div class="w-full max-w-sm md:max-w-md lg:max-w-lg flex flex-col items-center flex-shrink-0">
+          <div class="w-full aspect-square max-w-[260px] sm:max-w-[320px] md:max-w-[360px] rounded-2xl overflow-hidden shadow-2xl mb-6 bg-[#ededeb] dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800">
+            <img id="full-player-img" src="" onerror="this.src=DEFAULT_COVER" class="w-full h-full object-cover">
+          </div>
+
+          <!-- Título y Artista sin desplazamiento tipo Marquee -->
+          <div class="w-full text-center mb-4 sm:mb-6 overflow-hidden px-2">
+            <div id="full-title-container" class="w-full overflow-hidden">
+              <h2 id="full-player-title" class="text-xl sm:text-2xl md:text-3xl font-bold font-syne uppercase text-black dark:text-white truncate">--</h2>
+            </div>
+            <div id="full-artist-container" class="w-full overflow-hidden mt-1">
+              <p id="full-player-artist" onclick="navigateToCurrentArtistProfile()" class="text-xs sm:text-sm font-mono text-zinc-500 dark:text-zinc-400 cursor-pointer hover:underline hover:text-black dark:hover:text-white transition-colors inline-block truncate max-w-full">--</p>
+            </div>
+          </div>
+
+          <!-- Slider de Progreso -->
+          <div class="w-full mb-6">
+            <input type="range" id="full-progress-bar" value="0" min="0" max="100" class="w-full h-2 rounded-lg appearance-none cursor-pointer text-black dark:text-white">
+            <div class="flex justify-between text-xs font-mono text-zinc-500 dark:text-zinc-400 mt-2">
+              <span id="full-curr-time">0:00</span>
+              <span id="full-dur-time">0:00</span>
+            </div>
+          </div>
+
+          <!-- Controles de Reproducción -->
+          <div class="flex items-center justify-center gap-4 sm:gap-6 w-full mb-2">
+            <button onclick="playPrevTrack()" class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#ededeb] dark:bg-zinc-800/80 hover:bg-[#e6e6e3] dark:hover:bg-zinc-700 flex items-center justify-center text-black dark:text-white transition-colors" title="Anterior">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 fill-current" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+            </button>
+            
+            <button onclick="togglePlayPause()" id="full-btn-play-pause" class="h-12 sm:h-14 px-6 sm:px-8 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-sm sm:text-base gap-2 hover:opacity-90 transition-transform active:scale-95 shadow-lg">
+              <svg id="full-icon-play" class="w-5 h-5 fill-current translate-x-[1px]" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              <svg id="full-icon-pause" class="w-5 h-5 fill-current hidden" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+              <span id="full-play-label">Reproducir</span>
+            </button>
+            
+            <button onclick="playNextTrack()" class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#ededeb] dark:bg-zinc-800/80 hover:bg-[#e6e6e3] dark:hover:bg-zinc-700 flex items-center justify-center text-black dark:text-white transition-colors" title="Siguiente">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 fill-current" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Columna Derecha (PC): Cola de Reproducción Permanente -->
+        <div class="hidden md:flex flex-col flex-1 h-full max-h-[520px] bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800/80 rounded-2xl p-4 overflow-hidden">
+          <div class="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800 mb-2">
+            <div class="flex items-center gap-2">
+              <h3 class="text-xs font-mono font-bold uppercase text-zinc-500 dark:text-zinc-400 tracking-wider">Cola de Reproducción</h3>
+              <span id="desktop-queue-count" class="text-[10px] font-mono bg-[#e6e6e3] dark:bg-zinc-800 px-2 py-0.5 rounded-full font-bold">0 canciones</span>
+            </div>
+            <button onclick="clearQueue()" class="text-[10px] font-mono uppercase px-2.5 py-1 border border-zinc-300 dark:border-zinc-700 hover:border-red-500 hover:text-red-500 rounded-full transition-colors">
+              Vaciar cola
+            </button>
+          </div>
+
+          <div id="desktop-queue-list" class="flex-1 overflow-y-auto space-y-1.5 pr-1">
+            <!-- Dinámico -->
+          </div>
+        </div>
+
+        <!-- Drawer Móvil de la Cola -->
+        <div id="queue-drawer" class="md:hidden absolute inset-0 z-30 bg-[#ffffff] dark:bg-[#121316] drawer-closed flex flex-col justify-between pt-2">
+          <div class="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800 mb-2 px-1">
+            <h3 class="text-xs font-mono font-bold uppercase text-zinc-500 dark:text-zinc-400 tracking-wider">En Cola</h3>
+            <div class="flex items-center gap-3">
+              <button onclick="clearQueue()" class="text-[10px] font-mono uppercase px-2 py-0.5 border border-zinc-300 dark:border-zinc-700 text-red-500 rounded-full">Vaciar</button>
+              <button onclick="toggleQueueDrawer()" class="text-xs font-mono uppercase underline text-zinc-500">Cerrar</button>
+            </div>
+          </div>
+
+          <div id="mobile-queue-list" class="flex-1 overflow-y-auto space-y-1 pr-1 pb-4">
+            <!-- Dinámico -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div id="youtube-player-container">
+    <div id="youtube-player"></div>
+  </div>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    const DEFAULT_COVER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%2318181b'/%3E%3Ccircle cx='150' cy='150' r='80' stroke='%233f3f46' stroke-width='4' fill='none'/%3E%3Ccircle cx='150' cy='150' r='30' fill='%233f3f46'/%3E%3Cpath d='M150 30 L150 70 M150 230 L150 270 M30 150 L70 150 M230 150 L270 150' stroke='%233f3f46' stroke-width='2'/%3E%3C/svg%3E";
+
+
+    // =========================================================
+    // SUPABASE · CONFIGURACIÓN
+    // =========================================================
+    // Sustituye SOLO estos dos valores por los de tu proyecto.
+    // Usa la Publishable/anon key. NUNCA uses la service_role key
+    // en este HTML.
+    const SUPABASE_URL = "https://kavghrajzbdxelelowjl.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_HsCXP0B6LRgHq8lF8LZccg_LLJmjFTP";
+
+    let supabaseClient = null;
+    let godSession = null;
+    let godProfile = null;
+
+    function initSupabase() {
+      if (
+        !window.supabase ||
+        SUPABASE_URL.includes("PEGA_AQUI") ||
+        SUPABASE_ANON_KEY.includes("PEGA_AQUI")
+      ) {
+        return false;
+      }
+
+      supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+      );
+
+      supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+        godSession = session;
+        await checkGodProfile();
+      });
+
+      return true;
+    }
+
+    async function checkGodProfile() {
+      const btn = document.getElementById("btn-god-mode");
+
+      if (!supabaseClient || !godSession?.user) {
+        godProfile = null;
+        // El botón de Admin Mode debe ser siempre accesible para abrir el login.
+        if (btn) btn.classList.remove("hidden");
+        return;
+      }
+
+      // Primero usamos la función segura de Supabase para obtener el rol.
+      // Esto evita problemas de RLS al consultar directamente profiles.
+      const { data: roleData, error: roleError } = await supabaseClient
+        .rpc("current_user_role");
+
+      if (!roleError && roleData === "admin") {
+        godProfile = {
+          id: godSession.user.id,
+          display_name: godSession.user.user_metadata?.display_name || godSession.user.email || "Administrador",
+          role: "admin"
+        };
+        if (btn) btn.classList.remove("hidden");
+        return;
+      }
+
+      // Fallback: consultar el perfil directamente por si la función RPC no existe.
+      const { data, error } = await supabaseClient
+        .from("profiles")
+        .select("id, display_name, role")
+        .eq("id", godSession.user.id)
+        .maybeSingle();
+
+      if (error || !data) {
+        godProfile = null;
+        if (btn) btn.classList.remove("hidden");
+        return;
+      }
+
+      godProfile = data;
+
+      if (data.role === "admin") {
+        if (btn) btn.classList.remove("hidden");
+      } else {
+        // Aunque no sea admin, el botón permanece visible; al pulsarlo se informa del permiso.
+        if (btn) btn.classList.remove("hidden");
+        if (document.getElementById("god-panel") &&
+            !document.getElementById("god-panel").classList.contains("hidden")) {
+          closeGodMode();
+        }
+      }
+    }
+
+    let authMode = "login";
+
+    function openAuthModal() {
+      if (!supabaseClient) { showToast("Supabase todavía no está configurado"); return; }
+      if (godSession?.user) { routeAuthenticatedUser(); return; }
+      authMode = "login"; renderAuthMode();
+      document.getElementById("auth-modal").classList.remove("hidden");
+      setTimeout(() => document.getElementById("auth-email")?.focus(), 50);
+    }
+    function closeAuthModal() { document.getElementById("auth-modal").classList.add("hidden"); document.getElementById("auth-error").classList.add("hidden"); }
+    function toggleAuthMode() { authMode = authMode === "login" ? "signup" : "login"; renderAuthMode(); }
+    function renderAuthMode() {
+      const signup = authMode === "signup";
+      document.getElementById("auth-title").innerText = signup ? "Crear cuenta" : "Iniciar sesión";
+      document.getElementById("auth-subtitle").innerText = signup ? "Crea tu perfil artístico gratis." : "Accede a tu perfil de artista.";
+      document.getElementById("auth-name-wrap").classList.toggle("hidden", !signup);
+      document.getElementById("auth-name").required = signup;
+      document.getElementById("auth-submit").innerText = signup ? "Crear cuenta" : "Entrar";
+      document.getElementById("auth-switch").innerText = signup ? "Ya tengo una cuenta" : "Crear cuenta";
+      document.getElementById("auth-error").classList.add("hidden");
+    }
+    async function handleAuthSubmit(event) {
+      event.preventDefault();
+      const email = document.getElementById("auth-email").value.trim();
+      const password = document.getElementById("auth-password").value;
+      const name = document.getElementById("auth-name").value.trim();
+      const button = document.getElementById("auth-submit");
+      button.disabled = true; button.innerText = "Comprobando...";
+      let result;
+      if (authMode === "signup") {
+        result = await supabaseClient.auth.signUp({ email, password, options: { data: { display_name: name } } });
+      } else {
+        result = await supabaseClient.auth.signInWithPassword({ email, password });
+      }
+      if (result.error) { document.getElementById("auth-error").innerText = result.error.message || "No se pudo completar la operación."; document.getElementById("auth-error").classList.remove("hidden"); button.disabled=false; button.innerText=authMode === "signup" ? "Crear cuenta" : "Entrar"; return; }
+      godSession = result.data.session || godSession;
+      await checkGodProfile();
+      closeAuthModal();
+      if (authMode === "signup" && !godSession) { showToast("Cuenta creada. Revisa tu correo para confirmar la cuenta."); } else { routeAuthenticatedUser(); }
+      button.disabled=false; button.innerText=authMode === "signup" ? "Crear cuenta" : "Entrar";
+    }
+    function routeAuthenticatedUser() {
+      if (godProfile?.role === "admin") { openGodMode(); showToast("Admin Mode activado"); }
+      else if (godProfile?.role === "artist") { openArtistMode(); }
+      else { showToast("Tu cuenta está activa, pero todavía no tiene un perfil de artista."); }
+    }
+    let currentArtistProfile = null;
+
+    async function openArtistMode() {
+      if (godProfile?.role !== "artist") return;
+      document.getElementById("artist-panel").classList.remove("hidden");
+      await loadArtistMode();
+    }
+    function closeArtistMode(){ document.getElementById("artist-panel").classList.add("hidden"); }
+
+    async function loadArtistMode(){
+      const msg=document.getElementById("artist-mode-message");
+      msg.classList.add("hidden");
+      const {data: profile, error: profileError}=await supabaseClient.from("profiles").select("id,display_name,role").eq("id",godSession.user.id).maybeSingle();
+      if(profileError){ showArtistMessage(profileError.message,true); return; }
+      const {data: owned, error: artistError}=await supabaseClient.from("artists").select("id,name,avatar_url,owner_id").eq("owner_id",godSession.user.id).maybeSingle();
+      if(artistError){ showArtistMessage(artistError.message,true); return; }
+      currentArtistProfile=owned||null;
+      document.getElementById("artist-mode-name").value=owned?.name || profile?.display_name || godSession.user.user_metadata?.display_name || "";
+      document.getElementById("artist-mode-img").value=owned?.avatar_url || "";
+      document.getElementById("artist-mode-preview").src=owned?.avatar_url || DEFAULT_COVER;
+      const badge=document.getElementById("artist-linked-badge");
+      badge.innerText=owned ? "Vinculado" : "Perfil nuevo";
+      document.getElementById("artist-link-section").classList.toggle("hidden",!!owned);
+      if(!owned) await loadLinkableArtists();
+    }
+    function showArtistMessage(text,error=false){ const el=document.getElementById("artist-mode-message"); el.innerText=text; el.className='mb-5 p-4 rounded-xl border text-xs font-mono '+(error?'border-red-300 text-red-600 bg-red-50 dark:bg-red-950/20':'border-zinc-300 text-zinc-600 dark:text-zinc-300'); }
+    async function saveArtistProfile(){
+      const name=document.getElementById("artist-mode-name").value.trim(); const img=document.getElementById("artist-mode-img").value.trim();
+      if(!name){showArtistMessage("Escribe un nombre artístico.",true);return;}
+      let result;
+      if(currentArtistProfile){
+        result=await supabaseClient.from("artists").update({name,avatar_url:img||null}).eq("id",currentArtistProfile.id).eq("owner_id",godSession.user.id);
+      } else {
+        result=await supabaseClient.from("artists").insert({name,slug:slugifyName(name),avatar_url:img||null,published:true,owner_id:godSession.user.id}).select("id,name,avatar_url,owner_id").single();
+        if(!result.error) currentArtistProfile=result.data;
+      }
+      if(result.error){showArtistMessage(result.error.message,true);return;}
+      document.getElementById("artist-mode-preview").src=img||DEFAULT_COVER;
+      showArtistMessage("Perfil guardado correctamente.");
+      document.getElementById("artist-link-section").classList.add("hidden");
+      document.getElementById("artist-linked-badge").innerText="Vinculado";
+    }
+    async function loadLinkableArtists(){
+      const select=document.getElementById("artist-link-select");
+      select.innerHTML='<option value="">Cargando artistas...</option>';
+      const {data,error}=await supabaseClient.from("artists").select("id,name,owner_id").is("owner_id",null).order("name");
+      if(error){select.innerHTML='<option value="">No se pudieron cargar</option>';return;}
+      select.innerHTML='<option value="">Selecciona un artista...</option>'+(data||[]).map(a=>`<option value="${escapeAttr(a.id)}">${escapeHtml(a.name)}</option>`).join('');
+      await loadMyLinkRequestStatus();
+    }
+    async function requestArtistLink(){
+      const artistId=document.getElementById("artist-link-select").value;
+      if(!artistId){showToast("Selecciona un artista");return;}
+      const {data: existing}=await supabaseClient.from("artist_link_requests").select("id,status").eq("user_id",godSession.user.id).eq("artist_id",artistId).in("status",["pending","approved"]).maybeSingle();
+      if(existing){document.getElementById("artist-link-status").innerText='Ya existe una solicitud: '+existing.status;return;}
+      const {error}=await supabaseClient.from("artist_link_requests").insert({user_id:godSession.user.id,artist_id:artistId,status:"pending"});
+      if(error){showToast(error.message);return;}
+      document.getElementById("artist-link-status").innerText="Solicitud enviada. Queda pendiente de revisión del administrador.";
+      showToast("Solicitud enviada");
+    }
+    async function loadMyLinkRequestStatus(){
+      const {data}=await supabaseClient.from("artist_link_requests").select("status,artist_id,artists(name)").eq("user_id",godSession.user.id).order("created_at",{ascending:false}).limit(5);
+      const el=document.getElementById("artist-link-status");
+      if(!data?.length){el.innerText="";return;}
+      el.innerText=data.map(r=>`${r.artists?.name||'Artista'}: ${r.status}`).join(' · ');
+    }
+
+    async function openAdminLinkRequests(){
+      if(godProfile?.role!=="admin") return;
+      document.getElementById("admin-link-requests-panel").classList.remove("hidden");
+      await loadArtistLinkRequests();
+    }
+    async function loadArtistLinkRequests(){
+      const list=document.getElementById("admin-link-requests-list");
+      list.innerHTML='<div class="text-xs text-zinc-500 font-mono">Cargando...</div>';
+      const {data,error}=await supabaseClient.from("artist_link_requests").select("id,user_id,artist_id,status,created_at,artists(name)").eq("status","pending").order("created_at",{ascending:true});
+      if(error){list.innerHTML='<div class="text-xs text-red-500 font-mono">'+escapeHtml(error.message)+'</div>';return;}
+      if(!data?.length){list.innerHTML='<div class="text-xs text-zinc-500 font-mono">No hay solicitudes pendientes.</div>';return;}
+      const userIds=[...new Set(data.map(r=>r.user_id))];
+      const {data:profiles}=await supabaseClient.from("profiles").select("id,email,display_name").in("id",userIds);
+      const profileMap=Object.fromEntries((profiles||[]).map(p=>[p.id,p]));
+      list.innerHTML=data.map(r=>{const prof=profileMap[r.user_id]||{};return `<div class="p-4 border border-zinc-200 dark:border-zinc-800 rounded-xl"><div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div><strong class="text-sm">${escapeHtml(r.artists?.name||'Artista')}</strong><div class="text-[10px] text-zinc-500 font-mono mt-1">${escapeHtml(prof.display_name||'Sin nombre')} · ${escapeHtml(prof.email||'Sin correo')}</div><div class="text-[9px] text-zinc-400 font-mono mt-0.5">${new Date(r.created_at).toLocaleString('es-ES')}</div></div><div class="flex gap-2"><button onclick="reviewArtistLink('${r.id}','approve')" class="px-3 py-1.5 bg-black dark:bg-white text-white dark:text-black rounded-full text-[10px] font-mono uppercase font-bold">Aprobar</button><button onclick="reviewArtistLink('${r.id}','reject')" class="px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-[10px] font-mono uppercase font-bold hover:border-red-500 hover:text-red-500">Rechazar</button></div></div></div>`}).join('');
+    }
+    async function reviewArtistLink(requestId, action){
+      const {data,error}=await supabaseClient.rpc(action==='approve'?'approve_artist_link_request':'reject_artist_link_request',{p_request_id:requestId});
+      if(error){showToast(error.message);return;}
+      showToast(action==='approve'?'Vinculación aprobada':'Solicitud rechazada');
+      await loadArtistLinkRequests(); await loadAdminArtists();
+    }
+
+    async function openAdminArtists() {
+      if (godProfile?.role !== "admin") return;
+      const panel=document.getElementById("admin-artists-panel"); panel.classList.remove("hidden");
+      await loadAdminArtists();
+    }
+    async function loadAdminArtists() {
+      const list=document.getElementById("admin-artists-list");
+      list.innerHTML='<div class="text-xs text-zinc-500 font-mono">Cargando...</div>';
+      const {data,error}=await supabaseClient.from("artists").select("id,name,avatar_url,owner_id").order("name");
+      if(error){list.innerHTML='<div class="text-xs text-red-500 font-mono">'+escapeHtml(error.message)+'</div>';return;}
+      if(!data?.length){list.innerHTML='<div class="text-xs text-zinc-500 font-mono">No hay artistas todavía.</div>';return;}
+      list.innerHTML=data.map(a=>`<div class="flex items-center gap-3 p-3 border border-zinc-200 dark:border-zinc-800 rounded-xl"><img src="${escapeAttr(a.avatar_url||'')}" onerror="this.style.display='none'" class="w-10 h-10 rounded-full object-cover bg-zinc-100 dark:bg-zinc-800"><div class="min-w-0 flex-1"><strong class="text-sm block truncate">${escapeHtml(a.name||'Sin nombre')}</strong><span class="text-[10px] text-zinc-500">${a.owner_id?'Cuenta vinculada':'Sin cuenta vinculada'}</span></div><button onclick="openArtistEditor('${a.id}')" class="px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded-full text-[10px] font-mono uppercase font-bold">Editar</button></div>`).join('');
+    }
+    function openArtistEditor(id='') {
+      document.getElementById("artist-edit-id").value=id;
+      document.getElementById("artist-editor-error").classList.add("hidden");
+      if(id){ loadArtistForEditor(id); } else { document.getElementById("artist-editor-title").innerText="Nuevo artista"; document.getElementById("artist-edit-name").value=""; document.getElementById("artist-edit-img").value=""; }
+      document.getElementById("artist-editor-modal").classList.remove("hidden");
+    }
+    async function loadArtistForEditor(id){ const {data}=await supabaseClient.from("artists").select("id,name,avatar_url").eq("id",id).maybeSingle(); if(!data)return; document.getElementById("artist-editor-title").innerText="Editar artista"; document.getElementById("artist-edit-name").value=data.name||""; document.getElementById("artist-edit-img").value=data.avatar_url||""; }
+    function closeArtistEditor(){document.getElementById("artist-editor-modal").classList.add("hidden");}
+    function slugifyName(v){return v.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80);}
+    async function saveArtistFromAdmin(){
+      const id=document.getElementById("artist-edit-id").value; const name=document.getElementById("artist-edit-name").value.trim(); const img=document.getElementById("artist-edit-img").value.trim();
+      if(!name){document.getElementById("artist-editor-error").innerText="Escribe un nombre.";document.getElementById("artist-editor-error").classList.remove("hidden
